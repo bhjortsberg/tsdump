@@ -17,8 +17,12 @@ AdaptionField::AdaptionField(Chunk::const_iterator it)
     transport_private_data_flag =           it[1] & 0x02 ? true : false;
     adaption_field_extension_flag =         it[1] & 0x01 ? true : false;
 
-    chunk.resize(length-1); // The length in the adaption field does not calculate the length byte itself.
-    std::copy(it+2, it+2+(length-1), std::begin(chunk));
+    if (length > 0)
+    {
+        chunk.resize(length - 1); // The length in the adaption field does not calculate the length byte itself.
+        std::copy(it + 2, it + 2 + (length - 1), std::begin(chunk));
+    }
+
 }
 
 bool AdaptionField::has_random_access_indicator()
