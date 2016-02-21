@@ -2,6 +2,7 @@
 // Created by Björn Hjortsberg on 20/02/16.
 //
 
+#include <stdexcept>
 #include "TSPacket.h"
 
 TSPacket::TSPacket(Chunk buffer): chunk(buffer)

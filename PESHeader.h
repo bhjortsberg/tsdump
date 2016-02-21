@@ -5,6 +5,7 @@
 #ifndef TSPARSER_PESHEADER_H
 #define TSPARSER_PESHEADER_H
 
+#include <string>
 #include <vector>
 
 typedef std::vector<unsigned char> Chunk;
