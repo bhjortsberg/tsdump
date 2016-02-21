@@ -13,7 +13,7 @@ int main(int argc, char ** argv)
     for (TSPacket packet : ts.getPackets()) {
         std::cout << i << " " << packet.pid();
         if (packet.has_pes_header())
-            std::cout << std::hex << " 0x" << packet.pes_header().get_pts() << std::dec;
+            std::cout << " pts" << std::hex << " 0x" << packet.pes_header().get_pts() << std::dec << " " << packet.pes_header().get_pts_str();
 
         if (packet.has_adaption_field())
         {

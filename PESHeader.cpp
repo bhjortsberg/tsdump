@@ -2,6 +2,7 @@
 // Created by Björn Hjortsberg on 20/02/16.
 //
 
+#include <sstream>
 #include "PESHeader.h"
 
 PESHeader::PESHeader(Chunk::const_iterator it)
@@ -42,4 +43,20 @@ PESHeader::PESHeader(Chunk::const_iterator it)
 unsigned long long PESHeader::get_pts()
 {
     return pts;
+}
+
+std::string PESHeader::get_pts_str()
+{
+    std::stringstream ss;
+
+    unsigned long millisec = pts/90;
+    int hour = millisec/(1000*60*60);
+    millisec -= hour*1000*60*60;
+    int minutes = millisec/(1000*60);
+    millisec -= minutes*1000*60;
+    int seconds = millisec/1000;
+    millisec -= seconds*1000;
+
+    ss << hour << ":" << minutes << ":" << seconds << "." << millisec;
+    return ss.str();
 }

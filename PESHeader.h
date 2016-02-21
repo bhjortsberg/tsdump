@@ -15,6 +15,7 @@ public:
     PESHeader(Chunk::const_iterator it);
 
     unsigned long long get_pts();
+    std::string get_pts_str();
 
 private:
     unsigned short length;
