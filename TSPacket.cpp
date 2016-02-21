@@ -17,7 +17,9 @@ TSPacket::TSPacket(Chunk buffer): chunk(buffer)
 
 unsigned short TSPacket::pid()
 {
-    return chunk[2] & 0x1fff;
+    int pid = (chunk[1] & 0x0f) << 8;
+    pid |= chunk[2];
+    return pid;
 }
 
 bool TSPacket::has_adaption_field() const
