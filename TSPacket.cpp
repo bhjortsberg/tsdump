@@ -16,7 +16,7 @@ TSPacket::TSPacket(Chunk buffer): chunk(buffer)
     }*/
 }
 
-unsigned short TSPacket::pid()
+unsigned short TSPacket::pid() const
 {
     int pid = (chunk[1] & 0x0f) << 8;
     pid |= chunk[2];

@@ -6,23 +6,33 @@
 #include "PacketFilter.h"
 
 
-
+// TODO: This is really ugly and unmantainable
 std::string PacketFilter::filter(const TSPacket &packet) const
 {
     std::stringstream pts_string;
     std::stringstream output;
+    std::stringstream pid_str;
     bool pts_reported = false;
 
+    pid_str << packet.pid() << " ";
     if (packet.has_pes_header())
     {
         pts_string << std::hex << "0x" << packet.pes_header().get_pts() << std::dec << " " << packet.pes_header().get_pts_str() << " ";
+    }
+
+    if (!m_pids.empty())
+    {
+        if (static_cast<int>(m_pids[0]) != packet.pid()){
+            return output.str();
+        }
+
     }
 
     if (m_pts)
     {
         if (packet.has_pes_header())
         {
-            output << pts_string.str();
+            output << pid_str.str() << pts_string.str();
             pts_reported = true;
         }
     }
@@ -32,7 +42,7 @@ std::string PacketFilter::filter(const TSPacket &packet) const
         if (packet.has_adaption_field() && packet.has_ebp())
         {
             if (!pts_reported && packet.has_pes_header()) {
-                output << pts_string.str();
+                output << pid_str.str() <<  pts_string.str();
                 pts_reported = true;
             }
             output <<  "EBP ";
@@ -44,7 +54,7 @@ std::string PacketFilter::filter(const TSPacket &packet) const
         if (packet.has_random_access_indicator())
         {
             if (!pts_reported && packet.has_pes_header()) {
-                output << pts_string.str();
+                output << pid_str.str() << pts_string.str();
             }
             output <<  "RAI ";
         }
@@ -52,6 +62,7 @@ std::string PacketFilter::filter(const TSPacket &packet) const
 
     if (!m_rai && !m_ebp && !m_pts)
     {
+        output << pid_str.str();
         if (packet.has_pes_header())
         {
             output << pts_string.str();
@@ -86,7 +97,7 @@ void PacketFilter::pts()
 
 void PacketFilter::pids(std::vector< int > pids)
 {
-
+    m_pids = pids;
 }
 
 void PacketFilter::ebp()

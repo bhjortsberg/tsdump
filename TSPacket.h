@@ -18,7 +18,7 @@ public:
     static const int TS_PACKET_SIZE = 188;
 
     TSPacket(Chunk buffer);
-    unsigned short pid();
+    unsigned short pid() const;
     bool has_adaption_field() const;
     bool has_ebp() const;
     bool has_random_access_indicator() const;

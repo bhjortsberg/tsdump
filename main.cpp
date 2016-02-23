@@ -44,7 +44,7 @@ int main(int argc, char ** argv)
 
     while ((ch = getopt(argc, argv, "hf:p:ter")) != -1) {
         std::string pids;
-        int num_pids;
+        int num_pids, pp;
         switch (ch) {
             case 'h':
                 usage();
@@ -52,9 +52,11 @@ int main(int argc, char ** argv)
                 file_name = std::string(optarg);
                 break;
             case 'p':
-                // Comma separated
+                // TODO: Comma separated
                 pids = std::string(optarg);
-                num_pids = std::count(std::begin(pids), std::end(pids), ',');
+                pp = std::stoi(pids);
+                filter->pids({pp});
+//                num_pids = std::count(std::begin(pids), std::end(pids), ',');
 //            std::search()
 
                 break;
