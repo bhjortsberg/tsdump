@@ -47,7 +47,7 @@ int main(int argc, char ** argv)
                 file_name = std::string(optarg);
                 break;
             case 'p':
-                ss = std::stringstream{std::string(optarg)};
+                ss << std::stringstream{std::string(optarg)};
                 while (std::getline(ss, pids_str, ','))
                 {
                     pids.push_back(std::stoi(pids_str));
