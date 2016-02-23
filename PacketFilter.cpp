@@ -9,21 +9,33 @@
 
 std::string PacketFilter::filter(const TSPacket &packet) const
 {
+    std::stringstream pts_string;
     std::stringstream output;
+    bool pts_reported = false;
+
+    if (packet.has_pes_header())
+    {
+        pts_string << std::hex << "0x" << packet.pes_header().get_pts() << std::dec << " " << packet.pes_header().get_pts_str() << " ";
+    }
 
     if (m_pts)
     {
         if (packet.has_pes_header())
         {
-            output << std::hex << "0x" << packet.pes_header().get_pts() << std::dec << " " << packet.pes_header().get_pts_str() << " ";
+            output << pts_string.str();
+            pts_reported = true;
         }
     }
 
     if (m_ebp)
     {
-        if (packet.has_ebp())
+        if (packet.has_adaption_field() && packet.has_ebp())
         {
-            output << "EBP ";
+            if (!pts_reported && packet.has_pes_header()) {
+                output << pts_string.str();
+                pts_reported = true;
+            }
+            output <<  "EBP ";
         }
     }
 
@@ -31,7 +43,10 @@ std::string PacketFilter::filter(const TSPacket &packet) const
     {
         if (packet.has_random_access_indicator())
         {
-            output << "RAI ";
+            if (!pts_reported && packet.has_pes_header()) {
+                output << pts_string.str();
+            }
+            output <<  "RAI ";
         }
     }
 
@@ -39,7 +54,7 @@ std::string PacketFilter::filter(const TSPacket &packet) const
     {
         if (packet.has_pes_header())
         {
-            output << std::hex << "0x" << packet.pes_header().get_pts() << std::dec << " " << packet.pes_header().get_pts_str() << " ";
+            output << pts_string.str();
         }
 
         if (packet.has_adaption_field())
@@ -60,7 +75,6 @@ std::string PacketFilter::filter(const TSPacket &packet) const
             output  << " ";
         }
     }
-
 
     return output.str();
 }
