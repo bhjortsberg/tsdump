@@ -5,6 +5,18 @@
 
 using namespace std;
 
+void usage()
+{
+    std::cout << "tsparse [file] [options]" << std::endl;
+    std::cout << "  Options:" << std::endl;
+    std::cout << "          -h      help" << std::endl;
+    std::cout << "          -t      Print packets with pts" << std::endl;
+    std::cout << "          -e      Print packets with EBP markers" << std::endl;
+    std::cout << "          -r      Print packets with random access indicators" << std::endl;
+    std::cout << "          -p <pid1,pid2>      Print packets with pids, comma separated list of pids" << std::endl;
+
+}
+
 int main(int argc, char ** argv)
 {
     PacketFilterPtr filter(new PacketFilter());
@@ -30,10 +42,12 @@ int main(int argc, char ** argv)
 //    return 0;
 
 
-    while ((ch = getopt(argc, argv, "f:p:ter")) != -1) {
+    while ((ch = getopt(argc, argv, "hf:p:ter")) != -1) {
         std::string pids;
         int num_pids;
         switch (ch) {
+            case 'h':
+                usage();
             case 'f':
                 file_name = std::string(optarg);
                 break;
@@ -53,7 +67,8 @@ int main(int argc, char ** argv)
             case 'r':
                 filter->rai();
                 break;
-//            default:
+            default:
+                usage();
                 break;
         }
 
