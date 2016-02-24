@@ -21,6 +21,7 @@ public:
     virtual std::string statistics() const;
 
 private:
+    bool filter_pid(int pid) const;
     bool m_pts;
     bool m_ebp;
     bool m_rai;

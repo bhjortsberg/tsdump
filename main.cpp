@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include "TransportStream.h"
 #include "TSReport.h"
 #include "PacketFilter.h"
@@ -23,28 +24,11 @@ int main(int argc, char ** argv)
     std:string file_name;
     int ch;
 
-    std::string sss("45,56,23,56,45");
-    auto cc = std::count(std::begin(sss), std::end(sss), ',');
-    std::cout << cc << std::endl;
-    std::string fmt = "%u";
-    for (int i = 0; i < cc; ++i)
-    {
-        fmt += ",%u";
-    }
-
-    auto it = std::begin(sss);
-    do
-    {
-        std::cout << *it << " ";
-        it = std::find(it, std::end(sss), ',');
-    } while (it++ != std::end(sss));
-
-//    return 0;
-
-
     while ((ch = getopt(argc, argv, "hf:p:ter")) != -1) {
-        std::string pids;
-        int num_pids, pp;
+        std::string pids_str;
+        std::vector<int> pids;
+        std::stringstream ss;
+
         switch (ch) {
             case 'h':
                 usage();
@@ -52,12 +36,12 @@ int main(int argc, char ** argv)
                 file_name = std::string(optarg);
                 break;
             case 'p':
-                // TODO: Comma separated
-                pids = std::string(optarg);
-                pp = std::stoi(pids);
-                filter->pids({pp});
-//                num_pids = std::count(std::begin(pids), std::end(pids), ',');
-//            std::search()
+                ss = std::stringstream{std::string(optarg)};
+                while (std::getline(ss, pids_str, ','))
+                {
+                    pids.push_back(std::stoi(pids_str));
+                }
+                filter->pids(pids);
 
                 break;
             case 't':

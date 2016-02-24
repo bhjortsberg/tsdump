@@ -27,12 +27,9 @@ std::string PacketFilter::filter(const TSPacket &packet) const
         pts_string << std::hex << "0x" << packet.pes_header().get_pts() << std::dec << " " << packet.pes_header().get_pts_str() << " ";
     }
 
-    if (!m_pids.empty())
+    if (!filter_pid(packet.pid()))
     {
-        if (static_cast<int>(m_pids[0]) != packet.pid()){
-            return output.str();
-        }
-
+        return output.str();
     }
 
     if (m_pts)
@@ -123,4 +120,18 @@ std::string PacketFilter::statistics() const
     statistics << "===============================================" << std::endl;
 
     return statistics.str();
+}
+
+bool PacketFilter::filter_pid(int in_pid) const
+{
+    bool ret = false;
+    for (const auto & pid : m_pids)
+    {
+        if (pid == in_pid)
+        {
+            ret = true;
+            break;
+        }
+    }
+    return ret;
 }
