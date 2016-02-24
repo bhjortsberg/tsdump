@@ -7,6 +7,13 @@
 
 
 // TODO: This is really ugly and unmantainable
+// Algorithm:
+// Should packet be printed or not?
+// If no filter is set. Whole Packet should be printed.
+// if rai filter and rai - print pid pts and rai
+// if ebp filter and ebp - print pid pts and ebp
+// if pts filter and pts - print pts
+//
 std::string PacketFilter::filter(const TSPacket &packet) const
 {
     std::stringstream pts_string;
