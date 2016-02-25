@@ -27,7 +27,7 @@ std::string PacketFilter::filter(const TSPacket &packet) const
         pts_string << std::hex << "0x" << packet.pes_header().get_pts() << std::dec << " " << packet.pes_header().get_pts_str() << " ";
     }
 
-    if (!filter_pid(packet.pid()))
+    if (!m_pids.empty() && !filter_pid(packet.pid()))
     {
         return output.str();
     }
