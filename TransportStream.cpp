@@ -24,6 +24,7 @@ TransportStream::TransportStream(const std::string &fileName)
             else
             {
                 // TODO: Out of sync
+                throw std::runtime_error("Error in sync byte");
             }
         }
 
