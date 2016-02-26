@@ -8,19 +8,29 @@
 AdaptionField::AdaptionField(Chunk::const_iterator it)
 {
     length = it[0];
-    discontinuity_indicator =               it[1] & 0x80 ? true : false;
-    random_access_indicator =               it[1] & 0x40 ? true : false;
-    elementary_stream_priority_indicator =  it[1] & 0x20 ? true : false;
-    PCR_flag =                              it[1] & 0x10 ? true : false;
-    OPCR_flag =                             it[1] & 0x08 ? true : false;
-    splicing_point_flag =                   it[1] & 0x04 ? true : false;
-    transport_private_data_flag =           it[1] & 0x02 ? true : false;
-    adaption_field_extension_flag =         it[1] & 0x01 ? true : false;
-
     if (length > 0)
     {
+        discontinuity_indicator =               it[1] & 0x80 ? true : false;
+        random_access_indicator =               it[1] & 0x40 ? true : false;
+        elementary_stream_priority_indicator =  it[1] & 0x20 ? true : false;
+        PCR_flag =                              it[1] & 0x10 ? true : false;
+        OPCR_flag =                             it[1] & 0x08 ? true : false;
+        splicing_point_flag =                   it[1] & 0x04 ? true : false;
+        transport_private_data_flag =           it[1] & 0x02 ? true : false;
+        adaption_field_extension_flag =         it[1] & 0x01 ? true : false;
+
         chunk.resize(length - 1); // The length in the adaption field does not calculate the length byte itself.
         std::copy(it + 2, it + 2 + (length - 1), std::begin(chunk));
+    } else {
+        discontinuity_indicator =               false;
+        random_access_indicator =               false;
+        elementary_stream_priority_indicator =  false;
+        PCR_flag =                              false;
+        OPCR_flag =                             false;
+        splicing_point_flag =                   false;
+        transport_private_data_flag =           false;
+        adaption_field_extension_flag =         false;
+
     }
 
 }
