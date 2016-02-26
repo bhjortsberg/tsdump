@@ -68,7 +68,7 @@ int main(int argc, char ** argv)
         report.report();
 
     } catch (std::runtime_error & e) {
-        std::cout << "Error: " << e.what() << std::endl;
+        std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }
 
