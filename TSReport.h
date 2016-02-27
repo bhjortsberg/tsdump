@@ -12,8 +12,8 @@ class TSReport
 {
 public:
     TSReport(const TransportStream & tstream, const IFilterPtr & filter);
-
     void report();
+
 private:
     IFilterPtr m_filter;
     TransportStream m_ts;
