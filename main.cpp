@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <unistd.h>
 #include "TransportStream.h"
 #include "TSReport.h"
 #include "PacketFilter.h"

@@ -5,8 +5,9 @@
 #ifndef TSPARSE_IFILTER_H
 #define TSPARSE_IFILTER_H
 
-
+#include <memory>
 #include "TSPacket.h"
+
 
 class IFilter
 {
