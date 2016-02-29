@@ -12,10 +12,6 @@
 - Indicate I-frame. and Dump I-frame data as a jpeg
 - Read data from multicast address instead of file.
 
-- filter() should return bool wheather it should be filtered or not
-- TSReport should have a function that prints the line. Should be called if filter() return false and prints whole line
-- The print line function should be simplified compared to how show is implemented. Just add with what info is found  - pid pts ptsStr ebp rai
-
 - -p without pid should print a list of pids in transport stream
 - Display config to store what should be printed (for -x -xx, -p, -j and -i)
 - -x and -xx or -X that prints extra information, the adaption field and the pts-header. And -xx (or -X) prints the payload in hex.
