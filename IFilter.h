@@ -12,8 +12,7 @@
 class IFilter
 {
 public:
-    virtual std::string filter(const TSPacket & packet) const = 0;
-    virtual std::string statistics() const = 0;
+    virtual bool show(const TSPacket &packet) const = 0;
 
 };
 

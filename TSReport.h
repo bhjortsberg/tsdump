@@ -15,6 +15,7 @@ public:
     void report();
 
 private:
+    std::string get_packet_string(const TSPacket & packet);
     IFilterPtr m_filter;
     TransportStream m_ts;
 

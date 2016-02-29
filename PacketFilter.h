@@ -6,6 +6,7 @@
 #define TSPARSE_REPORTFILTER_H
 
 
+#include <string>
 #include <vector>
 #include "IFilter.h"
 
@@ -16,9 +17,7 @@ public:
     void pts();
     void ebp();
     void rai();
-//    virtual void filter(const IPacket & packet);
-    virtual std::string filter(const TSPacket & packet) const;
-    virtual std::string statistics() const;
+    virtual bool show(const TSPacket &packet) const;
 
 private:
     bool filter_pid(int pid) const;

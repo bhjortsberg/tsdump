@@ -14,7 +14,7 @@
 
 - filter() should return bool wheather it should be filtered or not
 - TSReport should have a function that prints the line. Should be called if filter() return false and prints whole line
-- The print line function should be simplified compared to how filter is implemented. Just add with what info is found  - pid pts ptsStr ebp rai
+- The print line function should be simplified compared to how show is implemented. Just add with what info is found  - pid pts ptsStr ebp rai
 
 - -p without pid should print a list of pids in transport stream
 - Display config to store what should be printed (for -x -xx, -p, -j and -i)
