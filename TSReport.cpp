@@ -16,11 +16,12 @@ m_filter(filter)
 void TSReport::report()
 {
     int packet_cnt = 0;
+    print_header();
     for (const auto & packet : m_ts.getPackets())
     {
         if (m_filter->show(packet))
         {
-            std::cout << packet_cnt << " " << get_packet_string(packet);
+            std::cout << packet_cnt << "\t\t" << get_packet_string(packet);
         }
         packet_cnt++;
     }
@@ -33,24 +34,30 @@ std::string TSReport::get_packet_string(const TSPacket & packet)
 {
     std::stringstream packet_string;
 
-    packet_string << packet.pid() << " ";
+    packet_string << packet.pid() << "\t";
     if (packet.has_pes_header())
     {
-        packet_string << std::hex << "0x" << packet.pes_header().get_pts() << std::dec << " " << packet.pes_header().get_pts_str() << " ";
+        packet_string << std::hex << "0x" << packet.pes_header().get_pts() << std::dec << "\t" << packet.pes_header().get_pts_str() << "\t";
     }
 
     if (packet.has_adaption_field() && packet.has_ebp())
     {
-        packet_string << "EBP ";
+        packet_string << "EBP" << "\t" ;
     }
 
     if (packet.has_random_access_indicator())
     {
-        packet_string << "RAI ";
+        packet_string << "RAI" << "\t" ;
     }
 
     packet_string << std::endl;
 
     return packet_string.str();
 
+}
+
+void TSReport::print_header()
+{
+    std::cout << "Packet No.\tPID\tpts hex\t\tpts wall\tEBP\tRAI" << std::endl;
+    std::cout << "-------------------------------------------------------------------" << std::endl;
 }

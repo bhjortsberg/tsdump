@@ -16,6 +16,7 @@ public:
 
 private:
     std::string get_packet_string(const TSPacket & packet);
+    void print_header();
     IFilterPtr m_filter;
     TransportStream m_ts;
 
