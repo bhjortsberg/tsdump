@@ -11,6 +11,7 @@
 
 ## Todo
 
+- Improve option parsing with error handling and required file argument.
 - PTS in wall clock time format
 - Calculate the length of the file.
 - Group packets that belong to same frame.
