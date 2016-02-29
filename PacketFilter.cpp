@@ -15,7 +15,7 @@ bool PacketFilter::show(const TSPacket &packet) const
         return false;
     }
 
-    if (m_ebp && packet.has_adaption_field() && !packet.has_ebp())
+    if (m_ebp && !packet.has_ebp())
     {
         return false;
     }

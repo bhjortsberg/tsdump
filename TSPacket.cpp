@@ -85,5 +85,5 @@ bool TSPacket::has_pes_header() const
 
 bool TSPacket::has_ebp() const
 {
-    return adaption_field().has_ebp();
+    return has_adaption_field() && adaption_field().has_ebp();
 }
