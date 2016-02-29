@@ -1,11 +1,16 @@
 # TSParser
 
+## Usage
 
+    tsparse -f <file> [options]
+        -h              help
+        -t              print packets with pts
+        -e              print only packets with EBP marker
+        -r              print only packets with random access indentifier
+        -p <p1,p2...>   print only packets with given pids. Can be a comma separated list of pids
 
-## Todo:
+## Todo
 
-- A Printer class that takes a filter as a parameter and outputs data nicely formated and filtered.
-- Parse arguments with error handling. Specify filters from command line.
 - PTS in wall clock time format
 - Calculate the length of the file.
 - Group packets that belong to same frame.
