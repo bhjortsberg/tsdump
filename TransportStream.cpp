@@ -3,6 +3,7 @@
 //
 
 #include <fstream>
+#include <sstream>
 #include "TransportStream.h"
 
 
@@ -28,6 +29,12 @@ TransportStream::TransportStream(const std::string &fileName)
             }
         }
 
+    }
+    else
+    {
+        std::stringstream estr;
+        estr << "Failed to open file: " <<  fileName;
+        throw std::runtime_error(estr.str());
     }
 }
 
