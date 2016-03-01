@@ -8,7 +8,8 @@
 PESHeader::PESHeader(Chunk::const_iterator it)
 {
     stream_id = it[3];
-    // length = it[4-5];
+    length = it[4];
+    length |= (it[5] << 8);
     pts_dts_flags = (it[7] & 0xc0) >> 6;
     pes_header_data_length = it[8];
 
@@ -59,4 +60,8 @@ std::string PESHeader::get_pts_str()
 
     ss << hour << ":" << minutes << ":" << seconds << "." << millisec;
     return ss.str();
+}
+
+unsigned short PESHeader::get_length() {
+    return length;
 }

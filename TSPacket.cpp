@@ -7,13 +7,18 @@
 
 TSPacket::TSPacket(Chunk buffer): chunk(buffer)
 {
-/*    if (has_adaption_field()) {
+    if (has_adaption_field()) {
         adaption_field_it = std::begin(chunk) + 4;
-        pes_header_it = std::begin(chunk) + adaption_field().get_length();
+        pes_header_it = adaption_field_it + adaption_field().size();
     }
     else {
         pes_header_it = std::begin(chunk) + 4;
-    }*/
+    }
+
+    payload_it = pes_header_it;
+    if (has_pes_header()) {
+        payload_it += pes_header().get_length();
+    }
 }
 
 unsigned short TSPacket::pid() const
@@ -86,4 +91,8 @@ bool TSPacket::has_pes_header() const
 bool TSPacket::has_ebp() const
 {
     return has_adaption_field() && adaption_field().has_ebp();
+}
+
+PayloadIterator TSPacket::get_payload() const {
+    return PayloadIterator(payload_it, std::end(chunk));
 }

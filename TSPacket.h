@@ -10,6 +10,8 @@
 #include "PESHeader.h"
 
 typedef std::vector<unsigned char> Chunk;
+typedef std::pair<Chunk::const_iterator, Chunk::const_iterator> PayloadIterator;
+
 
 class TSPacket
 {
@@ -25,6 +27,7 @@ public:
     AdaptionField adaption_field() const;
     bool has_pes_header() const;
     PESHeader pes_header() const;
+    PayloadIterator get_payload() const;
 
 private:
     char adaption_field_control() const;
@@ -35,6 +38,7 @@ private:
     // Partly done. One have to set them to std::begin(chunk) and compare to that.
     Chunk::iterator pes_header_it;
     Chunk::iterator adaption_field_it;
+    Chunk::const_iterator payload_it;
 };
 
 

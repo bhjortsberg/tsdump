@@ -17,6 +17,7 @@ public:
 
     unsigned long long get_pts();
     std::string get_pts_str();
+    unsigned short get_length();
 
 private:
     unsigned short length;
