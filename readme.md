@@ -17,6 +17,8 @@
 - Group packets that belong to same frame.
 - Indicate I-frame. and Dump I-frame data as a jpeg
 - Read data from multicast address instead of file.
+- Payload extract. Class that sums the payloads from a bunch of (all) packets. Return a list of payloads.
+  Payloads can then be used to get I-frame info and extract jpeg.
 
 - -p without pid should print a list of pids in transport stream
 - Display config to store what should be printed (for -x -xx, -p, -j and -i)
