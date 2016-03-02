@@ -42,12 +42,23 @@ std::string TSReport::get_packet_string(const TSPacket & packet)
 
     if (packet.has_adaption_field() && packet.has_ebp())
     {
-        packet_string << "EBP" << "\t" ;
+        packet_string << "EBP\t";
+    }
+    else {
+        packet_string << "   \t";
     }
 
     if (packet.has_random_access_indicator())
     {
-        packet_string << "RAI" << "\t" ;
+        packet_string << "RAI\t";
+    }
+    else {
+        packet_string << "   \t";
+    }
+
+    if (packet.is_payload_start())
+    {
+        packet_string << "Start\t";
     }
 
     packet_string << std::endl;
@@ -58,6 +69,6 @@ std::string TSReport::get_packet_string(const TSPacket & packet)
 
 void TSReport::print_header()
 {
-    std::cout << "Packet No.\tPID\tpts hex\t\tpts wall\tEBP\tRAI" << std::endl;
+    std::cout << "Packet No.\tPID\tpts hex\t\tpts wall\tEBP\tRAI\tPayload" << std::endl;
     std::cout << "-------------------------------------------------------------------" << std::endl;
 }

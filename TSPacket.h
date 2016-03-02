@@ -28,10 +28,15 @@ public:
     bool has_pes_header() const;
     PESHeader pes_header() const;
     PayloadIterator get_payload() const;
+    bool is_payload_start() const;
 
 private:
     char adaption_field_control() const;
     Chunk chunk;
+    char sync_byte;
+    bool transport_error_indicator;
+    bool payload_unit_start_indicator;
+    bool transport_priority;
 
     // TODO: Iterator for adaption field, pes header that is set to the position of them
     // and used by all functions instead of code duplication like now.

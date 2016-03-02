@@ -7,15 +7,21 @@
 
 TSPacket::TSPacket(Chunk buffer): chunk(buffer)
 {
+    sync_byte = chunk[0];
+    transport_error_indicator       = chunk[1] & 0x80 ? true : false;
+    payload_unit_start_indicator    = chunk[1] & 0x40 ? true : false;
+    transport_priority              = chunk[1] & 0x20 ? true : false;
+
+    // Initialize payload, pes and adaption field iterators
+    payload_it = std::begin(chunk) + 4;
+    pes_header_it = std::begin(chunk) + 4;
+    adaption_field_it = std::begin(chunk) + 4;
+
     if (has_adaption_field()) {
-        adaption_field_it = std::begin(chunk) + 4;
         pes_header_it = adaption_field_it + adaption_field().size();
-    }
-    else {
-        pes_header_it = std::begin(chunk) + 4;
+        payload_it = pes_header_it;
     }
 
-    payload_it = pes_header_it;
     if (has_pes_header()) {
         payload_it += pes_header().get_length();
     }
@@ -23,7 +29,7 @@ TSPacket::TSPacket(Chunk buffer): chunk(buffer)
 
 unsigned short TSPacket::pid() const
 {
-    int pid = (chunk[1] & 0x0f) << 8;
+    int pid = (chunk[1] & 0x1f) << 8;
     pid |= chunk[2];
     return pid;
 }
@@ -95,4 +101,9 @@ bool TSPacket::has_ebp() const
 
 PayloadIterator TSPacket::get_payload() const {
     return PayloadIterator(payload_it, std::end(chunk));
+}
+
+bool TSPacket::is_payload_start() const
+{
+    return payload_unit_start_indicator;
 }
