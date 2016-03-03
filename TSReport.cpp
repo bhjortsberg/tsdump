@@ -70,5 +70,5 @@ std::string TSReport::get_packet_string(const TSPacket & packet)
 void TSReport::print_header()
 {
     std::cout << "Packet No.\tPID\tpts hex\t\tpts wall\tEBP\tRAI\tPayload" << std::endl;
-    std::cout << "-------------------------------------------------------------------" << std::endl;
+    std::cout << "-------------------------------------------------------------------------------" << std::endl;
 }
