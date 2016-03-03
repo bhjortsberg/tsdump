@@ -39,6 +39,10 @@ std::string TSReport::get_packet_string(const TSPacket & packet)
     {
         packet_string << std::hex << "0x" << packet.pes_header().get_pts() << std::dec << "\t" << packet.pes_header().get_pts_str() << "\t";
     }
+    else {
+        packet_string << "\t\t\t\t";
+    }
+
 
     if (packet.has_adaption_field() && packet.has_ebp())
     {

@@ -17,6 +17,7 @@ public:
     void pts();
     void ebp();
     void rai();
+    void payloadStart();
     virtual bool show(const TSPacket &packet) const;
 
 private:
@@ -24,6 +25,7 @@ private:
     bool m_pts;
     bool m_ebp;
     bool m_rai;
+    bool m_payloadStart;
     std::vector<int> m_pids;
 };
 

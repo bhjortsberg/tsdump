@@ -34,7 +34,7 @@ int main(int argc, char ** argv)
         return 0;
     }
 
-    while ((ch = getopt(argc, argv, "hf:p:ter")) != -1) {
+    while ((ch = getopt(argc, argv, "hf:p:tesr")) != -1) {
         std::string pids_str;
         std::vector<int> pids;
         std::stringstream ss;
@@ -63,6 +63,9 @@ int main(int argc, char ** argv)
                 break;
             case 'r':
                 filter->rai();
+                break;
+            case 's':
+                filter->payloadStart();
                 break;
             default:
                 usage();

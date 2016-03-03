@@ -25,7 +25,13 @@ bool PacketFilter::show(const TSPacket &packet) const
         return false;
     }
 
-    if (!m_rai && !m_ebp && !m_pts && m_pids.empty())
+    if (m_payloadStart && !packet.is_payload_start())
+    {
+        return false;
+    }
+
+    if (!m_rai && !m_ebp &&
+            !m_pts && !m_payloadStart && m_pids.empty())
     {
         show_packet = true;
     }
@@ -70,4 +76,9 @@ bool PacketFilter::filter_pid(int in_pid) const
         }
     }
     return ret;
+}
+
+void PacketFilter::payloadStart()
+{
+    m_payloadStart = true;
 }
