@@ -4,11 +4,25 @@
 
 #include "PacketFilter.h"
 
+PacketFilter::PacketFilter():
+m_pts(false),
+m_ebp(false),
+m_rai(false),
+m_payloadStart(false),
+m_pkt_num(-1)
+{
+
+}
 
 bool PacketFilter::show(const TSPacket &packet) const
 {
 
     bool show_packet = filter_pid(packet.pid());
+
+    if (m_pkt_num >= 0 && packet.num() != m_pkt_num)
+    {
+        return false;
+    }
 
     if (m_pts && !packet.has_pes_header())
     {
@@ -82,3 +96,9 @@ void PacketFilter::payloadStart()
 {
     m_payloadStart = true;
 }
+
+void PacketFilter::set_packet(int pkt_num)
+{
+    m_pkt_num = pkt_num;
+}
+

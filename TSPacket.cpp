@@ -5,7 +5,9 @@
 #include <stdexcept>
 #include "TSPacket.h"
 
-TSPacket::TSPacket(Chunk buffer): chunk(buffer)
+TSPacket::TSPacket(Chunk buffer, int pkt_num):
+        chunk(buffer),
+        m_pkt_num(pkt_num)
 {
     sync_byte = chunk[0];
     transport_error_indicator       = chunk[1] & 0x80 ? true : false;
@@ -106,4 +108,9 @@ PayloadIterator TSPacket::get_payload() const {
 bool TSPacket::is_payload_start() const
 {
     return payload_unit_start_indicator;
+}
+
+int TSPacket::num() const
+{
+    return m_pkt_num;
 }

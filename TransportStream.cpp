@@ -15,13 +15,15 @@ TransportStream::TransportStream(const std::string &fileName)
     if (file.is_open())
     {
 
+        int pkt_cnt = 0;
         while (file.read(buffer, sizeof(buffer)))
         {
             if (buffer[0] == TSPacket::SYNC_BYTE)
             {
                 std::vector<unsigned char> target(TSPacket::TS_PACKET_SIZE);
                 std::copy(std::begin(buffer), std::end(buffer), std::begin(target));
-                packets.push_back(TSPacket(target));
+                packets.push_back(TSPacket(target, pkt_cnt));
+                pkt_cnt++;
             }
             else
             {

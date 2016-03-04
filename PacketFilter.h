@@ -13,11 +13,13 @@
 class PacketFilter : public IFilter
 {
 public:
+    PacketFilter();
     void pids(std::vector<int> pids);
     void pts();
     void ebp();
     void rai();
     void payloadStart();
+    void set_packet(int pkt_num);
     virtual bool show(const TSPacket &packet) const;
 
 private:
@@ -27,6 +29,7 @@ private:
     bool m_rai;
     bool m_payloadStart;
     std::vector<int> m_pids;
+    int m_pkt_num;
 };
 
 typedef std::shared_ptr< PacketFilter > PacketFilterPtr;

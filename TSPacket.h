@@ -19,7 +19,7 @@ public:
     static const int SYNC_BYTE = 0x47;
     static const int TS_PACKET_SIZE = 188;
 
-    TSPacket(Chunk buffer);
+    TSPacket(Chunk buffer, int pkt_num);
     unsigned short pid() const;
     bool has_adaption_field() const;
     bool has_ebp() const;
@@ -29,6 +29,7 @@ public:
     PESHeader pes_header() const;
     PayloadIterator get_payload() const;
     bool is_payload_start() const;
+    int num() const;
 
 private:
     char adaption_field_control() const;
@@ -37,6 +38,7 @@ private:
     bool transport_error_indicator;
     bool payload_unit_start_indicator;
     bool transport_priority;
+    int m_pkt_num;
 
     // TODO: Iterator for adaption field, pes header that is set to the position of them
     // and used by all functions instead of code duplication like now.
