@@ -27,3 +27,4 @@
 - -s for summary or statistics that prints number of packets and a list of pids.
 - Or a hide statistics if statistics is to be printed always.
 - list or range of packets to print
+- add reference to previos packet to TSPacket. The previous packet with same pid
