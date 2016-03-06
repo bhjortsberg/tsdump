@@ -25,7 +25,7 @@ void TSReport::report()
             std::cout << get_packet_string(packet);
             if (m_option->printPayload())
             {
-                std::cout << get_packet_payload_string(packet);
+                std::cout << get_packet_payload_string(packet) << std::endl;
             }
         }
     }
@@ -106,6 +106,6 @@ std::string TSReport::get_packet_payload_string(const TSPacket &packet)
             asciiline = "";
         }
     }
-    payload_str << std::endl;
+    payload_str << std::left << std::setfill(' ') << std::setw(16*3 + 2) << line.str() << " | " << asciiline << std::endl;
     return payload_str.str();
 }
