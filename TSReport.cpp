@@ -84,16 +84,26 @@ void TSReport::print_header()
 std::string TSReport::get_packet_payload_string(const TSPacket &packet)
 {
     std::stringstream payload_str;
-    payload_str << std::hex << "\t\t";
+    payload_str << std::hex << "\n\t\t";
 
     int byte_cnt = 0;
-    std::stringstream line, asciiline;
+    std::stringstream line;
+    std::string asciiline = "";
     for (auto & p : packet.get_payload())
     {
-        payload_str << std::setfill('0') << std::setw(2)  << static_cast<int>(p) << " ";
-        asciiline << p;
-        if (++byte_cnt % 16 == 0) {
-            payload_str << std::endl << "\t\t";
+        line << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(p) << " ";
+        asciiline += (((p > 31) && (p < 127)) ? p : '.');
+
+        ++byte_cnt;
+
+        if (byte_cnt % 8 == 0) {
+            line << " ";
+            asciiline += " ";
+        }
+        if (byte_cnt % 16 == 0) {
+            payload_str << line.str() << " | " << asciiline << std::endl << "\t\t";
+            line.str("");
+            asciiline = "";
         }
     }
     payload_str << std::endl;
