@@ -27,7 +27,7 @@ public:
     AdaptionField adaption_field() const;
     bool has_pes_header() const;
     PESHeader pes_header() const;
-    PayloadIterator get_payload() const;
+    Chunk get_payload() const;
     bool is_payload_start() const;
     int num() const;
 

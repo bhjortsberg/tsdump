@@ -4,6 +4,7 @@
 #include "TransportStream.h"
 #include "TSReport.h"
 #include "PacketFilter.h"
+#include "OutputOptions.h"
 
 using namespace std;
 
@@ -20,11 +21,13 @@ void usage()
                  "                              If no pids given, print a list of pids in transport stream" << std::endl;
     std::cout << "          -n <pkt num>        Print packet with given number" << std::endl;
     std::cout << "          -s                  Print only payload start packets" << std::endl;
+    std::cout << "          -X                  Print packet payload in hex" << std::endl;
 }
 
 int main(int argc, char ** argv)
 {
     PacketFilterPtr filter(new PacketFilter());
+    OutputOptionsPtr option(new OutputOptions());
     std:string file_name;
     int ch;
 
@@ -35,7 +38,7 @@ int main(int argc, char ** argv)
         return 0;
     }
 
-    while ((ch = getopt(argc, argv, "n:hf:p:tesr")) != -1) {
+    while ((ch = getopt(argc, argv, "n:hf:p:tesrX")) != -1) {
         std::string pids_str;
         std::vector<int> pids;
         std::stringstream ss;
@@ -71,6 +74,9 @@ int main(int argc, char ** argv)
             case 's':
                 filter->payloadStart();
                 break;
+            case 'X':
+                option->payload();
+                break;
             default:
                 usage();
                 break;
@@ -81,7 +87,7 @@ int main(int argc, char ** argv)
     try {
 
         TransportStream ts(file_name);
-        TSReport report(ts, filter);
+        TSReport report(ts, filter, option);
 
         report.report();
 

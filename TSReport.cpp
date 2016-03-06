@@ -4,11 +4,13 @@
 
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 #include "TSReport.h"
 
-TSReport::TSReport(const TransportStream &tstream, const IFilterPtr & filter):
+TSReport::TSReport(const TransportStream &tstream, const IFilterPtr & filter, const OutputOptionsPtr & option):
 m_ts(tstream),
-m_filter(filter)
+m_filter(filter),
+m_option(option)
 {
 
 }
@@ -21,6 +23,10 @@ void TSReport::report()
         if (m_filter->show(packet))
         {
             std::cout << get_packet_string(packet);
+            if (m_option->printPayload())
+            {
+                std::cout << get_packet_payload_string(packet);
+            }
         }
     }
 
@@ -73,4 +79,23 @@ void TSReport::print_header()
 {
     std::cout << "Packet No.\tPID\tpts hex\t\tpts wall\tEBP\tRAI\tPayload" << std::endl;
     std::cout << "-------------------------------------------------------------------------------" << std::endl;
+}
+
+std::string TSReport::get_packet_payload_string(const TSPacket &packet)
+{
+    std::stringstream payload_str;
+    payload_str << std::hex << "\t\t";
+
+    int byte_cnt = 0;
+    std::stringstream line, asciiline;
+    for (auto & p : packet.get_payload())
+    {
+        payload_str << std::setfill('0') << std::setw(2)  << static_cast<int>(p) << " ";
+        asciiline << p;
+        if (++byte_cnt % 16 == 0) {
+            payload_str << std::endl << "\t\t";
+        }
+    }
+    payload_str << std::endl;
+    return payload_str.str();
 }

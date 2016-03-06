@@ -101,8 +101,12 @@ bool TSPacket::has_ebp() const
     return has_adaption_field() && adaption_field().has_ebp();
 }
 
-PayloadIterator TSPacket::get_payload() const {
-    return PayloadIterator(payload_it, std::end(chunk));
+Chunk TSPacket::get_payload() const {
+    Chunk payload(TS_PACKET_SIZE);
+//    std::copy(payload_it, std::end(chunk), std::begin(payload));
+    std::copy(std::begin(chunk), std::end(chunk), std::begin(payload));
+    return payload;
+//    return PayloadIterator(payload_it, std::end(chunk));
 }
 
 bool TSPacket::is_payload_start() const
