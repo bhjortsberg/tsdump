@@ -13,3 +13,13 @@ bool OutputOptions::printPayload() const
 {
     return m_payload;
 }
+
+void OutputOptions::extraInfo()
+{
+    m_extra = true;
+}
+
+bool OutputOptions::printExtraInfo() const
+{
+    return m_extra;
+}

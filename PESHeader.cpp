@@ -3,6 +3,7 @@
 //
 
 #include <sstream>
+#include <iomanip>
 #include "PESHeader.h"
 
 PESHeader::PESHeader(Chunk::const_iterator it)
@@ -38,7 +39,6 @@ PESHeader::PESHeader(Chunk::const_iterator it)
 
     }
 
-
 }
 
 unsigned long long PESHeader::get_pts()
@@ -58,10 +58,34 @@ std::string PESHeader::get_pts_str()
     int seconds = millisec/1000;
     millisec -= seconds*1000;
 
-    ss << hour << ":" << minutes << ":" << seconds << "." << millisec;
+    ss << std::setfill('0') << std::setw(2) << hour << ":"
+        << std::setfill('0') << std::setw(2) << minutes << ":"
+        << std::setfill('0') << std::setw(2) << seconds << "."
+        << std::setfill('0') << std::setw(2) << millisec;
     return ss.str();
 }
 
 unsigned short PESHeader::get_length() {
     return length;
+}
+
+std::string PESHeader::print_str()
+{
+    std::stringstream print_str;
+    print_str << "PES header:" << std::endl;
+    print_str << "\tstream_id : " << static_cast<int>(stream_id) << std::endl <<
+                 "\tlength : " << length << std::endl;
+    print_str << "\tpts_dts_flag : 0x" << std::hex << static_cast<int>(pts_dts_flags) << std::endl;
+
+    if (pts_dts_flags == 0x02)
+    {
+        print_str << "\t\tpts : " << get_pts_str() << std::endl;
+    }
+    if (pts_dts_flags == 0x03)
+    {
+        print_str << "\t\tpts : " << get_pts_str() << std::endl;
+        print_str << "\t\tdts : " << "TBD" << std::endl;
+    }
+
+    return print_str.str();
 }

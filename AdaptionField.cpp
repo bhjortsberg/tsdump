@@ -3,6 +3,8 @@
 //
 
 #include <string>
+#include <ostream>
+#include <sstream>
 #include "AdaptionField.h"
 
 AdaptionField::AdaptionField(Chunk::const_iterator it)
@@ -92,4 +94,22 @@ unsigned int AdaptionField::splicing_point_len() const
     if (splicing_point_flag)
         return 1;
     return 0;
+}
+
+std::string AdaptionField::print_str()
+{
+    std::stringstream print_str;
+
+    print_str << "Adaption Field" << std::endl;
+    print_str <<
+            "\tdiscontinuity            : " << discontinuity_indicator << std::endl <<
+            "\trandom access indicator  : " << random_access_indicator << std::endl <<
+            "\tpriority indicator       : " << elementary_stream_priority_indicator << std::endl <<
+            "\tPCR_flag                 : " << PCR_flag << std::endl <<
+            "\tOPCR_flag                : " << OPCR_flag << std::endl <<
+            "\tsplicing point           : " << splicing_point_flag << std::endl <<
+            "\ttransport private data   : " << transport_private_data_flag << std::endl <<
+            "\textension flag           : " << adaption_field_extension_flag << std::endl << std::endl;
+
+    return print_str.str();
 }

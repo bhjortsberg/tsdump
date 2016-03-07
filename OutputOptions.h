@@ -12,9 +12,12 @@ class OutputOptions
 {
 public:
     void payload();
+    void extraInfo();
     bool printPayload() const;
+    bool printExtraInfo() const;
 private:
     bool m_payload;
+    bool m_extra;
 };
 
 typedef std::shared_ptr<OutputOptions> OutputOptionsPtr;

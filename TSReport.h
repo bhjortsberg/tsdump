@@ -18,6 +18,7 @@ public:
 private:
     std::string get_packet_string(const TSPacket & packet);
     std::string get_packet_payload_string(const TSPacket & packet);
+    std::string get_packet_extra_info_string(const TSPacket & packet);
     void print_header();
     IFilterPtr m_filter;
     OutputOptionsPtr m_option;

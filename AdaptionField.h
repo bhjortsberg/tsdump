@@ -18,6 +18,7 @@ public:
     bool has_ebp() const;
     unsigned int get_length_field();
     unsigned int size();
+    std::string print_str();
 
 private:
     unsigned int PCR_len() const;

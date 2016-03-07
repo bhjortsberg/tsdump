@@ -23,6 +23,11 @@ void TSReport::report()
         if (m_filter->show(packet))
         {
             std::cout << get_packet_string(packet);
+
+            if (m_option->printExtraInfo())
+            {
+                std::cout << get_packet_extra_info_string(packet) << std::endl;
+            }
             if (m_option->printPayload())
             {
                 std::cout << get_packet_payload_string(packet) << std::endl;
@@ -107,5 +112,25 @@ std::string TSReport::get_packet_payload_string(const TSPacket &packet)
         }
     }
     payload_str << std::left << std::setfill(' ') << std::setw(16*3 + 2) << line.str() << " | " << asciiline << std::endl;
+
     return payload_str.str();
+}
+
+std::string TSReport::get_packet_extra_info_string(const TSPacket &packet)
+{
+    std::stringstream adaption_str;
+    std::stringstream pes_str;
+
+    if (packet.has_adaption_field())
+    {
+        adaption_str << packet.adaption_field().print_str();
+    }
+
+    if (packet.has_pes_header())
+    {
+        pes_str << packet.pes_header().print_str();
+    }
+
+    return adaption_str.str() + pes_str.str();
+
 }

@@ -18,11 +18,12 @@ public:
     unsigned long long get_pts();
     std::string get_pts_str();
     unsigned short get_length();
+    std::string print_str();
 
 private:
     unsigned short length;
-    char stream_id;
-    char pts_dts_flags;
+    unsigned char stream_id;
+    unsigned char pts_dts_flags;
     char pes_header_data_length;
     unsigned long long pts;
     unsigned long long dts;

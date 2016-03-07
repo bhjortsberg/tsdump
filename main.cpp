@@ -8,21 +8,7 @@
 
 using namespace std;
 
-void usage()
-{
-    std::cout << "tsparse [file] [options]" << std::endl;
-    std::cout << "  Options:" << std::endl;
-    std::cout << "          -f <file>           File that should be parsed" << std::endl;
-    std::cout << "          -h                  help" << std::endl;
-    std::cout << "          -t                  Print packets with pts" << std::endl;
-    std::cout << "          -e                  Print packets with EBP markers" << std::endl;
-    std::cout << "          -r                  Print packets with random access indicators" << std::endl;
-    std::cout << "          -p <pid1,pid2...>   Print packets with pids, comma separated list of pids" << std::endl <<
-                 "                              If no pids given, print a list of pids in transport stream" << std::endl;
-    std::cout << "          -n <pkt num>        Print packet with given number" << std::endl;
-    std::cout << "          -s                  Print only payload start packets" << std::endl;
-    std::cout << "          -X                  Print packet payload in hex" << std::endl;
-}
+void usage();
 
 int main(int argc, char ** argv)
 {
@@ -38,7 +24,7 @@ int main(int argc, char ** argv)
         return 0;
     }
 
-    while ((ch = getopt(argc, argv, "n:hf:p:tesrX")) != -1) {
+    while ((ch = getopt(argc, argv, "n:hf:p:tesrXx")) != -1) {
         std::string pids_str;
         std::vector<int> pids;
         std::stringstream ss;
@@ -74,6 +60,9 @@ int main(int argc, char ** argv)
             case 's':
                 filter->payloadStart();
                 break;
+            case 'x':
+                option->extraInfo();
+                break;
             case 'X':
                 option->payload();
                 break;
@@ -97,4 +86,21 @@ int main(int argc, char ** argv)
     }
 
     return 0;
+}
+
+void usage()
+{
+    std::cout << "tsparse [file] [options]" << std::endl;
+    std::cout << "  Options:" << std::endl;
+    std::cout << "          -f <file>           File that should be parsed" << std::endl;
+    std::cout << "          -h                  help" << std::endl;
+    std::cout << "          -t                  Print packets with pts" << std::endl;
+    std::cout << "          -e                  Print packets with EBP markers" << std::endl;
+    std::cout << "          -r                  Print packets with random access indicators" << std::endl;
+    std::cout << "          -p <pid1,pid2...>   Print packets with pids, comma separated list of pids" << std::endl <<
+    "                              If no pids given, print a list of pids in transport stream" << std::endl;
+    std::cout << "          -n <pkt num>        Print packet with given number" << std::endl;
+    std::cout << "          -s                  Print only payload start packets" << std::endl;
+    std::cout << "          -x                  Print adaption field and PES header" << std::endl;
+    std::cout << "          -X                  Print packet payload in hex" << std::endl;
 }
