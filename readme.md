@@ -12,11 +12,10 @@
 ## Todo
 
 - Improve option parsing with error handling and required file argument.
-- PTS in wall clock time format
 - Calculate the length of the file.
 - Group packets that belong to same frame.
 - Indicate I-frame. and Dump I-frame data as a jpeg
-- Read data from multicast address instead of file.
+- Read data from multicast address in addition to file.
 - Payload extract. Class that sums the payloads from a bunch of (all) packets. Return a list of payloads.
   Payloads can then be used to get I-frame info and extract jpeg.
 
@@ -27,4 +26,6 @@
 - -s for summary or statistics that prints number of packets and a list of pids.
 - Or a hide statistics if statistics is to be printed always.
 - list or range of packets to print
-- add reference to previos packet to TSPacket. The previous packet with same pid
+- add reference to previos packet to TSPacket. The previous packet with same pid. A step to collect payloads/print frame
+- Multithreaded read file and print. Use <condition_variable> 
+
