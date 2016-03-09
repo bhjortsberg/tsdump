@@ -24,13 +24,13 @@ int main(int argc, char ** argv)
         return 0;
     }
 
-    while ((ch = getopt(argc, argv, "n:hf:p:tesrXx")) != -1) {
+    while ((ch = getopt(argc, argv, "i:hf:p:tesrXx")) != -1) {
         std::string pids_str;
         std::vector<int> pids;
         std::stringstream ss;
 
         switch (ch) {
-            case 'n':
+            case 'i':
                 filter->set_packet(std::atoi(optarg));
                 break;
             case 'h':
@@ -99,7 +99,7 @@ void usage()
     std::cout << "          -r                  Print packets with random access indicators" << std::endl;
     std::cout << "          -p <pid1,pid2...>   Print packets with pids, comma separated list of pids" << std::endl <<
     "                              If no pids given, print a list of pids in transport stream" << std::endl;
-    std::cout << "          -n <pkt num>        Print packet with given number" << std::endl;
+    std::cout << "          -i <pkt num>        Inspect (print) packet with given number" << std::endl;
     std::cout << "          -s                  Print only payload start packets" << std::endl;
     std::cout << "          -x                  Print adaption field and PES header" << std::endl;
     std::cout << "          -X                  Print packet payload in hex" << std::endl;
