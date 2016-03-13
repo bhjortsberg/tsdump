@@ -8,8 +8,7 @@ PacketFilter::PacketFilter():
 m_pts(false),
 m_ebp(false),
 m_rai(false),
-m_payloadStart(false),
-m_pkt_num(-1)
+m_payloadStart(false)
 {
 
 }
@@ -19,7 +18,7 @@ bool PacketFilter::show(const TSPacket &packet) const
 
     bool show_packet = filter_pid(packet.pid());
 
-    if (m_pkt_num >= 0 && packet.num() != m_pkt_num)
+    if (!filter_packet(packet.num()))
     {
         return false;
     }
@@ -92,13 +91,32 @@ bool PacketFilter::filter_pid(int in_pid) const
     return ret;
 }
 
+bool PacketFilter::filter_packet(int packet) const
+{
+    bool ret = false;
+
+    if (m_pkts.empty()) {
+        ret = true;
+    }
+    for (const auto & pkt : m_pkts)
+    {
+        if (pkt == packet)
+        {
+            ret = true;
+            break;
+        }
+    }
+    return ret;
+}
+
+
 void PacketFilter::payloadStart()
 {
     m_payloadStart = true;
 }
 
-void PacketFilter::set_packet(int pkt_num)
+void PacketFilter::packets(std::vector<int> pkts)
 {
-    m_pkt_num = pkt_num;
+    m_pkts = pkts;
 }
 

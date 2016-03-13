@@ -19,17 +19,18 @@ public:
     void ebp();
     void rai();
     void payloadStart();
-    void set_packet(int pkt_num);
+    void packets(std::vector<int> pkts);
     virtual bool show(const TSPacket &packet) const;
 
 private:
     bool filter_pid(int pid) const;
+    bool filter_packet(int packet) const;
     bool m_pts;
     bool m_ebp;
     bool m_rai;
     bool m_payloadStart;
     std::vector<int> m_pids;
-    int m_pkt_num;
+    std::vector<int> m_pkts;
 };
 
 typedef std::shared_ptr< PacketFilter > PacketFilterPtr;
