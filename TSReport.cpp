@@ -41,6 +41,11 @@ void TSReport::report()
                     it->second.push_back(packet->num());
                     m_continuity_error.emplace(packet->pid(), it->second);
                 }
+                else
+                {
+                    std::vector<int> v {packet->num()};
+                    m_continuity_error.emplace(packet->pid(), v);
+                }
             }
         }
     }

@@ -28,4 +28,7 @@
 - list or range of packets to print
 - add reference to previos packet to TSPacket. The previous packet with same pid. A step to collect payloads/print frame
 - Multithreaded read file and print. Use <condition_variable> 
+- Dump -d should dump payload of what is printed. Can be used to extract all packets for one pid or payload for one frame (jpeg-pic)
+- Print all packets in this payload (all packets with this pid util next payload start)
+- Handle pts as a <chrono> to ease printout and calculations
 
