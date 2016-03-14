@@ -77,6 +77,11 @@ int main(int argc, char ** argv)
 
     }
 
+    if (argv[optind] != 0)
+    {
+        file_name = std::string(argv[optind]);
+    }
+    
     try {
 
         TransportStream ts(file_name);
@@ -94,7 +99,7 @@ int main(int argc, char ** argv)
 
 void usage()
 {
-    std::cout << "tsparse [file] [options]" << std::endl;
+    std::cout << "tsparse [options] file" << std::endl;
     std::cout << "  Options:" << std::endl;
     std::cout << "          -f <file>           File that should be parsed" << std::endl;
     std::cout << "          -h                  help" << std::endl;
