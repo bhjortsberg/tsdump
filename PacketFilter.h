@@ -20,7 +20,7 @@ public:
     void rai();
     void payloadStart();
     void packets(std::vector<int> pkts);
-    virtual bool show(const TSPacket &packet) const;
+    virtual bool show(const TSPacketPtr &packet) const;
 
 private:
     bool filter_pid(int pid) const;

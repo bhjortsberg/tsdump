@@ -8,15 +8,19 @@
 
 #include <iosfwd>
 #include <vector>
+#include <map>
 #include "TSPacket.h"
 
 class TransportStream
 {
 public:
     TransportStream(const std::string & fileName);
-    std::vector<TSPacket> getPackets();
+    std::vector<TSPacketPtr> getPackets();
 private:
-    std::vector<TSPacket> packets;
+    std::vector<TSPacketPtr> packets;
+    std::map<int, TSPacketPtr> m_latest_packets;
+
+    void add_packet(std::vector< unsigned char > vector, int cnt);
 };
 
 

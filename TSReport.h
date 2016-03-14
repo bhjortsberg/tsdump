@@ -16,13 +16,17 @@ public:
     void report();
 
 private:
-    std::string get_packet_string(const TSPacket & packet);
-    std::string get_packet_payload_string(const TSPacket & packet);
-    std::string get_packet_extra_info_string(const TSPacket & packet);
+    std::string get_packet_string(const TSPacketPtr & packet);
+    std::string get_packet_payload_string(const TSPacketPtr & packet);
+    std::string get_packet_extra_info_string(const TSPacketPtr & packet);
     void print_header();
+    void print_summary();
+    TSPacketPtr find_prev_pes_packet(const TSPacketPtr & packet);
     IFilterPtr m_filter;
     OutputOptionsPtr m_option;
     TransportStream m_ts;
+    std::map<unsigned int, std::vector<int>> m_continuity_error;
+
 
 
 };

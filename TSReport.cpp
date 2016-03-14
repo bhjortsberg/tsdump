@@ -32,28 +32,40 @@ void TSReport::report()
             {
                 std::cout << get_packet_payload_string(packet) << std::endl;
             }
+
+            if (!packet->continuity())
+            {
+                auto it = m_continuity_error.find(packet->pid());
+                if (it != std::end(m_continuity_error))
+                {
+                    it->second.push_back(packet->num());
+                    m_continuity_error.emplace(packet->pid(), it->second);
+                }
+            }
         }
     }
+
+    print_summary();
 
 //    std::cout << m_filter->statistics();
 
 }
 
-std::string TSReport::get_packet_string(const TSPacket & packet)
+std::string TSReport::get_packet_string(const TSPacketPtr & packet)
 {
     std::stringstream packet_string;
 
-    packet_string << packet.num() << "\t\t" << packet.pid() << "\t";
-    if (packet.has_pes_header())
+    packet_string << packet->num() << "\t" << packet->pid() << "\t" << packet->continuity_count() << "\t\t";
+    if (packet->has_pes_header())
     {
-        packet_string << std::hex << "0x" << packet.pes_header().get_pts() << std::dec << "\t" << packet.pes_header().get_pts_str() << "\t";
+        packet_string << std::hex << "0x" << packet->pes_header().get_pts() << std::dec << "\t" << packet->pes_header().get_pts_str() << "\t";
     }
     else {
         packet_string << "\t\t\t\t";
     }
 
 
-    if (packet.has_adaption_field() && packet.has_ebp())
+    if (packet->has_adaption_field() && packet->has_ebp())
     {
         packet_string << "EBP\t";
     }
@@ -61,7 +73,7 @@ std::string TSReport::get_packet_string(const TSPacket & packet)
         packet_string << "   \t";
     }
 
-    if (packet.has_random_access_indicator())
+    if (packet->has_random_access_indicator())
     {
         packet_string << "RAI\t";
     }
@@ -69,9 +81,22 @@ std::string TSReport::get_packet_string(const TSPacket & packet)
         packet_string << "   \t";
     }
 
-    if (packet.is_payload_start())
+    if (packet->is_payload_start())
     {
         packet_string << "Start\t";
+    }
+
+    if (packet->has_pes_header())
+    {
+        TSPacketPtr prev_pes_packet = find_prev_pes_packet(packet);
+        if (prev_pes_packet)
+        {
+            int pts_diff = packet->pes_header().get_pts() - prev_pes_packet->pes_header().get_pts();
+            if (pts_diff > 20000)
+            {
+                packet_string << "PTS diff: " << pts_diff;
+            }
+        }
     }
 
     packet_string << std::endl;
@@ -82,11 +107,11 @@ std::string TSReport::get_packet_string(const TSPacket & packet)
 
 void TSReport::print_header()
 {
-    std::cout << "Packet No.\tPID\tpts hex\t\tpts wall\tEBP\tRAI\tPayload" << std::endl;
-    std::cout << "-------------------------------------------------------------------------------" << std::endl;
+    std::cout << "Packet\tPID\tContinuity\tpts hex\t\tpts wall\tEBP\tRAI\tPayload" << std::endl;
+    std::cout << "-----------------------------------------------------------------------------------------------" << std::endl;
 }
 
-std::string TSReport::get_packet_payload_string(const TSPacket &packet)
+std::string TSReport::get_packet_payload_string(const TSPacketPtr &packet)
 {
     std::stringstream payload_str;
     payload_str << std::hex << "\n\t\t";
@@ -94,7 +119,7 @@ std::string TSReport::get_packet_payload_string(const TSPacket &packet)
     int byte_cnt = 0;
     std::stringstream line;
     std::string asciiline = "";
-    for (auto & p : packet.get_payload())
+    for (auto & p : packet->get_payload())
     {
         line << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(p) << " ";
         asciiline += (((p > 31) && (p < 127)) ? p : '.');
@@ -116,21 +141,58 @@ std::string TSReport::get_packet_payload_string(const TSPacket &packet)
     return payload_str.str();
 }
 
-std::string TSReport::get_packet_extra_info_string(const TSPacket &packet)
+std::string TSReport::get_packet_extra_info_string(const TSPacketPtr &packet)
 {
     std::stringstream adaption_str;
     std::stringstream pes_str;
 
-    if (packet.has_adaption_field())
+    if (packet->has_adaption_field())
     {
-        adaption_str << packet.adaption_field().print_str();
+        adaption_str << packet->adaption_field().print_str();
     }
 
-    if (packet.has_pes_header())
+    if (packet->has_pes_header())
     {
-        pes_str << packet.pes_header().print_str();
+        pes_str << packet->pes_header().print_str();
     }
 
     return adaption_str.str() + pes_str.str();
 
+}
+
+void TSReport::print_summary()
+{
+    std::cout << std::endl << "Summary:" << std::endl;
+    std::cout << "\tNumber of packets: " << (*(--std::end(m_ts.getPackets())))->num()+1 << std::endl;
+
+    if (!m_continuity_error.empty())
+    {
+        std::cout << "\tContinutity count error in:" << std::endl;
+        for (const auto & a : m_continuity_error)
+        {
+            std::cout << "\t\tpid: " << a.first << " packet: ";
+            for (const auto & b : a.second)
+            {
+                std::cout <<  b;
+            }
+            std::cout << std::endl;
+
+        }
+
+    }
+}
+
+TSPacketPtr TSReport::find_prev_pes_packet(const TSPacketPtr & packet)
+{
+    TSPacketPtr curr_packet = packet;
+
+    while ((curr_packet = curr_packet->get_prev()) != nullptr)
+    {
+        if (curr_packet->has_pes_header())
+        {
+            break;
+        }
+    }
+
+    return curr_packet;
 }

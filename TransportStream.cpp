@@ -20,9 +20,9 @@ TransportStream::TransportStream(const std::string &fileName)
         {
             if (buffer[0] == TSPacket::SYNC_BYTE)
             {
-                std::vector<unsigned char> target(TSPacket::TS_PACKET_SIZE);
-                std::copy(std::begin(buffer), std::end(buffer), std::begin(target));
-                packets.push_back(TSPacket(target, pkt_cnt));
+                std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE);
+                std::copy(std::begin(buffer), std::end(buffer), std::begin(raw_packet));
+                add_packet(raw_packet, pkt_cnt);
                 pkt_cnt++;
             }
             else
@@ -41,7 +41,24 @@ TransportStream::TransportStream(const std::string &fileName)
     }
 }
 
-std::vector<TSPacket> TransportStream::getPackets()
+std::vector<TSPacketPtr> TransportStream::getPackets()
 {
     return packets;
+}
+
+void TransportStream::add_packet(std::vector< unsigned char > raw_packet, int cnt)
+{
+
+    TSPacketPtr packet(new TSPacket(raw_packet, cnt));
+    auto p = m_latest_packets.find(packet->pid());
+    if (p != std::end(m_latest_packets))
+    {
+        p->second->set_next(packet);
+        packet->set_prev(p->second);
+        m_latest_packets.erase(p);
+    }
+    m_latest_packets.emplace(packet->pid(), packet);
+
+    packets.push_back(packet);
+
 }

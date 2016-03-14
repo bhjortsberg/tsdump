@@ -12,7 +12,7 @@
 class IFilter
 {
 public:
-    virtual bool show(const TSPacket &packet) const = 0;
+    virtual bool show(const TSPacketPtr &packet) const = 0;
 
 };
 

@@ -13,32 +13,32 @@ m_payloadStart(false)
 
 }
 
-bool PacketFilter::show(const TSPacket &packet) const
+bool PacketFilter::show(const TSPacketPtr &packet) const
 {
 
-    bool show_packet = filter_pid(packet.pid());
+    bool show_packet = filter_pid(packet->pid());
 
-    if (!filter_packet(packet.num()))
+    if (!filter_packet(packet->num()))
     {
         return false;
     }
 
-    if (m_pts && !packet.has_pes_header())
+    if (m_pts && !packet->has_pes_header())
     {
         return false;
     }
 
-    if (m_ebp && !packet.has_ebp())
+    if (m_ebp && !packet->has_ebp())
     {
         return false;
     }
 
-    if (m_rai && !packet.has_random_access_indicator())
+    if (m_rai && !packet->has_random_access_indicator())
     {
         return false;
     }
 
-    if (m_payloadStart && !packet.is_payload_start())
+    if (m_payloadStart && !packet->is_payload_start())
     {
         return false;
     }
