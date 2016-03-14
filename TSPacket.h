@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 #include "AdaptionField.h"
 #include "PESHeader.h"
 
