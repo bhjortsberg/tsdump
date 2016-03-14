@@ -97,8 +97,8 @@ void usage()
     std::cout << "          -t                  Print packets with pts" << std::endl;
     std::cout << "          -e                  Print packets with EBP markers" << std::endl;
     std::cout << "          -r                  Print packets with random access indicators" << std::endl;
-    std::cout << "          -p <pid1,pid2...>   Print packets with pids, comma separated list of pids" << std::endl <<
-    "                              If no pids given, print a list of pids in transport stream" << std::endl;
+    std::cout << "          -p <pid1,pid2...>   Print only packets with specified pid, comma separated list of pids" << std::endl <<
+                 "                              If no pids given, print a list of pids in transport stream" << std::endl;
     std::cout << "          -i <pkt num>        Inspect (print) packet with given number" << std::endl;
     std::cout << "          -s                  Print only payload start packets" << std::endl;
     std::cout << "          -x                  Print adaption field and PES header" << std::endl;
