@@ -61,7 +61,7 @@ std::string PESHeader::get_pts_str()
     ss << std::setfill('0') << std::setw(2) << hour << ":"
         << std::setfill('0') << std::setw(2) << minutes << ":"
         << std::setfill('0') << std::setw(2) << seconds << "."
-        << std::setfill('0') << std::setw(2) << millisec;
+        << std::setfill('0') << std::setw(3) << millisec;
     return ss.str();
 }
 

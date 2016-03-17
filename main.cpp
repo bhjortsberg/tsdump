@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
+#include <array>
 #include "TransportStream.h"
 #include "TSReport.h"
 #include "PacketFilter.h"
@@ -9,6 +10,9 @@
 using namespace std;
 
 void usage();
+std::vector<int> get_opt_values(char * opt);
+std::vector<std::string> get_opt_comma_separated(const char * opt);
+std::vector<int> get_opt_range(const std::string & str);
 
 int main(int argc, char ** argv)
 {
@@ -27,16 +31,43 @@ int main(int argc, char ** argv)
     while ((ch = getopt(argc, argv, "i:hf:p:tesrXx")) != -1) {
         std::string pids_str, pkt_str;
         std::vector<int> pids, pkts;
-        std::stringstream ss, pss;
+        std::stringstream ss, pss, ppss;
+        std::vector<std::string> ivec;
+        std::array<int,2> range;
+        int i;
 
         switch (ch) {
             case 'i':
+                filter->packets(get_opt_values(optarg));
+#if 0
                 pss << std::string(optarg);
+
                 while (std::getline(pss, pkt_str, ','))
                 {
-                    pkts.push_back(std::stoi(pkt_str));
+                    ivec.push_back(pkt_str);
+//                    pkts.push_back(std::stoi(pkt_str));
+                }
+                for (auto a : ivec)
+                {
+                    ppss << a;
+                    i =0 ;
+                    while (std::getline(ppss, pkt_str, '-'))
+                    {
+                        range[i] = std::stoi(pkt_str);
+                        ++i;
+                    }
+
+                    for(int j = range[0]; j <= range[1]; ++j)
+                    {
+                        pkts.push_back(j);
+                    }
+//                    find(std::begin(a), std::end(a), '-');
+                    // copy_if(std::begin(a), std::end(a), std::begin(res), [bool](const auto & g){});
+                    // transform(std::begin(a), std::end(a), std::begin(res), std::stoi);
+                    // generate(std::begin(arr), std::end(arr),  <- kan man generera en range?
                 }
                 filter->packets(pkts);
+#endif
                 break;
             case 'h':
                 usage();
@@ -81,7 +112,7 @@ int main(int argc, char ** argv)
     {
         file_name = std::string(argv[optind]);
     }
-    
+
     try {
 
         TransportStream ts(file_name);
@@ -95,6 +126,92 @@ int main(int argc, char ** argv)
     }
 
     return 0;
+}
+
+
+std::vector<int> get_opt_values(char * opt)
+{
+    std::vector<std::string> ivec;
+    std::vector<int> packets;
+
+    ivec = get_opt_comma_separated(opt);
+
+    for_each(std::begin(ivec), std::end(ivec), get_opt_range);
+
+    for (auto a : ivec)
+    {
+        auto p = get_opt_range(a);
+        std::copy(std::begin(p), std::end(p), std::end(packets));
+#if 0
+        pss2 << a;
+        int i = 0 ;
+        std::string newstr;
+        while (std::getline(pss2, newstr, '-'))
+        {
+            range[i] = std::stoi(newstr);
+            ++i;
+        }
+        if (i != 0)
+        {
+            for (int j = range[0]; j <= range[1]; ++j)
+            {
+                packets.push_back(j);
+            }
+        }
+        else
+        {
+            packets.push_back(std::stoi(a));
+        }
+#endif
+//       find(std::begin(a), std::end(a), '-');
+        // copy_if(std::begin(a), std::end(a), std::begin(res), [bool](const auto & g){});
+        // transform(std::begin(a), std::end(a), std::begin(res), std::stoi);
+        // generate(std::begin(arr), std::end(arr),  <- kan man generera en range?
+    }
+
+    return packets;
+}
+
+std::vector<std::string> get_opt_comma_separated(const char * opt)
+{
+    std::stringstream pss;
+    std::string pkt_str;
+    std::vector<std::string> vec;
+    pss << std::string(opt);
+
+    while (std::getline(pss, pkt_str, ','))
+    {
+        vec.push_back(pkt_str);
+    }
+
+    return vec;
+}
+std::vector<int> get_opt_range(const std::string & str)
+{
+    std::array<int,2> range;
+    std::stringstream pss;
+    std::vector<int> packets;
+    int i = 0 ;
+    std::string range_str;
+
+    pss << str;
+    while (std::getline(pss, range_str, '-'))
+    {
+        range[i] = std::stoi(range_str);
+        ++i;
+    }
+    if (i != 0)
+    {
+        for (int j = range[0]; j <= range[1]; ++j)
+        {
+            packets.push_back(j);
+        }
+    }
+    else
+    {
+        packets.push_back(std::stoi(str));
+    }
+    return packets;
 }
 
 void usage()
