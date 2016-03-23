@@ -179,4 +179,6 @@ void usage()
     std::cout << "          -s                  Print only payload start packets" << std::endl;
     std::cout << "          -x                  Print adaption field and PES header" << std::endl;
     std::cout << "          -X                  Print packet payload in hex" << std::endl;
+
+    std::cout << std::endl;
 }

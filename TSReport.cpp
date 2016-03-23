@@ -150,10 +150,11 @@ std::string TSReport::get_packet_extra_info_string(const TSPacketPtr &packet)
 {
     std::stringstream adaption_str;
     std::stringstream pes_str;
+    pes_str << std::endl;
 
     if (packet->has_adaption_field())
     {
-        adaption_str << packet->adaption_field().print_str();
+        adaption_str << std::endl << packet->adaption_field().print_str();
     }
 
     if (packet->has_pes_header())
@@ -185,6 +186,8 @@ void TSReport::print_summary()
         }
 
     }
+
+    std::cout << std::endl;
 }
 
 TSPacketPtr TSReport::find_prev_pes_packet(const TSPacketPtr & packet)
