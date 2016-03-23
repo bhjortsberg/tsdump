@@ -17,6 +17,12 @@ m_option(option)
 
 void TSReport::report()
 {
+    if (m_option->listPidsOnly()) {
+        // Read PAT to see what pids exists
+        std::cout << "TODO: list pids not yet implemented";
+        return;
+    }
+
     print_header();
     for (const auto & packet : m_ts.getPackets())
     {

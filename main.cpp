@@ -49,7 +49,13 @@ int main(int argc, char ** argv)
                 {
                     pids.push_back(std::stoi(pids_str));
                 }
-                filter->pids(pids);
+                if (!pids.empty())
+                {
+                    filter->pids(pids);
+                }
+                else{
+                    option->listPids();
+                }
                 break;
             case 't':
                 filter->pts();

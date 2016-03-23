@@ -23,3 +23,13 @@ bool OutputOptions::printExtraInfo() const
 {
     return m_extra;
 }
+
+void OutputOptions::listPids()
+{
+    m_listPids = true;
+}
+
+bool OutputOptions::listPidsOnly() const
+{
+    return m_listPids;
+}
