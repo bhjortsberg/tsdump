@@ -29,45 +29,13 @@ int main(int argc, char ** argv)
     }
 
     while ((ch = getopt(argc, argv, "i:hf:p:tesrXx")) != -1) {
-        std::string pids_str, pkt_str;
-        std::vector<int> pids, pkts;
-        std::stringstream ss, pss, ppss;
-        std::vector<std::string> ivec;
-        std::array<int,2> range;
-        int i;
+        std::string pids_str;
+        std::vector<int> pids;
+        std::stringstream ss;
 
         switch (ch) {
             case 'i':
                 filter->packets(get_opt_values(optarg));
-#if 0
-                pss << std::string(optarg);
-
-                while (std::getline(pss, pkt_str, ','))
-                {
-                    ivec.push_back(pkt_str);
-//                    pkts.push_back(std::stoi(pkt_str));
-                }
-                for (auto a : ivec)
-                {
-                    ppss << a;
-                    i =0 ;
-                    while (std::getline(ppss, pkt_str, '-'))
-                    {
-                        range[i] = std::stoi(pkt_str);
-                        ++i;
-                    }
-
-                    for(int j = range[0]; j <= range[1]; ++j)
-                    {
-                        pkts.push_back(j);
-                    }
-//                    find(std::begin(a), std::end(a), '-');
-                    // copy_if(std::begin(a), std::end(a), std::begin(res), [bool](const auto & g){});
-                    // transform(std::begin(a), std::end(a), std::begin(res), std::stoi);
-                    // generate(std::begin(arr), std::end(arr),  <- kan man generera en range?
-                }
-                filter->packets(pkts);
-#endif
                 break;
             case 'h':
                 usage();
@@ -136,33 +104,15 @@ std::vector<int> get_opt_values(char * opt)
 
     ivec = get_opt_comma_separated(opt);
 
-    for_each(std::begin(ivec), std::end(ivec), get_opt_range);
+    // TODO: Use a lambda, capture packets by reference
+//    for_each(std::begin(ivec), std::end(ivec), get_opt_range);
 
     for (auto a : ivec)
     {
         auto p = get_opt_range(a);
-        std::copy(std::begin(p), std::end(p), std::end(packets));
-#if 0
-        pss2 << a;
-        int i = 0 ;
-        std::string newstr;
-        while (std::getline(pss2, newstr, '-'))
-        {
-            range[i] = std::stoi(newstr);
-            ++i;
-        }
-        if (i != 0)
-        {
-            for (int j = range[0]; j <= range[1]; ++j)
-            {
-                packets.push_back(j);
-            }
-        }
-        else
-        {
-            packets.push_back(std::stoi(a));
-        }
-#endif
+
+        packets.insert(std::end(packets), std::begin(p), std::end(p));
+
 //       find(std::begin(a), std::end(a), '-');
         // copy_if(std::begin(a), std::end(a), std::begin(res), [bool](const auto & g){});
         // transform(std::begin(a), std::end(a), std::begin(res), std::stoi);
@@ -190,12 +140,12 @@ std::vector<int> get_opt_range(const std::string & str)
 {
     std::array<int,2> range;
     std::stringstream pss;
-    std::vector<int> packets;
+    std::vector<int> packet_numbers;
     int i = 0 ;
     std::string range_str;
 
     pss << str;
-    while (std::getline(pss, range_str, '-'))
+    while (pss.str().find('-') != -1 && std::getline(pss, range_str, '-'))
     {
         range[i] = std::stoi(range_str);
         ++i;
@@ -204,14 +154,14 @@ std::vector<int> get_opt_range(const std::string & str)
     {
         for (int j = range[0]; j <= range[1]; ++j)
         {
-            packets.push_back(j);
+            packet_numbers.push_back(j);
         }
     }
     else
     {
-        packets.push_back(std::stoi(str));
+        packet_numbers.push_back(std::stoi(str));
     }
-    return packets;
+    return packet_numbers;
 }
 
 void usage()
