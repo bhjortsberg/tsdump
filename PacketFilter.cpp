@@ -75,40 +75,22 @@ void PacketFilter::rai()
 
 bool PacketFilter::filter_pid(int in_pid) const
 {
-    bool ret = false;
-
-    if (m_pids.empty()) {
-        ret = true;
-    }
-    for (const auto & pid : m_pids)
-    {
-        if (pid == in_pid)
-        {
-            ret = true;
-            break;
-        }
-    }
-    return ret;
+    return filter(in_pid, m_pids);
 }
 
 bool PacketFilter::filter_packet(int packet) const
 {
-    bool ret = false;
-
-    if (m_pkts.empty()) {
-        ret = true;
-    }
-    for (const auto & pkt : m_pkts)
-    {
-        if (pkt == packet)
-        {
-            ret = true;
-            break;
-        }
-    }
-    return ret;
+    return filter(packet, m_pkts);
 }
 
+bool PacketFilter::filter(int f, const std::vector< int > &data) const
+{
+    if (data.empty()) {
+        return true;
+    }
+
+    return std::find(std::begin(data), std::end(data), f) != std::end(data);
+}
 
 void PacketFilter::payloadStart()
 {

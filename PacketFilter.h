@@ -23,6 +23,7 @@ public:
     virtual bool show(const TSPacketPtr &packet) const;
 
 private:
+    bool filter(int f, const std::vector<int> & data) const;
     bool filter_pid(int pid) const;
     bool filter_packet(int packet) const;
     bool m_pts;

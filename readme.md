@@ -10,7 +10,7 @@
         -e              print only packets with EBP marker
         -r              print only packets with random access indentifier
         -p <p1,p2...>   print only packets with given pids. Can be a comma separated list of pids
-        -i <i1,i2...>   Inspect packets. Can be comma separated list of packet number
+        -i <i1,i2...>   Inspect packets. Range or comma separated list of packet numbers
         -s              Print only payload start packets
         -x              Print extra info, adaption field and PES header
         -X              Print packet payload in hex
@@ -21,7 +21,7 @@
 - Multithreaded read file and print. Use <condition_variable> 
 - Group packets that belong to same frame.
 - Print all packets in this payload (all packets with this pid util next payload start)
-- Dump -d should dump payload of what is printed. Can be used to extract all packets for one pid or payload for one frame (jpeg-pic)
+- Dump -d should dump payload (ES) of what is printed. Can be used to extract all packets for one pid or payload for one frame (jpeg-pic)
 
 - Improve option parsing with error handling and required file argument.
 - Calculate the length of the file.
@@ -37,3 +37,8 @@
 - -s for summary or statistics that prints number of packets and a list of pids.
 - Or a hide statistics if statistics is to be printed always.
 - write file of one pid to an mp4-file.
+
+## Bugs
+- Summary printout for this
+
+    $ tsparse -p 8191  ~/vcp-origin/tvb/flash-1.ts
