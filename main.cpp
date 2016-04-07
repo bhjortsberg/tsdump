@@ -13,6 +13,8 @@ void usage();
 std::vector<int> get_opt_values(char * opt);
 std::vector<std::string> get_opt_comma_separated(const char * opt);
 std::vector<int> get_opt_range(const std::string & str);
+std::vector<int> get_range(int from, int to);
+std::vector<int> get_single_value(const std::string & str);
 
 int main(int argc, char ** argv)
 {
@@ -45,16 +47,15 @@ int main(int argc, char ** argv)
                 break;
             case 'p':
                 ss << std::string(optarg);
-                while (std::getline(ss, pids_str, ','))
+                pids = get_opt_values(optarg);
+                if (pids.empty())
                 {
-                    pids.push_back(std::stoi(pids_str));
-                }
-                if (!pids.empty())
-                {
-                    filter->pids(pids);
+                    option->listPids();
+                    // No option argument was given -> optarg is an argument.
+                    optind--;
                 }
                 else{
-                    option->listPids();
+                    filter->pids(pids);
                 }
                 break;
             case 't':
@@ -115,10 +116,15 @@ std::vector<int> get_opt_values(char * opt)
 
     for (auto a : ivec)
     {
-        auto p = get_opt_range(a);
+        try {
 
-        packets.insert(std::end(packets), std::begin(p), std::end(p));
+            auto p = get_opt_range(a);
 
+            packets.insert(std::end(packets), std::begin(p), std::end(p));
+        }
+        catch (std::invalid_argument & e) {
+            break;
+        }
 //       find(std::begin(a), std::end(a), '-');
         // copy_if(std::begin(a), std::end(a), std::begin(res), [bool](const auto & g){});
         // transform(std::begin(a), std::end(a), std::begin(res), std::stoi);
@@ -156,18 +162,39 @@ std::vector<int> get_opt_range(const std::string & str)
         range[i] = std::stoi(range_str);
         ++i;
     }
+
     if (i != 0)
     {
-        for (int j = range[0]; j <= range[1]; ++j)
-        {
-            packet_numbers.push_back(j);
-        }
+        packet_numbers = get_range(range[0], range[1]);
     }
     else
     {
-        packet_numbers.push_back(std::stoi(str));
+        packet_numbers = get_single_value(str);
     }
     return packet_numbers;
+}
+
+std::vector<int> get_range(int from, int to)
+{
+    std::vector<int> range;
+    for (int j = from; j <= to; ++j)
+    {
+        range.push_back(j);
+    }
+
+    return range;
+}
+
+std::vector<int> get_single_value(const std::string & str)
+{
+    std::vector<int> packet;
+    try {
+        packet.push_back(std::stoi(str));
+    } catch (std::invalid_argument & e)
+    {
+        // This is ok. return empty vector
+    }
+    return packet;
 }
 
 void usage()

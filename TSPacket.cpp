@@ -3,6 +3,8 @@
 //
 
 #include <stdexcept>
+#include <iostream>
+#include <iomanip>
 #include "TSPacket.h"
 
 TSPacket::TSPacket(Chunk buffer, int pkt_num):
@@ -148,4 +150,70 @@ bool TSPacket::continuity() const
 TSPacketPtr TSPacket::get_prev() const
 {
     return m_prev;
+}
+
+std::map< unsigned short, unsigned short> TSPacket::get_program_pids() const
+{
+    if (pid() != 0x00) {
+        throw std::runtime_error("Not a PAT");
+    }
+
+    auto pit = payload_it + 9;
+    // byte 9 is last_section_number
+    // byte 10-11 program number
+    // byte 12-13 program_map_pid - 13 bits
+    auto section_number = *(payload_it + 7);
+    auto last_section_number =  *(payload_it + 8);
+
+    std::map<unsigned short, unsigned short> result;
+
+    // TODO: Replace with something better
+    for (int i = section_number; i <= last_section_number; ++i)
+    {
+        unsigned short program_number = 0;
+        unsigned short program_map_pid = 0;
+
+        program_number |= *(pit++) << 8;
+        program_number |= *(pit++);
+        if (program_number != 0)
+        {
+            program_map_pid |= (*(pit++) & 0x1F) << 8;
+            program_map_pid |= *(pit++);
+            result.insert( {program_number, program_map_pid} );
+        }
+
+    }
+
+    return result;
+}
+
+// TODO: Maybe not a member of TSPacket? And return a PMT object
+std::vector< int > TSPacket::parse_pmt() const
+{
+    std::vector<int> pids;
+    unsigned short program_info_length = 0;
+    unsigned short elementary_pid = 0;
+
+    auto pit = payload_it + 13;
+
+    if (*(payload_it + 7) != 0 ||  *(payload_it + 8) != 0)
+    {
+        throw std::runtime_error("Packet not a PMT");
+    }
+
+    program_info_length |= (*(payload_it + 11) & 0x0F) << 8;
+    program_info_length |= *(payload_it + 12);
+    if (program_info_length != 0) {
+        throw std::runtime_error("Program info length not 0");
+    }
+
+    for (int i = 0; i < 1; ++i) // TODO: Fix this
+    {
+        unsigned char stream_type = *(pit++);
+        elementary_pid |= (*(pit++) & 0x03) << 8;
+        elementary_pid |= *(pit++);
+        pids.push_back(elementary_pid);
+    }
+
+    return pids;
 }

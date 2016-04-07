@@ -39,6 +39,8 @@ public:
     void set_prev(const TSPacketPtr & prev);
     bool continuity() const;
     TSPacketPtr get_prev() const;
+    std::map<unsigned short, unsigned short> get_program_pids() const;
+    std::vector<int> parse_pmt() const;
 
 private:
     char adaption_field_control() const;

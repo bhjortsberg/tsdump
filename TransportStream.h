@@ -16,6 +16,12 @@ class TransportStream
 public:
     TransportStream(const std::string & fileName);
     std::vector<TSPacketPtr> getPackets();
+    std::vector<TSPacketPtr>::iterator find_pat();
+    std::vector<TSPacketPtr>::iterator find_pat(const std::vector<TSPacketPtr>::iterator & it );
+    std::vector<int> find_pmt_pids(const TSPacketPtr & pat) const;
+    std::vector<int> find_pids();
+    TSPacketPtr find_pmt(int pid);
+
 private:
     std::vector<TSPacketPtr> packets;
     std::map<int, TSPacketPtr> m_latest_packets;

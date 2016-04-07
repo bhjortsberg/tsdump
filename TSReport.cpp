@@ -19,7 +19,11 @@ void TSReport::report()
 {
     if (m_option->listPidsOnly()) {
         // Read PAT to see what pids exists
-        std::cout << "TODO: list pids not yet implemented";
+        auto pids = m_ts.find_pids();
+        for (int p : pids) {
+            std::cout << "Pid: " << p << std::endl;
+        }
+
         return;
     }
 
