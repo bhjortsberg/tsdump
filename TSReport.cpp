@@ -18,12 +18,11 @@ m_option(option)
 void TSReport::report()
 {
     if (m_option->listPidsOnly()) {
-        // Read PAT to see what pids exists
         auto pids = m_ts.find_pids();
+        std::cout << std::setw(6) << "Pid\t\tType" << std::endl;
         for (int p : pids) {
-            std::cout << "Pid: " << p << std::endl;
+            std::cout << std::setw(6) << std::right << p << std::endl;
         }
-
         return;
     }
 

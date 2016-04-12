@@ -99,7 +99,6 @@ std::vector< int > TransportStream::find_pmt_pids(const TSPacketPtr & pat) const
 
 std::vector< int > TransportStream::find_pids()
 {
-    std::map<int,std::vector<int>> programs;
     std::vector<int> pids;
     std::vector<int> ppids;
     TSPacketPtr pmt_pkt;
@@ -110,8 +109,7 @@ std::vector< int > TransportStream::find_pids()
     for (auto p : pmt_pids) {
         pmt_pkt = find_pmt(p);
         ppids = pmt_pkt->parse_pmt();
-//        programs.insert()
-        pids.insert(std::begin(ppids), std::end(ppids), std::end(pids));
+        pids.insert(std::end(pids), std::begin(ppids), std::end(ppids));
     }
 
     return pids;
