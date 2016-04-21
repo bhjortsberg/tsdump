@@ -6,6 +6,7 @@
 #include <iostream>
 #include <iomanip>
 #include "TSPacket.h"
+#include "PMTPacket.h"
 
 TSPacket::TSPacket(Chunk buffer, int pkt_num):
         chunk(buffer),
@@ -181,39 +182,15 @@ std::map< unsigned short, unsigned short> TSPacket::get_program_pids() const
             program_map_pid |= *(pit++);
             result.insert( {program_number, program_map_pid} );
         }
-
     }
 
     return result;
 }
 
-// TODO: Maybe not a member of TSPacket? And return a PMT object
-std::vector< int > TSPacket::parse_pmt() const
+Chunk::const_iterator TSPacket::payload() const
 {
-    std::vector<int> pids;
-    unsigned short program_info_length = 0;
-    unsigned short elementary_pid = 0;
-
-    auto pit = payload_it + 13;
-
-    if (*(payload_it + 7) != 0 ||  *(payload_it + 8) != 0)
-    {
-        throw std::runtime_error("Packet not a PMT");
-    }
-
-    program_info_length |= (*(payload_it + 11) & 0x0F) << 8;
-    program_info_length |= *(payload_it + 12);
-    if (program_info_length != 0) {
-        throw std::runtime_error("Program info length not 0");
-    }
-
-    for (int i = 0; i < 1; ++i) // TODO: Fix this
-    {
-        unsigned char stream_type = *(pit++);
-        elementary_pid |= (*(pit++) & 0x03) << 8;
-        elementary_pid |= *(pit++);
-        pids.push_back(elementary_pid);
-    }
-
-    return pids;
+    return payload_it;
 }
+
+
+

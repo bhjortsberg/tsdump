@@ -10,14 +10,15 @@
 #include <memory>
 #include "AdaptionField.h"
 #include "PESHeader.h"
+#include "IPacket.h"
 
-typedef std::vector<unsigned char> Chunk;
+
 typedef std::pair<Chunk::const_iterator, Chunk::const_iterator> PayloadIterator;
 
 class TSPacket;
 typedef std::shared_ptr<TSPacket> TSPacketPtr;
 
-class TSPacket
+class TSPacket : public IPacket
 {
 public:
     static const int SYNC_BYTE = 0x47;
@@ -41,6 +42,8 @@ public:
     TSPacketPtr get_prev() const;
     std::map<unsigned short, unsigned short> get_program_pids() const;
     std::vector<int> parse_pmt() const;
+
+    virtual Chunk::const_iterator payload() const;
 
 private:
     char adaption_field_control() const;

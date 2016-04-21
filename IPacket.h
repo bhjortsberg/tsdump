@@ -5,11 +5,14 @@
 #ifndef TSPARSE_IPACKET_H
 #define TSPARSE_IPACKET_H
 
+typedef std::vector<unsigned char> Chunk;
 
 class IPacket
 {
-
+public:
+    virtual Chunk::const_iterator payload() const = 0;
 };
 
+typedef std::shared_ptr<IPacket> IPacketPtr;
 
 #endif //TSPARSE_IPACKET_H

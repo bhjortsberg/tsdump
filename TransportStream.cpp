@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <iostream>
 #include "TransportStream.h"
+#include "PMTPacket.h"
 
 
 TransportStream::TransportStream(const std::string &fileName)
@@ -108,7 +109,8 @@ std::vector< int > TransportStream::find_pids()
 
     for (auto p : pmt_pids) {
         pmt_pkt = find_pmt(p);
-        ppids = pmt_pkt->parse_pmt();
+        auto pmt = parse_pmt(pmt_pkt);
+        ppids = pmt.get_elementary_pids();
         pids.insert(std::end(pids), std::begin(ppids), std::end(ppids));
     }
 
