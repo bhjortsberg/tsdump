@@ -19,8 +19,9 @@ private:
     std::string get_packet_string(const TSPacketPtr & packet);
     std::string get_packet_payload_string(const TSPacketPtr & packet);
     std::string get_packet_extra_info_string(const TSPacketPtr & packet);
-    std::string get_es_string(const PMTPacket & pmtPacket);
+    void print_pid_info();
     std::string get_pmt_string(unsigned int pid);
+    std::string get_es_string(const PMTPacket & pmtPacket);
     void print_header();
     void print_summary();
     TSPacketPtr find_prev_pes_packet(const TSPacketPtr & packet);

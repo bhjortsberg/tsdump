@@ -18,18 +18,7 @@ m_option(option)
 void TSReport::report()
 {
     if (m_option->listPidsOnly()) {
-        std::cout << std::setw(6) << "Pid\tType" << std::endl;
-        std::cout << "=====================" << std::endl;
-        auto pat = m_ts.find_pat();
-        auto pmt_pids = m_ts.find_pmt_pids(*pat);
-        for (auto p : pmt_pids) {
-            std::cout << get_pmt_string(p);
-        }
-
-        auto pmts = m_ts.get_pmts();
-        for (auto p : pmts) {
-            std::cout << get_es_string(p) << std::endl;
-        }
+        print_pid_info();
         return;
     }
 
@@ -221,6 +210,31 @@ TSPacketPtr TSReport::find_prev_pes_packet(const TSPacketPtr & packet)
     return curr_packet;
 }
 
+void TSReport::print_pid_info()
+{
+    std::cout << std::setw(6) << "Pid\tType" << std::endl;
+    std::cout << "=====================" << std::endl;
+    auto pat = m_ts.find_pat();
+    auto pmt_pids = m_ts.find_pmt_pids(*pat);
+    for (auto p : pmt_pids) {
+        std::cout << get_pmt_string(p);
+    }
+
+    auto pmts = m_ts.get_pmts();
+    for (auto p : pmts) {
+        std::cout << get_es_string(p) << std::endl;
+    }
+}
+
+std::string TSReport::get_pmt_string(unsigned int pid)
+{
+    std::stringstream ss;
+    ss << std::setw(4) << std::right << std::dec << std::setfill(' ') << pid << "\t";
+    ss << std::left << "PMT " << std::endl;
+
+    return ss.str();
+}
+
 std::string TSReport::get_es_string(const PMTPacket &pmtPacket)
 {
     std::stringstream ss;
@@ -230,15 +244,6 @@ std::string TSReport::get_es_string(const PMTPacket &pmtPacket)
         ss << "0x" << std::setw(2) << std::hex << std::setfill('0') << static_cast<int>(pmtPacket.stream_type(p));
         ss << std::left << " " << pmtPacket.stream_type_string(p) << std::endl;
     }
-
-    return ss.str();
-}
-
-std::string TSReport::get_pmt_string(unsigned int pid)
-{
-    std::stringstream ss;
-    ss << std::setw(4) << std::right << std::dec << std::setfill(' ') << pid << "\t";
-    ss << std::left << "PMT " << std::endl;
 
     return ss.str();
 }
