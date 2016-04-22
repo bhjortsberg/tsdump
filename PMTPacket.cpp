@@ -8,8 +8,32 @@
 #include "TSPacket.h"
 
 
-const int AUDIO = 0;
-const int VIDEO = 1;
+const std::string stream_type_arr[] = {
+        "ITU-T | ISO/IEC Reserved",
+        "ISO/IEC 11172 Video",
+        "ITU-T Rec. H.262 | ISO/IEC 13818-2 Video or ISO/IEC 11172-2 constrained parameter video stream",
+        "ISO/IEC 11172 Audio",
+        "ISO/IEC 13818-3 Audio",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 private_sections",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 PES packets containing private data",
+        "ISO/IEC 13522 MHEG",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Annex A DSM-CC",
+        "ITU-T Rec. H.222.1",
+        "ISO/IEC 13818-6 type A",
+        "ISO/IEC 13818-6 type B",
+        "ISO/IEC 13818-6 type C",
+        "ISO/IEC 13818-6 type D",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 auxiliary",
+        "ISO/IEC 13818-7 Audio with ADTS transport syntax",
+        "ISO/IEC 14496-2 Visual",
+        "ISO/IEC 14496-3 Audio with the LATM transport syntax as defined in ISO/IEC 14496-3 / AMD 1",
+        "ISO/IEC 14496-1 SL-packetized stream or FlexMux stream carried in PES packets",
+        "ISO/IEC 14496-1 SL-packetized stream or FlexMux stream carried in ISO/IEC14496_sections.",
+        "ISO/IEC 13818-6 Synchronized Download Protocol"
+};
+
+const std::string stream_type_reserved = "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved";
+const std::string stream_type_user_private = "User Private";
 
 PMTPacket::PMTPacket(const TSPacketPtr &packet):
 m_this(packet)
@@ -17,7 +41,7 @@ m_this(packet)
 
 }
 
-std::vector< int > PMTPacket::get_elementary_pids()
+std::vector< int > PMTPacket::get_elementary_pids() const
 {
     std::vector<int> pids;
 
@@ -51,25 +75,16 @@ std::string PMTPacket::stream_type_string(unsigned int pid) const
 {
     std::string type_string;
     auto type = stream_type(pid);
-    switch (type)
-    {
-        case VIDEO:
-            type_string = "VIDEO";
-            break;
-        case AUDIO:
-            type_string = "AUDIO";
-            break;
-        default:
-            type_string = "UNKNOWN";
 
+    if (type < 0x15) {
+        type_string = stream_type_arr[type];
+    } else if (type < 0x80) {
+        type_string = stream_type_reserved;
+    } else {
+        type_string = stream_type_user_private;
     }
 
     return type_string;
-}
-
-std::vector< int > PMTPacket::elementary_pids()
-{
-    return std::vector< int >();
 }
 
 unsigned char PMTPacket::stream_type(unsigned int pid) const
@@ -89,10 +104,12 @@ void PMTPacket::parse()
     section_length = (*(m_this->payload() + 2) & 0x0f) << 8;
     section_length |= *(m_this->payload() + 3);
 
+    m_program_info_length = program_info_len();
     auto pit = m_this->payload() + 13 + m_program_info_length;
 
     unsigned short elemntary_stream_info_length = 0;
 
+    int bytes_left2 = section_length - 13 - m_program_info_length;
     for (int bytes_left = section_length - 13 - m_program_info_length; bytes_left > 0; bytes_left -= 5 + elemntary_stream_info_length)
     {
         unsigned short elementary_pid = 0;

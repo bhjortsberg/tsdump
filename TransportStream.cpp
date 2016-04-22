@@ -92,7 +92,6 @@ std::vector< int > TransportStream::find_pmt_pids(const TSPacketPtr & pat) const
 
     for (auto p : programs)
     {
-        std::cout << "program: " << p.first << " pid: " << p.second << std::endl;
         pids.push_back(p.second);
     }
     return pids;
@@ -106,6 +105,7 @@ std::vector< int > TransportStream::find_pids()
 
     auto pat = find_pat();
     auto pmt_pids = find_pmt_pids(*pat);
+    pids = pmt_pids;
 
     for (auto p : pmt_pids) {
         pmt_pkt = find_pmt(p);
@@ -132,3 +132,21 @@ TSPacketPtr TransportStream::find_pmt(int pid)
 
     return *it;
 }
+
+std::vector< PMTPacket > TransportStream::get_pmts()
+{
+    std::vector<PMTPacket> pmts;
+    TSPacketPtr pmt_pkt;
+
+    auto pat = find_pat();
+    auto pmt_pids = find_pmt_pids(*pat);
+
+    for (auto p : pmt_pids) {
+        pmt_pkt = find_pmt(p);
+        pmts.push_back(parse_pmt(pmt_pkt));
+    }
+
+    return pmts;
+}
+
+

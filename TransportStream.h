@@ -10,6 +10,7 @@
 #include <vector>
 #include <map>
 #include "TSPacket.h"
+#include "PMTPacket.h"
 
 class TransportStream
 {
@@ -21,6 +22,7 @@ public:
     std::vector<int> find_pmt_pids(const TSPacketPtr & pat) const;
     std::vector<int> find_pids();
     TSPacketPtr find_pmt(int pid);
+    std::vector<PMTPacket> get_pmts();
 
 private:
     std::vector<TSPacketPtr> packets;

@@ -23,11 +23,10 @@ class PMTPacket : public IPacket
 {
 public:
     PMTPacket(const TSPacketPtr & packet);
-    std::vector<int> get_elementary_pids();
+    std::vector<int> get_elementary_pids() const;
 
     bool is_pmt() const;
     unsigned int program_info_len() const;
-    std::vector<int> elementary_pids();
     unsigned char stream_type(unsigned int pid) const;
     std::string stream_type_string(unsigned int pid) const;
     void parse();
