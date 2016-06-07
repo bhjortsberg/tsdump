@@ -29,7 +29,23 @@ const std::string stream_type_arr[] = {
         "ISO/IEC 14496-3 Audio with the LATM transport syntax as defined in ISO/IEC 14496-3 / AMD 1",
         "ISO/IEC 14496-1 SL-packetized stream or FlexMux stream carried in PES packets",
         "ISO/IEC 14496-1 SL-packetized stream or FlexMux stream carried in ISO/IEC14496_sections.",
-        "ISO/IEC 13818-6 Synchronized Download Protocol"
+        "ISO/IEC 13818-6 Synchronized Download Protocol",
+        "??",
+        "??",
+        "??",
+        "??",
+        "??",
+        "??",
+        "H.264",
+        "??",
+        "??",
+        "??",
+        "??",
+        "??",
+        "??",
+        "??",
+        "??",
+        "HEVC"
 };
 
 const std::string stream_type_reserved = "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved";
