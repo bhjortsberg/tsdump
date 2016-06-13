@@ -13,17 +13,16 @@
 TransportStream::TransportStream(const std::string &fileName)
 {
     std::ifstream file(fileName);
-    char buffer[TSPacket::TS_PACKET_SIZE];
+    std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE);
     if (file.is_open())
     {
 
         int pkt_cnt = 0;
-        while (file.read(buffer, sizeof(buffer)))
+        while (file.read(reinterpret_cast<char*>(raw_packet.data()), raw_packet.capacity()))
         {
-            if (buffer[0] == TSPacket::SYNC_BYTE)
+            if (raw_packet[0] == TSPacket::SYNC_BYTE)
             {
-                std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE);
-                std::copy(std::begin(buffer), std::end(buffer), std::begin(raw_packet));
+
                 add_packet(raw_packet, pkt_cnt);
                 pkt_cnt++;
             }
