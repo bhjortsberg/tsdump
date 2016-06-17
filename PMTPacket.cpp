@@ -30,22 +30,28 @@ const std::string stream_type_arr[] = {
         "ISO/IEC 14496-1 SL-packetized stream or FlexMux stream carried in PES packets",
         "ISO/IEC 14496-1 SL-packetized stream or FlexMux stream carried in ISO/IEC14496_sections.",
         "ISO/IEC 13818-6 Synchronized Download Protocol",
-        "??",
-        "??",
-        "??",
-        "??",
-        "??",
-        "??",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
         "H.264",
-        "??",
-        "??",
-        "??",
-        "??",
-        "??",
-        "??",
-        "??",
-        "??",
-        "HEVC"
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "HEVC",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+        "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
+
 };
 
 const std::string stream_type_reserved = "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved";
@@ -92,7 +98,7 @@ std::string PMTPacket::stream_type_string(unsigned int pid) const
     std::string type_string;
     auto type = stream_type(pid);
 
-    if (type < 0x15) {
+    if (type < 0x29) {
         type_string = stream_type_arr[type];
     } else if (type < 0x80) {
         type_string = stream_type_reserved;
