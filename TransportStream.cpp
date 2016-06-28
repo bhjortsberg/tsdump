@@ -6,40 +6,22 @@
 #include <sstream>
 #include <stdexcept>
 #include <iostream>
+#include <thread>
+#include <future>
+
 #include "TransportStream.h"
 #include "PMTPacket.h"
+#include "FileSource.h"
 
 
 TransportStream::TransportStream(const std::string &fileName)
 {
-    std::ifstream file(fileName);
-    std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE);
-    if (file.is_open())
-    {
+    auto f = std::async( FileSource(fileName) );
 
-        int pkt_cnt = 0;
-        while (file.read(reinterpret_cast<char*>(raw_packet.data()), raw_packet.capacity()))
-        {
-            if (raw_packet[0] == TSPacket::SYNC_BYTE)
-            {
-
-                add_packet(raw_packet, pkt_cnt);
-                pkt_cnt++;
-            }
-            else
-            {
-                // TODO: Out of sync
-                throw std::runtime_error("Error in sync byte");
-            }
-        }
-
-    }
-    else
-    {
-        std::stringstream estr;
-        estr << "Failed to open file: " <<  fileName;
-        throw std::runtime_error(estr.str());
-    }
+    packets =  f.get();
+//    std::thread t {FileSource(fileName)};
+//
+//    t.join();
 }
 
 std::vector<TSPacketPtr> TransportStream::getPackets()
@@ -47,22 +29,6 @@ std::vector<TSPacketPtr> TransportStream::getPackets()
     return packets;
 }
 
-void TransportStream::add_packet(std::vector< unsigned char > raw_packet, int cnt)
-{
-
-    TSPacketPtr packet(new TSPacket(raw_packet, cnt));
-    auto p = m_latest_packets.find(packet->pid());
-    if (p != std::end(m_latest_packets))
-    {
-        p->second->set_next(packet);
-        packet->set_prev(p->second);
-        m_latest_packets.erase(p);
-    }
-    m_latest_packets.emplace(packet->pid(), packet);
-
-    packets.push_back(packet);
-
-}
 
 std::vector< TSPacketPtr >::iterator TransportStream::find_pat()
 {

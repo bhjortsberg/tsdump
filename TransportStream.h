@@ -27,8 +27,6 @@ public:
 private:
     std::vector<TSPacketPtr> packets;
     std::map<int, TSPacketPtr> m_latest_packets;
-
-    void add_packet(std::vector< unsigned char > vector, int cnt);
 };
 
 
