@@ -36,7 +36,7 @@ const std::string stream_type_arr[] = {
         "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
         "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
         "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
-        "H.264",
+        "H.264/14496-10 video (MPEG-4/AVC)",
         "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
         "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",
         "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved",

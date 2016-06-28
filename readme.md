@@ -23,6 +23,7 @@
 - Print all packets in this payload (all packets with this pid util next payload start)
 - Dump -d should dump payload (ES) of what is printed. Can be used to extract all packets for one pid or payload for one frame (jpeg-pic)
 - Replace raw loops with std::algorithms
+- Add unit test with catch framework
 
 - Improve option parsing with error handling and required file argument.
 - Calculate the length of the file.
