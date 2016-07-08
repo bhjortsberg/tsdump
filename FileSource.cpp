@@ -44,7 +44,7 @@ std::vector<TSPacketPtr> FileSource::operator()()
         throw std::runtime_error(estr.str());
     }
 
-    return packets;
+    return m_packets;
 
 }
 
@@ -61,13 +61,13 @@ void FileSource::add_packet(std::vector< unsigned char > & raw_packet, int cnt)
     }
     m_latest_packets.emplace(packet->pid(), packet);
 
-    packets.push_back(packet);
+    m_packets.push_back(packet);
 
 }
 
 std::vector< TSPacketPtr > FileSource::getPackets() const
 {
-    return packets;
+    return m_packets;
 }
 
 

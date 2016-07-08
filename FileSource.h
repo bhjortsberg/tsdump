@@ -22,7 +22,7 @@ public:
 protected:
     void add_packet(std::vector<unsigned char > & raw_packet, int cnt);
     std::string mFilename;
-    std::vector<TSPacketPtr> packets;
+    std::vector<TSPacketPtr> m_packets;
     std::map<int, TSPacketPtr> m_latest_packets;
 
 };
