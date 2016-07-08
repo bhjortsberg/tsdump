@@ -16,11 +16,9 @@
 
 TransportStream::TransportStream(const std::string &fileName,
                                  std::condition_variable & cond,
-                                 std::mutex & mutex):
-m_cond(cond),
-m_mutex(mutex)
+                                 std::mutex & mutex)
 {
-    auto f = std::async( FileSource(fileName) );
+    auto f = std::async( FileSource(fileName, cond, mutex) );
 
     packets =  f.get();
 //    std::thread t {FileSource(fileName)};

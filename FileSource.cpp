@@ -6,8 +6,12 @@
 #include <sstream>
 #include "FileSource.h"
 
-FileSource::FileSource(const std::string &source) :
-mFilename(source)
+FileSource::FileSource(const std::string &source,
+                       std::condition_variable & cond,
+                       std::mutex & mutex) :
+m_filename(source),
+m_cond(cond),
+m_mutex(mutex)
 {
 
 }
@@ -15,7 +19,7 @@ mFilename(source)
 
 std::vector<TSPacketPtr> FileSource::operator()()
 {
-    std::ifstream file(mFilename);
+    std::ifstream file(m_filename);
     std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE);
     if (file.is_open())
     {
@@ -40,7 +44,7 @@ std::vector<TSPacketPtr> FileSource::operator()()
     else
     {
         std::stringstream estr;
-        estr << "Failed to open file: " <<  mFilename;
+        estr << "Failed to open file: " <<  m_filename;
         throw std::runtime_error(estr.str());
     }
 

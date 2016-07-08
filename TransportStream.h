@@ -31,8 +31,6 @@ public:
 
 private:
     std::vector<TSPacketPtr> packets;
-    std::condition_variable &m_cond;
-    std::mutex &m_mutex;
 };
 
 
