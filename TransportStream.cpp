@@ -14,7 +14,11 @@
 #include "FileSource.h"
 
 
-TransportStream::TransportStream(const std::string &fileName)
+TransportStream::TransportStream(const std::string &fileName,
+                                 std::condition_variable & cond,
+                                 std::mutex & mutex):
+m_cond(cond),
+m_mutex(mutex)
 {
     auto f = std::async( FileSource(fileName) );
 

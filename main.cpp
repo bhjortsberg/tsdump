@@ -90,7 +90,9 @@ int main(int argc, char ** argv)
 
     try {
 
-        TransportStream ts(file_name);
+        std::mutex mutex;
+        std::condition_variable cond;
+        TransportStream ts(file_name, cond, mutex);
         TSReport report(ts, filter, option);
 
         report.report();

@@ -6,16 +6,21 @@
 #define TSPARSER_TRANSPORTSTREAM_H
 
 
+#include <condition_variable>
 #include <iosfwd>
 #include <vector>
 #include <map>
+#include <mutex>
 #include "TSPacket.h"
 #include "PMTPacket.h"
 
 class TransportStream
 {
 public:
-    TransportStream(const std::string & fileName);
+    TransportStream(const std::string & fileName,
+                    std::condition_variable & cond,
+                    std::mutex & mutex);
+
     std::vector<TSPacketPtr> getPackets();
     std::vector<TSPacketPtr>::iterator find_pat();
     std::vector<TSPacketPtr>::iterator find_pat(const std::vector<TSPacketPtr>::iterator & it );
@@ -26,7 +31,8 @@ public:
 
 private:
     std::vector<TSPacketPtr> packets;
-    std::map<int, TSPacketPtr> m_latest_packets;
+    std::condition_variable &m_cond;
+    std::mutex &m_mutex;
 };
 
 
