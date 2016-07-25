@@ -19,8 +19,9 @@ TransportStream::TransportStream(const std::string &fileName,
                                  std::mutex & mutex)
 {
     auto f = std::async( FileSource(fileName, cond, mutex) );
+//    m_future = std::async( FileSource(fileName, cond, mutex) );
 
-    packets =  f.get();
+//    packets =  f.get();
 //    std::thread t {FileSource(fileName)};
 //
 //    t.join();
@@ -29,6 +30,7 @@ TransportStream::TransportStream(const std::string &fileName,
 std::vector<TSPacketPtr> TransportStream::getPackets()
 {
     return packets;
+//    return m_future.get();
 }
 
 

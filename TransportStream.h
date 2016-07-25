@@ -7,6 +7,7 @@
 
 
 #include <condition_variable>
+//#include <future>
 #include <iosfwd>
 #include <vector>
 #include <map>
@@ -31,6 +32,8 @@ public:
 
 private:
     std::vector<TSPacketPtr> packets;
+
+//    std::future<std::vector<TSPacketPtr>> m_future;
 };
 
 

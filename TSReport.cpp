@@ -7,10 +7,16 @@
 #include <iomanip>
 #include "TSReport.h"
 
-TSReport::TSReport(const TransportStream &tstream, const IFilterPtr & filter, const OutputOptionsPtr & option):
+TSReport::TSReport(const TransportStream &tstream,
+                   const IFilterPtr & filter,
+                   const OutputOptionsPtr & option,
+                   std::condition_variable & cond,
+                   std::mutex & mutex):
 m_ts(tstream),
 m_filter(filter),
-m_option(option)
+m_option(option),
+m_partial_read(cond),
+m_mutex(mutex)
 {
 
 }
@@ -23,33 +29,41 @@ void TSReport::report()
     }
 
     print_header();
-    for (const auto & packet : m_ts.getPackets())
+    while (true)
     {
-        if (m_filter->show(packet))
+        std::unique_lock<std::mutex> lock(m_mutex); // Aquire mutex
+        // Release lock and wait, re-acquire lock on wakeup
+        m_partial_read.wait(lock);
+
+        for (const auto & packet : m_ts.getPackets())
         {
-            std::cout << get_packet_string(packet);
 
-            if (m_option->printExtraInfo())
+            if (m_filter->show(packet))
             {
-                std::cout << get_packet_extra_info_string(packet) << std::endl;
-            }
-            if (m_option->printPayload())
-            {
-                std::cout << get_packet_payload_string(packet) << std::endl;
-            }
+                std::cout << get_packet_string(packet);
 
-            if (!packet->continuity())
-            {
-                auto it = m_continuity_error.find(packet->pid());
-                if (it != std::end(m_continuity_error))
+                if (m_option->printExtraInfo())
                 {
-                    it->second.push_back(packet->num());
-                    m_continuity_error.emplace(packet->pid(), it->second);
+                    std::cout << get_packet_extra_info_string(packet) << std::endl;
                 }
-                else
+                if (m_option->printPayload())
                 {
-                    std::vector<int> v {packet->num()};
-                    m_continuity_error.emplace(packet->pid(), v);
+                    std::cout << get_packet_payload_string(packet) << std::endl;
+                }
+
+                if (!packet->continuity())
+                {
+                    auto it = m_continuity_error.find(packet->pid());
+                    if (it != std::end(m_continuity_error))
+                    {
+                        it->second.push_back(packet->num());
+                        m_continuity_error.emplace(packet->pid(), it->second);
+                    }
+                    else
+                    {
+                        std::vector<int> v {packet->num()};
+                        m_continuity_error.emplace(packet->pid(), v);
+                    }
                 }
             }
         }

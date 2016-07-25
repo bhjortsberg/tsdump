@@ -26,7 +26,7 @@ protected:
     std::string m_filename;
     std::vector<TSPacketPtr> m_packets;
     std::map<int, TSPacketPtr> m_latest_packets;
-    std::condition_variable & m_cond;
+    std::condition_variable & m_partially_read;
     std::mutex & m_mutex;
 
 };

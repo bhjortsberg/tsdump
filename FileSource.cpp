@@ -10,7 +10,7 @@ FileSource::FileSource(const std::string &source,
                        std::condition_variable & cond,
                        std::mutex & mutex) :
 m_filename(source),
-m_cond(cond),
+m_partially_read(cond),
 m_mutex(mutex)
 {
 
@@ -32,6 +32,11 @@ std::vector<TSPacketPtr> FileSource::operator()()
 
                 add_packet(raw_packet, pkt_cnt);
                 pkt_cnt++;
+                if (pkt_cnt % 100)
+                {
+                    // Notify that packets has been read
+                    m_partially_read.notify_one();
+                }
             }
             else
             {
@@ -65,6 +70,7 @@ void FileSource::add_packet(std::vector< unsigned char > & raw_packet, int cnt)
     }
     m_latest_packets.emplace(packet->pid(), packet);
 
+    std::unique_lock<std::mutex> lock(m_mutex);
     m_packets.push_back(packet);
 
 }
