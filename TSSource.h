@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include "TSPacket.h"
 
 class TSSource
 {
@@ -16,5 +17,7 @@ public:
     virtual std::vector<TSPacketPtr> getPackets() const = 0;
 };
 
+
+typedef std::shared_ptr<TSSource> TSSourcePtr;
 
 #endif //TSPARSE_TSSOURCE_H
