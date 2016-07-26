@@ -7,7 +7,7 @@
 #include <iomanip>
 #include "TSReport.h"
 
-TSReport::TSReport(const TransportStream &tstream,
+TSReport::TSReport(TransportStream &tstream,
                    const IFilterPtr & filter,
                    const OutputOptionsPtr & option,
                    std::condition_variable & cond,
@@ -33,11 +33,13 @@ void TSReport::report()
     {
         std::unique_lock<std::mutex> lock(m_mutex); // Aquire mutex
         // Release lock and wait, re-acquire lock on wakeup
+        std::cout << "wait for cond" << std::endl;
         m_partial_read.wait(lock);
+        std::cout << "got cond" << std::endl;
 
         for (const auto & packet : m_ts.getPackets())
         {
-
+            std::cout << "looping packets" << std::endl;
             if (m_filter->show(packet))
             {
                 std::cout << get_packet_string(packet);

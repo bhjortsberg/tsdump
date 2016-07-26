@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <iostream>
 #include "FileSource.h"
 
 FileSource::FileSource(const std::string &source,
@@ -34,6 +35,7 @@ std::vector<TSPacketPtr> FileSource::operator()()
                 pkt_cnt++;
                 if (pkt_cnt % 100)
                 {
+                    std::cout << "notify cond" << std::endl;
                     // Notify that packets has been read
                     m_partially_read.notify_one();
                 }

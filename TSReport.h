@@ -12,7 +12,7 @@
 class TSReport
 {
 public:
-    TSReport(const TransportStream & tstream,
+    TSReport(TransportStream & tstream,
              const IFilterPtr & filter,
              const OutputOptionsPtr & option,
              std::condition_variable & cond,
@@ -31,7 +31,7 @@ private:
     TSPacketPtr find_prev_pes_packet(const TSPacketPtr & packet);
     IFilterPtr m_filter;
     OutputOptionsPtr m_option;
-    TransportStream m_ts;
+    TransportStream & m_ts;
     std::map<unsigned int, std::vector<int>> m_continuity_error;
 
     std::condition_variable & m_partial_read;

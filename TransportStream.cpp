@@ -7,19 +7,17 @@
 #include <stdexcept>
 #include <iostream>
 #include <thread>
-#include <future>
 
-#include "TransportStream.h"
-#include "PMTPacket.h"
 #include "FileSource.h"
+#include "PMTPacket.h"
+#include "TransportStream.h"
 
 
 TransportStream::TransportStream(const std::string &fileName,
                                  std::condition_variable & cond,
                                  std::mutex & mutex)
 {
-    auto f = std::async( FileSource(fileName, cond, mutex) );
-//    m_future = std::async( FileSource(fileName, cond, mutex) );
+    m_future = std::async( FileSource(fileName, cond, mutex) );
 
 //    packets =  f.get();
 //    std::thread t {FileSource(fileName)};
@@ -29,8 +27,8 @@ TransportStream::TransportStream(const std::string &fileName,
 
 std::vector<TSPacketPtr> TransportStream::getPackets()
 {
-    return packets;
-//    return m_future.get();
+    std::cout << "getPackets()" << std::endl;
+    return m_future.get();  // Hang!! -> should do FileSource::getPackets() but that object is not available.
 }
 
 
