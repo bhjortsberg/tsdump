@@ -17,7 +17,8 @@ TransportStream::TransportStream(const std::string &fileName,
                                  std::condition_variable & cond,
                                  std::mutex & mutex):
 m_cond(cond),
-m_mutex(mutex)
+m_mutex(mutex),
+m_done(false)
 {
     m_future = std::async( FileSource(fileName, cond, mutex, m_packets) );
 
@@ -28,7 +29,10 @@ std::vector<TSPacketPtr> TransportStream::getPackets()
     // Aquire mutex
     std::unique_lock<std::mutex> lock(m_mutex);
     // Release mutex and wait, re-aquire mutex on wakeup
-    m_cond.wait(lock);
+    if (m_cond.wait_for(lock, std::chrono::milliseconds(200)) == std::cv_status::timeout)
+    {
+        m_done = true;
+    }
     auto packets = m_packets;
     m_packets.clear();
     return packets;

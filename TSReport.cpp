@@ -59,6 +59,12 @@ void TSReport::report()
                 }
             }
         }
+
+        if (m_ts.isDone())
+        {
+            break;
+        }
+
     }
 
     print_summary();

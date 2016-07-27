@@ -29,6 +29,7 @@ public:
     std::vector<int> find_pids();
     TSPacketPtr find_pmt(int pid);
     std::vector<PMTPacket> get_pmts();
+    bool isDone() const { return m_done; }
 
 private:
     std::vector<TSPacketPtr> m_packets;
@@ -36,6 +37,7 @@ private:
     std::future<std::vector<TSPacketPtr>> m_future;
     std::condition_variable & m_cond;
     std::mutex & m_mutex;
+    bool m_done;
 };
 
 
