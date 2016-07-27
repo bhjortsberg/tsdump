@@ -186,7 +186,8 @@ std::string TSReport::get_packet_extra_info_string(const TSPacketPtr &packet)
 void TSReport::print_summary()
 {
     std::cout << std::endl << "Summary:" << std::endl;
-    std::cout << "\tNumber of packets: " << (*(--std::end(m_ts.getPackets())))->num()+1 << std::endl;
+    // TODO: Fix packet count printout
+//    std::cout << "\tNumber of packets: " << (*(--std::end(m_ts.getPackets())))->num()+1 << std::endl;
 
     if (!m_continuity_error.empty())
     {
