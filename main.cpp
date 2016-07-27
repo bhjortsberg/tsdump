@@ -93,7 +93,7 @@ int main(int argc, char ** argv)
         std::mutex mutex;
         std::condition_variable cond;
         TransportStream ts(file_name, cond, mutex);
-        TSReport report(ts, filter, option, cond, mutex);
+        TSReport report(ts, filter, option);
 
         report.report();
 

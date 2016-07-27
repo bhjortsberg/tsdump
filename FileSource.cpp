@@ -9,8 +9,10 @@
 
 FileSource::FileSource(const std::string &source,
                        std::condition_variable & cond,
-                       std::mutex & mutex) :
+                       std::mutex & mutex,
+                       std::vector<TSPacketPtr> & packets) :
 m_filename(source),
+m_packets(packets),
 m_partially_read(cond),
 m_mutex(mutex)
 {
@@ -35,7 +37,6 @@ std::vector<TSPacketPtr> FileSource::operator()()
                 pkt_cnt++;
                 if (pkt_cnt % 100)
                 {
-                    std::cout << "notify cond" << std::endl;
                     // Notify that packets has been read
                     m_partially_read.notify_one();
                 }
@@ -46,6 +47,8 @@ std::vector<TSPacketPtr> FileSource::operator()()
                 throw std::runtime_error("Error in sync byte");
             }
         }
+        // Notify that packets has been read
+        m_partially_read.notify_one();
 
     }
     else

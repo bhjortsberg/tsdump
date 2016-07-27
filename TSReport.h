@@ -14,9 +14,7 @@ class TSReport
 public:
     TSReport(TransportStream & tstream,
              const IFilterPtr & filter,
-             const OutputOptionsPtr & option,
-             std::condition_variable & cond,
-             std::mutex & mutex);
+             const OutputOptionsPtr & option);
     void report();
 
 private:
@@ -33,10 +31,6 @@ private:
     OutputOptionsPtr m_option;
     TransportStream & m_ts;
     std::map<unsigned int, std::vector<int>> m_continuity_error;
-
-    std::condition_variable & m_partial_read;
-    std::mutex & m_mutex;
-
 
 };
 

@@ -15,26 +15,29 @@
 
 TransportStream::TransportStream(const std::string &fileName,
                                  std::condition_variable & cond,
-                                 std::mutex & mutex)
+                                 std::mutex & mutex):
+m_cond(cond),
+m_mutex(mutex)
 {
-    m_future = std::async( FileSource(fileName, cond, mutex) );
+    m_future = std::async( FileSource(fileName, cond, mutex, m_packets) );
 
-//    packets =  f.get();
-//    std::thread t {FileSource(fileName)};
-//
-//    t.join();
 }
 
 std::vector<TSPacketPtr> TransportStream::getPackets()
 {
-    std::cout << "getPackets()" << std::endl;
-    return m_future.get();  // Hang!! -> should do FileSource::getPackets() but that object is not available.
+    // Aquire mutex
+    std::unique_lock<std::mutex> lock(m_mutex);
+    // Release mutex and wait, re-aquire mutex on wakeup
+    m_cond.wait(lock);
+    auto packets = m_packets;
+    m_packets.clear();
+    return packets;
 }
 
 
 std::vector< TSPacketPtr >::iterator TransportStream::find_pat()
 {
-    auto start = std::begin(packets);
+    auto start = std::begin(m_packets);
     return find_pat(start);
 }
 
@@ -42,7 +45,7 @@ std::vector< TSPacketPtr >::iterator TransportStream::find_pat()
 std::vector< TSPacketPtr >::iterator TransportStream::find_pat(const std::vector< TSPacketPtr >::iterator &it)
 {
     auto start = it;
-    return std::find_if(start, std::end(packets),
+    return std::find_if(start, std::end(m_packets),
                         [](const TSPacketPtr & a) {
                             if (a->pid() == 0x00) {
                                 return true;
@@ -89,7 +92,7 @@ std::vector< int > TransportStream::find_pids()
 // Then find_pmt(pid) and find_pat() calls that
 TSPacketPtr TransportStream::find_pmt(int pid)
 {
-    auto it = find_if(std::begin(packets), std::end(packets),
+    auto it = find_if(std::begin(m_packets), std::end(m_packets),
             [&pid] (const TSPacketPtr& packet) {
                 if (packet->pid() == pid) {
                     return true;

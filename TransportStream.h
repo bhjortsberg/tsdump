@@ -31,9 +31,11 @@ public:
     std::vector<PMTPacket> get_pmts();
 
 private:
-    std::vector<TSPacketPtr> packets;
+    std::vector<TSPacketPtr> m_packets;
 
     std::future<std::vector<TSPacketPtr>> m_future;
+    std::condition_variable & m_cond;
+    std::mutex & m_mutex;
 };
 
 

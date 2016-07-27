@@ -9,14 +9,10 @@
 
 TSReport::TSReport(TransportStream &tstream,
                    const IFilterPtr & filter,
-                   const OutputOptionsPtr & option,
-                   std::condition_variable & cond,
-                   std::mutex & mutex):
+                   const OutputOptionsPtr & option):
 m_ts(tstream),
 m_filter(filter),
-m_option(option),
-m_partial_read(cond),
-m_mutex(mutex)
+m_option(option)
 {
 
 }
@@ -31,15 +27,9 @@ void TSReport::report()
     print_header();
     while (true)
     {
-        std::unique_lock<std::mutex> lock(m_mutex); // Aquire mutex
-        // Release lock and wait, re-acquire lock on wakeup
-        std::cout << "wait for cond" << std::endl;
-        m_partial_read.wait(lock);
-        std::cout << "got cond" << std::endl;
 
         for (const auto & packet : m_ts.getPackets())
         {
-            std::cout << "looping packets" << std::endl;
             if (m_filter->show(packet))
             {
                 std::cout << get_packet_string(packet);
