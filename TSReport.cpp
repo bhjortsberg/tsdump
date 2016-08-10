@@ -24,12 +24,14 @@ void TSReport::report()
         return;
     }
 
+    m_packetCount = 0;
     print_header();
     while (true)
     {
 
         for (const auto & packet : m_ts.getPackets())
         {
+            ++m_packetCount;
             if (m_filter->show(packet))
             {
                 std::cout << get_packet_string(packet);
@@ -186,8 +188,7 @@ std::string TSReport::get_packet_extra_info_string(const TSPacketPtr &packet)
 void TSReport::print_summary()
 {
     std::cout << std::endl << "Summary:" << std::endl;
-    // TODO: Fix packet count printout
-//    std::cout << "\tNumber of packets: " << (*(--std::end(m_ts.getPackets())))->num()+1 << std::endl;
+    std::cout << "\tNumber of packets: " << m_packetCount << std::endl;
 
     if (!m_continuity_error.empty())
     {
