@@ -181,7 +181,7 @@ void TSReport::print_summary()
         std::cout << "\tContinutity count error in:" << std::endl;
         for (const auto & a : m_continuity_error)
         {
-            std::cout << "\t\tpid: " << a.first << " packet: ";
+            std::cout << "\t\tpid: " << a.first << " packet numbers: ";
             for (const auto & b : a.second)
             {
                 std::cout <<  b;
