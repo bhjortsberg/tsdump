@@ -35,7 +35,7 @@ std::vector<TSPacketPtr> FileSource::operator()()
 
                 add_packet(raw_packet, pkt_cnt);
                 pkt_cnt++;
-                if (pkt_cnt % 100)
+                if (pkt_cnt % 10000)
                 {
                     // Notify that packets has been read
                     m_partially_read.notify_one();

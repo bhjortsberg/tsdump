@@ -38,11 +38,11 @@ void TSReport::report()
 
                 if (m_option->printExtraInfo())
                 {
-                    std::cout << get_packet_extra_info_string(packet) << std::endl;
+                    std::cout << get_packet_extra_info_string(packet) << "\n";
                 }
                 if (m_option->printPayload())
                 {
-                    std::cout << get_packet_payload_string(packet) << std::endl;
+                    std::cout << get_packet_payload_string(packet) << "\n";
                 }
 
                 if (!packet->continuity())
@@ -123,7 +123,7 @@ std::string TSReport::get_packet_string(const TSPacketPtr & packet)
         }
     }
 
-    packet_string << std::endl;
+    packet_string << "\n";
 
     return packet_string.str();
 
@@ -131,8 +131,8 @@ std::string TSReport::get_packet_string(const TSPacketPtr & packet)
 
 void TSReport::print_header()
 {
-    std::cout << "Packet\tPID\tContinuity\tpts hex\t\tpts wall\tEBP\tRAI\tPayload" << std::endl;
-    std::cout << "-----------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "Packet\tPID\tContinuity\tpts hex\t\tpts wall\tEBP\tRAI\tPayload\n";
+    std::cout << "-----------------------------------------------------------------------------------------------\n";
 }
 
 std::string TSReport::get_packet_payload_string(const TSPacketPtr &packet)
@@ -155,12 +155,12 @@ std::string TSReport::get_packet_payload_string(const TSPacketPtr &packet)
             asciiline += " ";
         }
         if (byte_cnt % 16 == 0) {
-            payload_str << line.str() << " | " << asciiline << std::endl << "\t\t";
+            payload_str << line.str() << " | " << asciiline << "\n\t\t";
             line.str("");
             asciiline = "";
         }
     }
-    payload_str << std::left << std::setfill(' ') << std::setw(16*3 + 2) << line.str() << " | " << asciiline << std::endl;
+    payload_str << std::left << std::setfill(' ') << std::setw(16*3 + 2) << line.str() << " | " << asciiline << "\n";
 
     return payload_str.str();
 }
@@ -169,11 +169,11 @@ std::string TSReport::get_packet_extra_info_string(const TSPacketPtr &packet)
 {
     std::stringstream adaption_str;
     std::stringstream pes_str;
-    pes_str << std::endl;
+    pes_str << "\n";
 
     if (packet->has_adaption_field())
     {
-        adaption_str << std::endl << packet->adaption_field().print_str();
+        adaption_str << "\n" << packet->adaption_field().print_str();
     }
 
     if (packet->has_pes_header())
