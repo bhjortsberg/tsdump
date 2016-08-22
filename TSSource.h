@@ -16,6 +16,7 @@ public:
     virtual std::vector<TSPacketPtr> operator()() = 0;
     virtual void async() = 0;
     virtual std::vector<TSPacketPtr> getPackets() const = 0;
+    virtual std::vector<TSPacketPtr> getNewPackets() = 0;
 };
 
 

@@ -34,12 +34,7 @@ std::vector<TSPacketPtr> TransportStream::getPackets()
         m_done = true;
     }
 
-    auto p = m_sourcePtr->getPackets();
-//    auto p_iterator = std::find(std::begin(p), std::end(p), *m_currentPacket);
-    std::vector<TSPacketPtr> newPackets;
-    std::copy(m_currentPacket, std::end(p), std::begin(newPackets));
-//    std::copy(p_iterator, std::end(p), std::begin(newPackets));
-    return newPackets;
+    return m_sourcePtr->getNewPackets();
 }
 
 

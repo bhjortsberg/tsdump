@@ -16,7 +16,7 @@ m_filename(source),
 m_partially_read(cond),
 m_mutex(mutex)
 {
-
+    m_lastRetreivedPacket = std::end(m_packets);
 }
 
 
@@ -92,6 +92,20 @@ std::vector< TSPacketPtr > FileSource::getPackets() const
     return m_packets;
 }
 
+std::vector< TSPacketPtr > FileSource::getNewPackets()
+{
+    std::vector<TSPacketPtr> newPackets;
+    auto p_iterator = std::find(std::begin(m_packets), std::end(m_packets), *m_lastRetreivedPacket);
+    if (p_iterator != std::end(m_packets))
+    {
+        std::copy(p_iterator, std::end(m_packets), std::begin(newPackets));
+    }
+    else
+    {
+        std::copy(std::begin(m_packets), std::end(m_packets), std::begin(newPackets));
+    }
 
+    m_lastRetreivedPacket = std::end(m_packets) - 1;
 
-
+    return newPackets;
+}

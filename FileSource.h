@@ -22,6 +22,7 @@ public:
     virtual std::vector<TSPacketPtr> operator()();
     virtual void async();
     virtual std::vector<TSPacketPtr> getPackets() const;
+    virtual std::vector<TSPacketPtr> getNewPackets();
 
 protected:
     void add_packet(std::vector<unsigned char > & raw_packet, int cnt);
@@ -30,6 +31,7 @@ protected:
     std::map<int, TSPacketPtr> m_latest_packets;
     std::condition_variable & m_partially_read;
     std::mutex & m_mutex;
+    std::vector<TSPacketPtr>::iterator m_lastRetreivedPacket;
 
 };
 
