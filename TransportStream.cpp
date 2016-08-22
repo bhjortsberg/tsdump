@@ -9,20 +9,19 @@
 #include <iostream>
 #include <thread>
 
-#include "FileSource.h"
 #include "PMTPacket.h"
 #include "TransportStream.h"
 
 
-TransportStream::TransportStream(const std::string &fileName,
+TransportStream::TransportStream(const TSSourcePtr &sourcePtr,
                                  std::condition_variable & cond,
                                  std::mutex & mutex):
 m_cond(cond),
+m_sourcePtr(sourcePtr),
 m_mutex(mutex),
 m_done(false)
 {
-    m_future = std::async( FileSource(fileName, cond, mutex, m_packets) );
-
+    sourcePtr->async();
 }
 
 std::vector<TSPacketPtr> TransportStream::getPackets()
@@ -34,9 +33,13 @@ std::vector<TSPacketPtr> TransportStream::getPackets()
     {
         m_done = true;
     }
-    auto packets = m_packets;
-    m_packets.clear();
-    return packets;
+
+    auto p = m_sourcePtr->getPackets();
+//    auto p_iterator = std::find(std::begin(p), std::end(p), *m_currentPacket);
+    std::vector<TSPacketPtr> newPackets;
+    std::copy(m_currentPacket, std::end(p), std::begin(newPackets));
+//    std::copy(p_iterator, std::end(p), std::begin(newPackets));
+    return newPackets;
 }
 
 

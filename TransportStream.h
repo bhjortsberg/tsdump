@@ -7,18 +7,18 @@
 
 
 #include <condition_variable>
-#include <future>
 #include <iosfwd>
 #include <vector>
 #include <map>
 #include <mutex>
 #include "TSPacket.h"
+#include "TSSource.h"
 #include "PMTPacket.h"
 
 class TransportStream
 {
 public:
-    TransportStream(const std::string &fileName,
+    TransportStream(const TSSourcePtr & sourcePtr,
                     std::condition_variable & cond,
                     std::mutex & mutex);
 
@@ -33,8 +33,8 @@ public:
 
 private:
     std::vector<TSPacketPtr> m_packets;
-
-    std::future<std::vector<TSPacketPtr>> m_future;
+    std::vector<TSPacketPtr>::iterator m_currentPacket;
+    TSSourcePtr m_sourcePtr;
     std::condition_variable & m_cond;
     std::mutex & m_mutex;
     bool m_done;

@@ -6,14 +6,13 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <future>
 #include "FileSource.h"
 
 FileSource::FileSource(const std::string &source,
                        std::condition_variable & cond,
-                       std::mutex & mutex,
-                       std::vector<TSPacketPtr> & packets) :
+                       std::mutex & mutex) :
 m_filename(source),
-m_packets(packets),
 m_partially_read(cond),
 m_mutex(mutex)
 {
@@ -80,6 +79,13 @@ void FileSource::add_packet(std::vector< unsigned char > & raw_packet, int cnt)
     m_packets.push_back(packet);
 
 }
+
+void FileSource::async()
+{
+    std::async( *this );
+}
+
+
 
 std::vector< TSPacketPtr > FileSource::getPackets() const
 {
