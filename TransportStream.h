@@ -7,6 +7,7 @@
 
 
 #include <condition_variable>
+#include <future>
 #include <iosfwd>
 #include <vector>
 #include <map>
@@ -18,7 +19,7 @@
 class TransportStream
 {
 public:
-    TransportStream(const TSSourcePtr & sourcePtr,
+    TransportStream(TSSourcePtr sourcePtr,
                     std::condition_variable & cond,
                     std::mutex & mutex);
 
@@ -34,6 +35,7 @@ public:
 private:
     std::vector<TSPacketPtr> m_packets;
     std::vector<TSPacketPtr>::iterator m_currentPacket;
+    std::future<std::vector<TSPacketPtr>> m_future;
     TSSourcePtr m_sourcePtr;
     std::condition_variable & m_cond;
     std::mutex & m_mutex;

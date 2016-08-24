@@ -94,7 +94,7 @@ int main(int argc, char ** argv)
         std::mutex mutex;
         std::condition_variable cond;
         FileSourcePtr source(new FileSource(file_name, cond, mutex));
-        TransportStream ts(source, cond, mutex);
+        TransportStream ts(std::move(source), cond, mutex);
         TSReport report(ts, filter, option);
 
         report.report();

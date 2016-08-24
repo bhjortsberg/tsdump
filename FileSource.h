@@ -19,20 +19,24 @@ public:
                std::mutex & mutex);
     virtual ~FileSource() {}
 
-    virtual std::vector<TSPacketPtr> operator()();
-    virtual void async();
-    virtual std::vector<TSPacketPtr> getPackets() const;
-    virtual std::vector<TSPacketPtr> getNewPackets();
+    virtual std::vector<TSPacketPtr> getPackets() override ;
+    virtual std::vector<TSPacketPtr> doRead() override ;
+    virtual bool isDone() override;
+
 
 protected:
-    void add_packet(std::vector<unsigned char > & raw_packet, int cnt);
+//    void add_packet(std::vector<unsigned char > & raw_packet, int cnt);
     std::string m_filename;
     std::vector<TSPacketPtr> m_packets;
     std::map<int, TSPacketPtr> m_latest_packets;
     std::condition_variable & m_partially_read;
     std::mutex & m_mutex;
     std::vector<TSPacketPtr>::iterator m_lastRetreivedPacket;
+    std::vector<TSPacketPtr>::iterator m_nullIterator;
 
+    std::vector<TSPacketPtr> read();
+    void add_packet(std::vector< unsigned char > & raw_packet, int cnt);
+    bool m_done = false;
 };
 
 typedef std::shared_ptr<FileSource> FileSourcePtr;

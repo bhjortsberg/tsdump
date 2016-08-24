@@ -9,6 +9,7 @@
 #include <future>
 #include "FileSource.h"
 
+
 FileSource::FileSource(const std::string &source,
                        std::condition_variable & cond,
                        std::mutex & mutex) :
@@ -16,11 +17,10 @@ m_filename(source),
 m_partially_read(cond),
 m_mutex(mutex)
 {
-    m_lastRetreivedPacket = std::end(m_packets);
+    m_lastRetreivedPacket = m_nullIterator;
 }
 
-
-std::vector<TSPacketPtr> FileSource::operator()()
+std::vector<TSPacketPtr> FileSource::read()
 {
     std::ifstream file(m_filename);
     std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE);
@@ -47,7 +47,8 @@ std::vector<TSPacketPtr> FileSource::operator()()
                 throw std::runtime_error("Error in sync byte");
             }
         }
-        // Notify that packets has been read
+        m_done = true;
+        //File read done notify the remaining packets
         m_partially_read.notify_one();
 
     }
@@ -58,8 +59,12 @@ std::vector<TSPacketPtr> FileSource::operator()()
         throw std::runtime_error(estr.str());
     }
 
-    return m_packets;
-
+    std::vector<TSPacketPtr> packets;
+    {
+        std::lock_guard< std::mutex > lock(m_mutex);
+        packets = m_packets;
+    }
+    return packets;
 }
 
 void FileSource::add_packet(std::vector< unsigned char > & raw_packet, int cnt)
@@ -75,37 +80,27 @@ void FileSource::add_packet(std::vector< unsigned char > & raw_packet, int cnt)
     }
     m_latest_packets.emplace(packet->pid(), packet);
 
-    std::unique_lock<std::mutex> lock(m_mutex);
-    m_packets.push_back(packet);
-
-}
-
-void FileSource::async()
-{
-    std::async( *this );
-}
-
-
-
-std::vector< TSPacketPtr > FileSource::getPackets() const
-{
-    return m_packets;
-}
-
-std::vector< TSPacketPtr > FileSource::getNewPackets()
-{
-    std::vector<TSPacketPtr> newPackets;
-    auto p_iterator = std::find(std::begin(m_packets), std::end(m_packets), *m_lastRetreivedPacket);
-    if (p_iterator != std::end(m_packets))
     {
-        std::copy(p_iterator, std::end(m_packets), std::begin(newPackets));
+        std::lock_guard< std::mutex > lock(m_mutex);
+        m_packets.push_back(packet);
     }
-    else
-    {
-        std::copy(std::begin(m_packets), std::end(m_packets), std::begin(newPackets));
-    }
-
-    m_lastRetreivedPacket = std::end(m_packets) - 1;
-
-    return newPackets;
 }
+
+
+std::vector< TSPacketPtr > FileSource::getPackets()
+{
+    auto packets = m_packets;
+    m_packets.clear();
+    return packets;
+}
+
+std::vector<TSPacketPtr> FileSource::doRead()
+{
+    return read();
+}
+
+bool FileSource::isDone()
+{
+    return m_done;
+}
+

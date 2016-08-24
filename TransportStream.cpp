@@ -3,40 +3,55 @@
 //
 
 #include <algorithm>
-#include <fstream>
-#include <sstream>
 #include <stdexcept>
 #include <iostream>
 #include <thread>
+#include <future>
 
 #include "PMTPacket.h"
 #include "TransportStream.h"
 
+#include "FileSource.h"
 
-TransportStream::TransportStream(const TSSourcePtr &sourcePtr,
+std::vector<TSPacketPtr> thread_body(const TSSourcePtr & sourcePtr)
+{
+    return sourcePtr->doRead();
+}
+
+
+TransportStream::TransportStream(TSSourcePtr sourcePtr,
                                  std::condition_variable & cond,
                                  std::mutex & mutex):
+m_sourcePtr(std::move(sourcePtr)),
 m_cond(cond),
-m_sourcePtr(sourcePtr),
 m_mutex(mutex),
 m_done(false)
 {
-    sourcePtr->async();
+    m_future = std::async(thread_body, m_sourcePtr);
+    // TODO: Test if std::yield can make the other thread run
 }
 
 std::vector<TSPacketPtr> TransportStream::getPackets()
 {
-    // Aquire mutex
-    std::unique_lock<std::mutex> lock(m_mutex);
-    // Release mutex and wait, re-aquire mutex on wakeup
-    if (m_cond.wait_for(lock, std::chrono::milliseconds(200)) == std::cv_status::timeout)
+    std::vector<TSPacketPtr> packets;
+    if (!m_sourcePtr->isDone())
     {
+        // Aquire mutex
+        std::unique_lock< std::mutex > lock(m_mutex);
+        // Release mutex and wait, re-aquire mutex on wakeup
+        m_cond.wait(lock);
+        // TODO: Check for spurious wake-up
+
+        packets = m_sourcePtr->getPackets();
+    }
+    else
+    {
+        // Source read is completed
         m_done = true;
     }
-
-    return m_sourcePtr->getNewPackets();
+    return packets;
+//    return m_s->getNewPackets();
 }
-
 
 std::vector< TSPacketPtr >::iterator TransportStream::find_pat()
 {
