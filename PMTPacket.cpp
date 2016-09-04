@@ -2,6 +2,7 @@
 // Created by Björn Hjortsberg on 20/04/16.
 //
 
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 #include "PMTPacket.h"

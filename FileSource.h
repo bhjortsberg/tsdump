@@ -4,6 +4,7 @@
 #ifndef TSPARSE_FILESOURCE_H
 #define TSPARSE_FILESOURCE_H
 
+#include <condition_variable>
 #include <vector>
 
 #include "TSPacket.h"

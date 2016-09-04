@@ -2,6 +2,7 @@
 // Created by Björn Hjortsberg on 28/06/16.
 //
 
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <iostream>

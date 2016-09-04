@@ -5,6 +5,8 @@
 #ifndef TSPARSE_IPACKET_H
 #define TSPARSE_IPACKET_H
 
+#include <memory>
+
 typedef std::vector<unsigned char> Chunk;
 
 class IPacket
