@@ -9,8 +9,8 @@
 PESHeader::PESHeader(Chunk::const_iterator it)
 {
     stream_id = it[3];
-    length = it[4];
-    length |= (it[5] << 8);
+    length = it[4] << 8;
+    length |= it[5];
     pts_dts_flags = (it[7] & 0xc0) >> 6;
     pes_header_data_length = it[8];
 
