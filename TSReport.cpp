@@ -82,7 +82,11 @@ std::string TSReport::get_packet_string(const TSPacketPtr & packet)
     packet_string << packet->num() << "\t" << packet->pid() << "\t" << packet->continuity_count() << "\t\t";
     if (packet->has_pes_header())
     {
-        packet_string << std::hex << "0x" << packet->pes_header().get_pts() << std::dec << "\t" << packet->pes_header().get_pts_str() << "\t";
+        packet_string << std::hex << "0x"
+                    << packet->pes_header().get_pts()
+                    << std::dec << "\t"
+                    << packet->pes_header().get_pts_str() << "\t"
+                    << packet->pes_header().get_length() << "\t";
     }
     else {
         packet_string << "\t\t\t\t";
@@ -131,7 +135,7 @@ std::string TSReport::get_packet_string(const TSPacketPtr & packet)
 
 void TSReport::print_header()
 {
-    std::cout << "Packet\tPID\tContinuity\tpts hex\t\tpts wall\tEBP\tRAI\tPayload\n";
+    std::cout << "Packet\tPID\tContinuity\tpts hex\t\tpts wall\tSize\tEBP\tRAI\tPayload\n";
     std::cout << "-----------------------------------------------------------------------------------------------\n";
 }
 
