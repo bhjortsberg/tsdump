@@ -12,7 +12,7 @@
         -p <p1,p2...>   print only packets with given pids. Can be a comma separated list of pids
         -i <i1,i2...>   Inspect packets. Range or comma separated list of packet numbers
         -s              Print only payload start packets
-        -x              Print extra info, adaption field and PES header
+        -x              Print extra info, adaptation field and PES header
         -X              Print packet payload in hex
 
 ## Todo
@@ -34,7 +34,7 @@
 
 - -p without pid should print a list of pids in transport stream
 - Display config to store what should be printed (for -x -xx, -p, -j and -i)
-- -x and -xx or -X that prints extra information, the adaption field and the pes-header. And -xx (or -X) prints the payload in hex.
+- -x and -xx or -X that prints extra information, the adaptation field and the pes-header. And -xx (or -X) prints the payload in hex.
 - -j dump I-frame as jpeg image
 - -s for summary or statistics that prints number of packets and a list of pids.
 - Or a hide statistics if statistics is to be printed always.

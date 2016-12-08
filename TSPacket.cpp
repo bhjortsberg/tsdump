@@ -20,13 +20,13 @@ TSPacket::TSPacket(Chunk buffer, int pkt_num):
     transport_priority              = chunk[1] & 0x20 ? true : false;
     m_continuity_count                = chunk[3] & 0xf;
 
-    // Initialize payload, pes and adaption field iterators
+    // Initialize payload, pes and adaptation field iterators
     payload_it = std::begin(chunk) + 4;
     pes_header_it = std::begin(chunk) + 4;
-    adaption_field_it = std::begin(chunk) + 4;
+    adaptation_field_it = std::begin(chunk) + 4;
 
-    if (has_adaption_field()) {
-        pes_header_it = adaption_field_it + adaption_field().size();
+    if (has_adaptation_field()) {
+        pes_header_it = adaptation_field_it + adaptation_field().size();
         payload_it = pes_header_it;
     }
 
@@ -47,30 +47,30 @@ unsigned short TSPacket::continuity_count() const
     return m_continuity_count;
 }
 
-bool TSPacket::has_adaption_field() const
+bool TSPacket::has_adaptation_field() const
 {
-    return adaption_field_control() & 0x02 ? true : false;
+    return adaptation_field_control() & 0x02 ? true : false;
 }
 
-char TSPacket::adaption_field_control() const
+char TSPacket::adaptation_field_control() const
 {
     return (chunk[3] & 0x30) >> 4;
 }
 
 bool TSPacket::has_random_access_indicator() const
 {
-    return has_adaption_field() ? adaption_field().has_random_access_indicator() : false;
+    return has_adaptation_field() ? adaptation_field().has_random_access_indicator() : false;
 }
 
-AdaptationField TSPacket::adaption_field() const
+AdaptationField TSPacket::adaptation_field() const
 {
-    if (has_adaption_field())
+    if (has_adaptation_field())
     {
         return AdaptationField(std::begin(chunk)+4);
-//        return AdaptationField(adaption_field_it);
+//        return AdaptationField(adaptation_field_it);
     }
 
-    throw std::runtime_error("No adaption field");
+    throw std::runtime_error("No adaptation field");
 
 }
 
@@ -80,9 +80,9 @@ PESHeader TSPacket::pes_header() const
     {
         int pes_pos = 4;
 
-        if (has_adaption_field())
+        if (has_adaptation_field())
         {
-            pes_pos += adaption_field().size();
+            pes_pos += adaptation_field().size();
         }
 
         return PESHeader(std::begin(chunk) + pes_pos);
@@ -94,8 +94,8 @@ PESHeader TSPacket::pes_header() const
 bool TSPacket::has_pes_header() const
 {
     int pes_pos = 4;
-    if (has_adaption_field()) {
-        pes_pos += adaption_field().size();
+    if (has_adaptation_field()) {
+        pes_pos += adaptation_field().size();
     }
 
     if (chunk[pes_pos] == 0x00 &&
@@ -109,7 +109,7 @@ bool TSPacket::has_pes_header() const
 
 bool TSPacket::has_ebp() const
 {
-    return has_adaption_field() && adaption_field().has_ebp();
+    return has_adaptation_field() && adaptation_field().has_ebp();
 }
 
 Chunk TSPacket::get_payload() const {

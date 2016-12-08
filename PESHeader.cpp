@@ -74,7 +74,8 @@ std::string PESHeader::print_str()
     std::stringstream print_str;
     print_str << "PES header:" << std::endl;
     print_str << "\tstream_id : " << static_cast<int>(stream_id) << std::endl <<
-                 "\tlength : " << length << std::endl;
+                 "\tlength : " << length << std::endl <<
+                 "\tpes_header_length : " << static_cast<int>(pes_header_data_length) << std::endl;
     print_str << "\tpts_dts_flag : 0x" << std::hex << static_cast<int>(pts_dts_flags) << std::endl;
 
     if (pts_dts_flags == 0x02)

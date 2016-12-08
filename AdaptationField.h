@@ -2,8 +2,8 @@
 // Created by Björn Hjortsberg on 20/02/16.
 //
 
-#ifndef TSPARSER_ADAPTIONFIELD_H
-#define TSPARSER_ADAPTIONFIELD_H
+#ifndef TSPARSER_ADAPTATIONFIELD_H
+#define TSPARSER_ADAPTATIONFIELD_H
 
 
 #include <vector>
@@ -32,9 +32,9 @@ private:
     bool OPCR_flag;
     bool splicing_point_flag;
     bool transport_private_data_flag;
-    bool adaption_field_extension_flag;
+    bool adaptation_field_extension_flag;
     Chunk chunk;
 };
 
 
-#endif //TSPARSER_ADAPTIONFIELD_H
+#endif //TSPARSER_ADAPTATIONFIELD_H

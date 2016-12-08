@@ -212,7 +212,7 @@ void usage()
                  "                              If no pids given, print a list of pids in transport stream" << std::endl;
     std::cout << "          -i <pkt1, pk2...>   Inspect (print) packet with given number, range or comma separated list of packets" << std::endl;
     std::cout << "          -s                  Print only payload start packets" << std::endl;
-    std::cout << "          -x                  Print adaption field and PES header" << std::endl;
+    std::cout << "          -x                  Print adaptation field and PES header" << std::endl;
     std::cout << "          -X                  Print packet payload in hex" << std::endl;
 
     std::cout << std::endl;

@@ -93,7 +93,7 @@ std::string TSReport::get_packet_string(const TSPacketPtr & packet)
     }
 
 
-    if (packet->has_adaption_field() && packet->has_ebp())
+    if (packet->has_adaptation_field() && packet->has_ebp())
     {
         packet_string << "EBP\t";
     }
@@ -171,13 +171,13 @@ std::string TSReport::get_packet_payload_string(const TSPacketPtr &packet)
 
 std::string TSReport::get_packet_extra_info_string(const TSPacketPtr &packet)
 {
-    std::stringstream adaption_str;
+    std::stringstream adaptation_str;
     std::stringstream pes_str;
     pes_str << "\n";
 
-    if (packet->has_adaption_field())
+    if (packet->has_adaptation_field())
     {
-        adaption_str << "\n" << packet->adaption_field().print_str();
+        adaptation_str << "\n" << packet->adaptation_field().print_str();
     }
 
     if (packet->has_pes_header())
@@ -185,7 +185,7 @@ std::string TSReport::get_packet_extra_info_string(const TSPacketPtr &packet)
         pes_str << packet->pes_header().print_str();
     }
 
-    return adaption_str.str() + pes_str.str();
+    return adaptation_str.str() + pes_str.str();
 
 }
 

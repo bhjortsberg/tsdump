@@ -19,9 +19,9 @@ AdaptationField::AdaptationField(Chunk::const_iterator it)
         OPCR_flag =                             it[1] & 0x08 ? true : false;
         splicing_point_flag =                   it[1] & 0x04 ? true : false;
         transport_private_data_flag =           it[1] & 0x02 ? true : false;
-        adaption_field_extension_flag =         it[1] & 0x01 ? true : false;
+        adaptation_field_extension_flag =       it[1] & 0x01 ? true : false;
 
-        chunk.resize(length - 1); // The length in the adaption field does not calculate the length byte itself.
+        chunk.resize(length - 1); // The length in the adaptation field does not calculate the length byte itself.
         std::copy(it + 2, it + 2 + (length - 1), std::begin(chunk));
     } else {
         discontinuity_indicator =               false;
@@ -31,7 +31,7 @@ AdaptationField::AdaptationField(Chunk::const_iterator it)
         OPCR_flag =                             false;
         splicing_point_flag =                   false;
         transport_private_data_flag =           false;
-        adaption_field_extension_flag =         false;
+        adaptation_field_extension_flag =         false;
 
     }
 
@@ -48,7 +48,7 @@ unsigned int AdaptationField::get_length_field()
     return length;
 }
 
-// The total  size of the adaption field
+// The total  size of the adaptation field
 unsigned int AdaptationField::size()
 {
     return length + 1;
@@ -109,7 +109,7 @@ std::string AdaptationField::print_str()
             "\tOPCR_flag                : " << OPCR_flag << std::endl <<
             "\tsplicing point           : " << splicing_point_flag << std::endl <<
             "\ttransport private data   : " << transport_private_data_flag << std::endl <<
-            "\textension flag           : " << adaption_field_extension_flag << std::endl << std::endl;
+            "\textension flag           : " << adaptation_field_extension_flag << std::endl << std::endl;
 
     return print_str.str();
 }

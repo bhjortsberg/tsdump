@@ -27,10 +27,10 @@ public:
     TSPacket(Chunk buffer, int pkt_num);
     unsigned short pid() const;
     unsigned short continuity_count() const;
-    bool has_adaption_field() const;
+    bool has_adaptation_field() const;
     bool has_ebp() const;
     bool has_random_access_indicator() const;
-    AdaptationField adaption_field() const;
+    AdaptationField adaptation_field() const;
     bool has_pes_header() const;
     PESHeader pes_header() const;
     Chunk get_payload() const;
@@ -46,7 +46,7 @@ public:
     virtual Chunk::const_iterator payload() const;
 
 private:
-    char adaption_field_control() const;
+    char adaptation_field_control() const;
     Chunk chunk;
     char sync_byte;
     bool transport_error_indicator;
@@ -58,11 +58,11 @@ private:
     TSPacketPtr m_prev;
     TSPacketPtr m_next;
 
-    // TODO: Iterator for adaption field, pes header that is set to the position of them
+    // TODO: Iterator for adaptation field, pes header that is set to the position of them
     // and used by all functions instead of code duplication like now.
     // Partly done. One have to set them to std::begin(chunk) and compare to that.
     Chunk::iterator pes_header_it;
-    Chunk::iterator adaption_field_it;
+    Chunk::iterator adaptation_field_it;
     Chunk::const_iterator payload_it;
 };
 
