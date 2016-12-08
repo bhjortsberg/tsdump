@@ -10,10 +10,10 @@
 
 typedef std::vector<unsigned char> Chunk;
 
-class AdaptionField
+class AdaptationField
 {
 public:
-    AdaptionField(Chunk::const_iterator it);
+    AdaptationField(Chunk::const_iterator it);
     bool has_random_access_indicator();
     bool has_ebp() const;
     unsigned int get_length_field();

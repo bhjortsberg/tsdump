@@ -8,7 +8,7 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include "AdaptionField.h"
+#include "AdaptationField.h"
 #include "PESHeader.h"
 #include "IPacket.h"
 
@@ -30,7 +30,7 @@ public:
     bool has_adaption_field() const;
     bool has_ebp() const;
     bool has_random_access_indicator() const;
-    AdaptionField adaption_field() const;
+    AdaptationField adaption_field() const;
     bool has_pes_header() const;
     PESHeader pes_header() const;
     Chunk get_payload() const;

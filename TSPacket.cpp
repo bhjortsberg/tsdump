@@ -62,12 +62,12 @@ bool TSPacket::has_random_access_indicator() const
     return has_adaption_field() ? adaption_field().has_random_access_indicator() : false;
 }
 
-AdaptionField TSPacket::adaption_field() const
+AdaptationField TSPacket::adaption_field() const
 {
     if (has_adaption_field())
     {
-        return AdaptionField(std::begin(chunk)+4);
-//        return AdaptionField(adaption_field_it);
+        return AdaptationField(std::begin(chunk)+4);
+//        return AdaptationField(adaption_field_it);
     }
 
     throw std::runtime_error("No adaption field");

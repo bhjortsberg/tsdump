@@ -5,9 +5,9 @@
 #include <string>
 #include <ostream>
 #include <sstream>
-#include "AdaptionField.h"
+#include "AdaptationField.h"
 
-AdaptionField::AdaptionField(Chunk::const_iterator it)
+AdaptationField::AdaptationField(Chunk::const_iterator it)
 {
     length = it[0];
     if (length > 0)
@@ -37,24 +37,24 @@ AdaptionField::AdaptionField(Chunk::const_iterator it)
 
 }
 
-bool AdaptionField::has_random_access_indicator()
+bool AdaptationField::has_random_access_indicator()
 {
     return random_access_indicator;
 }
 
 
-unsigned int AdaptionField::get_length_field()
+unsigned int AdaptationField::get_length_field()
 {
     return length;
 }
 
 // The total  size of the adaption field
-unsigned int AdaptionField::size()
+unsigned int AdaptationField::size()
 {
     return length + 1;
 }
 
-bool AdaptionField::has_ebp() const
+bool AdaptationField::has_ebp() const
 {
     if (transport_private_data_flag)
     {
@@ -75,32 +75,32 @@ bool AdaptionField::has_ebp() const
     return false;
 }
 
-unsigned int AdaptionField::PCR_len() const
+unsigned int AdaptationField::PCR_len() const
 {
     if (PCR_flag)
         return 6;
     return 0;
 }
 
-unsigned int AdaptionField::OPCR_len() const
+unsigned int AdaptationField::OPCR_len() const
 {
     if (OPCR_flag)
         return 6;
     return 0;
 }
 
-unsigned int AdaptionField::splicing_point_len() const
+unsigned int AdaptationField::splicing_point_len() const
 {
     if (splicing_point_flag)
         return 1;
     return 0;
 }
 
-std::string AdaptionField::print_str()
+std::string AdaptationField::print_str()
 {
     std::stringstream print_str;
 
-    print_str << "Adaption Field" << std::endl;
+    print_str << "Adaptation Field" << std::endl;
     print_str <<
             "\tdiscontinuity            : " << discontinuity_indicator << std::endl <<
             "\trandom access indicator  : " << random_access_indicator << std::endl <<
