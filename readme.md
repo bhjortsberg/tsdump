@@ -17,18 +17,22 @@
 
 ## Todo
 
+- Look over smart pointer usage, perhaps change to unique_ptr
+- Implement search for sync-byte if not found at start
+- Read data from multicast address in addition to file.
+
+- Replace raw loops with std::algorithms
+- Add unit test with catch framework
+
+- rename to ints, inspects, bints, bjints, hints,  "inspect ts"
 - Handle pts as a <chrono> to ease printout and calculations
-- Multithreaded read file and print. Use <condition_variable> 
 - Group packets that belong to same frame.
 - Print all packets in this payload (all packets with this pid util next payload start)
 - Dump -d should dump payload (ES) of what is printed. Can be used to extract all packets for one pid or payload for one frame (jpeg-pic)
-- Replace raw loops with std::algorithms
-- Add unit test with catch framework
 
 - Improve option parsing with error handling and required file argument.
 - Calculate the length of the file.
 - Indicate I-frame. and Dump I-frame data as a jpeg
-- Read data from multicast address in addition to file.
 - Payload extract. Class that sums the payloads from a bunch of (all) packets. Return a list of payloads.
   Payloads can then be used to get I-frame info and extract jpeg.
 
