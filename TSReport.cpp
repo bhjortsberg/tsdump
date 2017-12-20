@@ -199,15 +199,15 @@ void TSReport::print_summary()
         std::cout << "\tContinutity count error in:" << std::endl;
         for (const auto & a : m_continuity_error)
         {
+            bool first = true;
             std::cout << "\t\tpid: " << a.first << " packet numbers: ";
             for (const auto & b : a.second)
             {
-                std::cout <<  b;
+                std::cout << (first ? std::to_string(b) : ", " + std::to_string(b));
+                first = false;
             }
             std::cout << std::endl;
-
         }
-
     }
 
     std::cout << std::endl;
