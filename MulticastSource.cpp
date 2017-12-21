@@ -91,35 +91,50 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
     pkt_cnt++;
 
     uint32_t total = 0;
-    while (1)
+    uint32_t num_packets = 64;
+    std::vector<uint8_t> multi_packets(num_packets*TSPacket::TS_PACKET_SIZE);
+
+    while (true)
     {
-        bytes = recvfrom(m_sock, raw_packet.data(), raw_packet.capacity(), 0, (struct sockaddr*)&addr, &len);
-        if (bytes < 0)
+        uint32_t pos = 0;
+        // Fill destination vector with packets
+        while (true)
         {
-            perror("recvfrom");
-            throw std::runtime_error("Bind error: " + std::string(strerror(errno)));
-        }
-        // Find sync byte
-        uint32_t i = 0;
-        while (raw_packet[i] != TSPacket::SYNC_BYTE && raw_packet[i+TSPacket::TS_PACKET_SIZE])
-        {
-            std::cout << "Out of sync, resynching\n";
-            ++i;
+            bytes = recvfrom(m_sock, multi_packets.data() + pos,
+                             multi_packets.capacity() - pos,
+                             0,
+                             (struct sockaddr*)&addr,
+                             &len);
+            if (bytes < 0)
+            {
+                perror("recvfrom");
+                throw std::runtime_error("Bind error: " + std::string(strerror(errno)));
+            }
+            pos += bytes;
+            if (pos == multi_packets.size())
+            {
+                // Destination buffer is full
+                break;
+            }
         }
 
-        if (raw_packet[0] == TSPacket::SYNC_BYTE) {
-            add_packet(raw_packet.begin(), pkt_cnt);
-            pkt_cnt++;
-            add_packet(raw_packet.begin() + TSPacket::TS_PACKET_SIZE, pkt_cnt);
-            pkt_cnt++;
-            if (pkt_cnt % 10 == 0) {
-                // Notify that packets has been read
-                m_partially_read.notify_one();
+        // Loop all packets
+        uint32_t i = 0;
+        for (; i < num_packets; i++)
+        {
+            if (multi_packets[i * TSPacket::TS_PACKET_SIZE] == TSPacket::SYNC_BYTE)
+            {
+                add_packet(multi_packets.begin() + (i*TSPacket::TS_PACKET_SIZE), pkt_cnt);
+                pkt_cnt++;
             }
-        } else {
-            // TODO: Out of sync
-            throw std::runtime_error("Error in sync byte");
+            else
+            {
+                // TODO: Out of sync
+                throw std::runtime_error("Error in sync byte");
+            }
         }
+        // Notify that packets has been read
+        m_partially_read.notify_one();
     }
 
     std::vector<TSPacketPtr> packets;
