@@ -3,7 +3,7 @@
 //
 
 #include <sys/socket.h>
-#include <dnet.h>
+#include <arpa/inet.h>
 #include <cstring>
 #include "MulticastSource.h"
 
@@ -23,7 +23,7 @@ MulticastSource::MulticastSource(const std::string &source, std::condition_varia
         m_sock = socket(AF_INET, SOCK_DGRAM, 0);
         join(m_addr);
     } else {
-        throw std::runtime_error("ERROR: Wrong address");
+        throw std::runtime_error("ERROR: Invalid address format should be <ip>:<port>");
     }
 }
 

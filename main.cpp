@@ -2,7 +2,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <array>
-#include "FileSource.h"
+#include "SourceFactory.h"
 #include "TransportStream.h"
 #include "TSReport.h"
 #include "PacketFilter.h"
@@ -93,7 +93,8 @@ int main(int argc, char ** argv)
 
         std::mutex mutex;
         std::condition_variable cond;
-        FileSourcePtr source(new FileSource(file_name, cond, mutex));
+
+        TSSourcePtr source = SourceFactory::create(file_name, cond, mutex);
         TransportStream ts(std::move(source), cond, mutex);
         TSReport report(ts, filter, option);
 
