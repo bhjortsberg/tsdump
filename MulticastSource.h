@@ -20,6 +20,7 @@ public:
 private:
     void join(const std::string & addr);
     void add_packet(std::vector< unsigned char > & raw_packet, int cnt);
+    void add_packet(const std::vector< unsigned char >::iterator& packet_start, int cnt);
 
     std::vector<TSPacketPtr> m_packets;
     std::map<int, TSPacketPtr> m_latest_packets;

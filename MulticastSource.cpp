@@ -7,6 +7,8 @@
 #include <cstring>
 #include "MulticastSource.h"
 
+#include <iostream>
+
 MulticastSource::MulticastSource(const std::string &source, std::condition_variable &cond, std::mutex &mutex)
 :m_partially_read(cond),
  m_mutex(mutex),
@@ -74,8 +76,9 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
             throw std::runtime_error("Cannot find sync byte");
         }
     }
+
     // Sync byte found, copy first packet and add to list
-    std::vector<uint8_t> packet(TSPacket::TS_PACKET_SIZE*2);
+    std::vector<uint8_t> packet(TSPacket::TS_PACKET_SIZE);
     std::copy(raw_packet.begin() + i, raw_packet.begin() + i + TSPacket::TS_PACKET_SIZE, packet.begin());
     add_packet(packet, pkt_cnt);
     pkt_cnt++;
@@ -84,7 +87,7 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
     std::copy(raw_packet.begin() + i + TSPacket::TS_PACKET_SIZE, raw_packet.end(), packet.begin());
     recvfrom(m_sock, raw_packet.data(), TSPacket::TS_PACKET_SIZE - i, 0, (struct sockaddr*)&addr, &len);
     std::copy(raw_packet.begin(), raw_packet.end(), packet.begin() + i);
-    add_packet(raw_packet, pkt_cnt);
+    add_packet(packet, pkt_cnt);
     pkt_cnt++;
 
     uint32_t total = 0;
@@ -100,13 +103,16 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
         uint32_t i = 0;
         while (raw_packet[i] != TSPacket::SYNC_BYTE && raw_packet[i+TSPacket::TS_PACKET_SIZE])
         {
+            std::cout << "Out of sync, resynching\n";
             ++i;
         }
 
-        if (raw_packet[i] == TSPacket::SYNC_BYTE) {
-            add_packet(raw_packet, pkt_cnt);
+        if (raw_packet[0] == TSPacket::SYNC_BYTE) {
+            add_packet(raw_packet.begin(), pkt_cnt);
             pkt_cnt++;
-            if (pkt_cnt % 10000 == 0) {
+            add_packet(raw_packet.begin() + TSPacket::TS_PACKET_SIZE, pkt_cnt);
+            pkt_cnt++;
+            if (pkt_cnt % 10 == 0) {
                 // Notify that packets has been read
                 m_partially_read.notify_one();
             }
@@ -141,6 +147,11 @@ void MulticastSource::add_packet(std::vector< unsigned char > & raw_packet, int 
         std::lock_guard< std::mutex > lock(m_mutex);
         m_packets.push_back(packet);
     }
+}
+void MulticastSource::add_packet(const std::vector< unsigned char >::iterator& packet_start, int cnt)
+{
+    std::vector<unsigned char> packet(packet_start, packet_start + TSPacket::TS_PACKET_SIZE);
+    add_packet(packet, cnt);
 }
 
 bool MulticastSource::isDone() {
