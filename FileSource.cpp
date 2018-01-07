@@ -18,11 +18,17 @@ m_partially_read(cond),
 m_mutex(mutex)
 {
     m_lastRetreivedPacket = m_nullIterator;
+    std::ifstream file(m_filename, std::fstream::in);
+    if (!file.good())
+    {
+        throw std::runtime_error("Failed to open file: " + m_filename);
+    }
 }
 
 std::vector<TSPacketPtr> FileSource::read()
 {
-    std::ifstream file(m_filename);
+    std::ifstream file(m_filename, std::fstream::in);
+
     std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE);
     if (file.is_open())
     {
