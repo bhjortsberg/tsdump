@@ -86,7 +86,7 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
     // Copy part of next packet and then read rest of packet and add to list
     std::copy(raw_packet.begin() + i + TSPacket::TS_PACKET_SIZE, raw_packet.end(), packet.begin());
     recvfrom(m_sock, raw_packet.data(), TSPacket::TS_PACKET_SIZE - i, 0, (struct sockaddr*)&addr, &len);
-    std::copy(raw_packet.begin(), raw_packet.end(), packet.begin() + i);
+    std::copy(raw_packet.begin(), raw_packet.begin() + TSPacket::TS_PACKET_SIZE - i, packet.begin() + i);
     add_packet(packet, pkt_cnt);
     pkt_cnt++;
 
@@ -147,7 +147,6 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
 
 void MulticastSource::add_packet(std::vector< unsigned char > & raw_packet, int cnt)
 {
-
     TSPacketPtr packet(new TSPacket(raw_packet, cnt));
     auto p = m_latest_packets.find(packet->pid());
     if (p != std::end(m_latest_packets))
