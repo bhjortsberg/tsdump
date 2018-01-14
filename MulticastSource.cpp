@@ -8,6 +8,8 @@
 #include "MulticastSource.h"
 
 #include <iostream>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 MulticastSource::MulticastSource(const std::string &source, std::condition_variable &cond, std::mutex &mutex)
 :m_partially_read(cond),
@@ -42,6 +44,11 @@ void MulticastSource::join(const std::string & addr)
     {
         m_joined = true;
     }
+
+    // Set non blocking socket
+    uint32_t nonblock = 1;
+    ioctl(m_sock, FIONBIO, &nonblock);
+
 }
 
 std::vector<TSPacketPtr> MulticastSource::getPackets() {
@@ -96,25 +103,31 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
 
     while (true)
     {
+        // TODO: Add multiplexing
         uint32_t pos = 0;
         // Fill destination vector with packets
-        while (true)
+        while ((bytes = recvfrom(m_sock, multi_packets.data() + pos,
+                                 multi_packets.capacity() - pos,
+                                 0,
+                                 (struct sockaddr*)&addr,
+                                 &len)))
         {
-            bytes = recvfrom(m_sock, multi_packets.data() + pos,
-                             multi_packets.capacity() - pos,
-                             0,
-                             (struct sockaddr*)&addr,
-                             &len);
-            if (bytes < 0)
+            if (bytes < 0 && errno == EAGAIN)
             {
-                perror("recvfrom");
-                throw std::runtime_error("Bind error: " + std::string(strerror(errno)));
+                usleep(10000);
+                continue;
             }
             pos += bytes;
             if (pos == multi_packets.size())
             {
                 // Destination buffer is full
                 break;
+            }
+            if (bytes < 0 && errno != EAGAIN)
+            {
+                perror("recvfrom");
+                // TODO: Handle exception in thread
+                throw std::runtime_error(std::string(strerror(errno)));
             }
         }
 
@@ -129,7 +142,9 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
             }
             else
             {
+                std::cout << "Synch error\n";
                 // TODO: Out of sync
+                // TODO: Handle throw in async task
                 throw std::runtime_error("Error in sync byte");
             }
         }
