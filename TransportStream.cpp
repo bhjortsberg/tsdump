@@ -40,17 +40,18 @@ std::vector<TSPacketPtr> TransportStream::getPackets()
         std::unique_lock< std::mutex > lock(m_mutex);
         // Release mutex and wait, re-aquire mutex on wakeup
         m_cond.wait(lock);
-        // TODO: Check for spurious wake-up
-
         packets = m_sourcePtr->getPackets();
+        // It could be done now
+        m_done = m_sourcePtr->isDone();
     }
     else
     {
+        packets = m_future.get();
         // Source read is completed
         m_done = true;
     }
+    m_packetCount += packets.size();
     return packets;
-//    return m_s->getNewPackets();
 }
 
 std::vector< TSPacketPtr >::iterator TransportStream::find_pat()

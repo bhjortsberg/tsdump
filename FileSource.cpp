@@ -32,7 +32,6 @@ std::vector<TSPacketPtr> FileSource::read()
     std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE);
     if (file.is_open())
     {
-
         int pkt_cnt = 0;
         while (file.read(reinterpret_cast<char*>(raw_packet.data()), raw_packet.capacity()))
         {
@@ -50,6 +49,7 @@ std::vector<TSPacketPtr> FileSource::read()
             else
             {
                 // TODO: Out of sync
+                std::cout << "Out of sync throw in async task\n";
                 throw std::runtime_error("Error in sync byte");
             }
         }
@@ -64,13 +64,7 @@ std::vector<TSPacketPtr> FileSource::read()
         estr << "Failed to open file: " <<  m_filename;
         throw std::runtime_error(estr.str());
     }
-
-    std::vector<TSPacketPtr> packets;
-    {
-        std::lock_guard< std::mutex > lock(m_mutex);
-        packets = m_packets;
-    }
-    return packets;
+    return m_packets;
 }
 
 void FileSource::add_packet(std::vector< unsigned char > & raw_packet, int cnt)
@@ -95,9 +89,16 @@ void FileSource::add_packet(std::vector< unsigned char > & raw_packet, int cnt)
 
 std::vector< TSPacketPtr > FileSource::getPackets()
 {
-    auto packets = m_packets;
-    m_packets.clear();
-    return packets;
+    //std::unique_lock< std::mutex > lock(m_mutex);
+    //m_partially_read.wait(lock);
+/*    auto packets = m_packets;
+    {
+        std::cout << "Get packets and clear list\n";
+        //std::lock_guard< std::mutex > lock(m_mutex);
+        m_packets.clear();
+    }
+    return packets;*/
+    return std::move(m_packets);
 }
 
 std::vector<TSPacketPtr> FileSource::doRead()

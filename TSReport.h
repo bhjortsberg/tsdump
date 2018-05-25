@@ -31,7 +31,7 @@ private:
     OutputOptionsPtr m_option;
     TransportStream & m_ts;
     std::map<unsigned int, std::vector<int>> m_continuity_error;
-    unsigned int m_packetCount;
+    unsigned int m_packetCount = 0;
 
 };
 

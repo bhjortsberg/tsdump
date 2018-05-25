@@ -40,6 +40,7 @@ private:
     std::condition_variable & m_cond;
     std::mutex & m_mutex;
     bool m_done;
+    uint32_t m_packetCount = 0;
 };
 
 

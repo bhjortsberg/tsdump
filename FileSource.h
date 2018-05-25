@@ -19,8 +19,8 @@ public:
                std::mutex & mutex);
     virtual ~FileSource() {}
 
-    virtual std::vector<TSPacketPtr> getPackets() override ;
-    virtual std::vector<TSPacketPtr> doRead() override ;
+    virtual std::vector<TSPacketPtr> getPackets() override;
+    virtual std::vector<TSPacketPtr> doRead() override;
     virtual bool isDone() override;
 
 

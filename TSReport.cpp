@@ -29,7 +29,7 @@ void TSReport::report()
     while (true)
     {
 
-        for (const auto & packet : m_ts.getPackets())
+        for (const auto& packet : m_ts.getPackets())
         {
             ++m_packetCount;
             if (m_filter->show(packet))
