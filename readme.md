@@ -2,24 +2,30 @@
 
 ## Usage
 
-    tsparse [options] file
+    tsparse <source> [options]
     
-    Options:
-        -h              help
-        -t              print packets with pts
-        -e              print only packets with EBP marker
-        -r              print only packets with random access indentifier
-        -p <p1,p2...>   print only packets with given pids. Can be a comma separated list of pids
-        -i <i1,i2...>   Inspect packets. Range or comma separated list of packet numbers
-        -s              Print only payload start packets
-        -x              Print extra info, adaptation field and PES header
-        -X              Print packet payload in hex
+      <source>                    Source where transport stream is read.
+                                  Can be a file or multicast address on the
+                                  form <ip>:<port>
+      Options:
+              -h                  help
+              -t                  Print packets with pts
+              -e                  Print packets with EBP markers
+              -r                  Print packets with random access indicators
+              -p <pid1,pid2...>   Print only packets with specified pids, comma separated
+                                  list of pids. If no pids given, print a list of pids in
+                                  transport stream
+              -i <pkt1, pk2...>   Inspect (print) packet with given number, range or comma
+                                  separated list of packets
+              -s                  Print only payload start packets
+              -x                  Print adaptation field and PES header
+              -X                  Print packet payload in hex
+
 
 ## Todo
 
 - Look over smart pointer usage, perhaps change to unique_ptr
 - Implement search for sync-byte if not found at start
-- Read data from multicast address in addition to file.
 
 - Replace raw loops with std::algorithms
 - Add unit test with catch framework
