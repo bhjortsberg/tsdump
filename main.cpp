@@ -42,7 +42,7 @@ int main(int argc, char ** argv)
                 break;
             case 'h':
                 usage();
-                break;
+                return 0;
             case 'f':
                 file_name = std::string(optarg);
                 break;
@@ -204,19 +204,23 @@ std::vector<int> get_single_value(const std::string & str)
 
 void usage()
 {
-    std::cout << "tsparse [options] file" << std::endl;
-    std::cout << "  Options:" << std::endl;
-    std::cout << "          -f <file>           File that should be parsed" << std::endl;
-    std::cout << "          -h                  help" << std::endl;
-    std::cout << "          -t                  Print packets with pts" << std::endl;
-    std::cout << "          -e                  Print packets with EBP markers" << std::endl;
-    std::cout << "          -r                  Print packets with random access indicators" << std::endl;
-    std::cout << "          -p <pid1,pid2...>   Print only packets with specified pids, comma separated list of pids" << std::endl <<
-                 "                              If no pids given, print a list of pids in transport stream" << std::endl;
-    std::cout << "          -i <pkt1, pk2...>   Inspect (print) packet with given number, range or comma separated list of packets" << std::endl;
-    std::cout << "          -s                  Print only payload start packets" << std::endl;
-    std::cout << "          -x                  Print adaptation field and PES header" << std::endl;
-    std::cout << "          -X                  Print packet payload in hex" << std::endl;
-
-    std::cout << std::endl;
+    std::cout << "tsparse <source> [options]" << std::endl;
+    std::cout << "\n";
+    std::cout << "  <source>                    Source where transport stream is read.\n"
+                 "                              Can be a file or multicast address on the\n"
+                 "                              form <ip>:<port>\n";
+    std::cout << "  Options:\n";
+    std::cout << "          -h                  help\n";
+    std::cout << "          -t                  Print packets with pts\n";
+    std::cout << "          -e                  Print packets with EBP markers\n";
+    std::cout << "          -r                  Print packets with random access indicators\n";
+    std::cout << "          -p <pid1,pid2...>   Print only packets with specified pids, comma separated\n"
+                 "                              list of pids. If no pids given, print a list of pids in\n"
+                 "                              transport stream\n";
+    std::cout << "          -i <pkt1, pk2...>   Inspect (print) packet with given number, range or comma\n"
+                 "                              separated list of packets\n";
+    std::cout << "          -s                  Print only payload start packets\n";
+    std::cout << "          -x                  Print adaptation field and PES header\n";
+    std::cout << "          -X                  Print packet payload in hex\n";
+    std::cout << "\n";
 }
