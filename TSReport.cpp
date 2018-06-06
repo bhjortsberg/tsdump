@@ -28,7 +28,6 @@ void TSReport::report()
     print_header();
     while (true)
     {
-
         for (const auto& packet : m_ts.getPackets())
         {
             ++m_packetCount;
@@ -233,7 +232,7 @@ void TSReport::print_pid_info()
     std::cout << std::setw(6) << "Pid\tType" << std::endl;
     std::cout << "=====================" << std::endl;
     auto pat = m_ts.find_pat();
-    auto pmt_pids = m_ts.find_pmt_pids(*pat);
+    auto pmt_pids = m_ts.find_pmt_pids(pat);
     for (auto p : pmt_pids) {
         std::cout << get_pmt_string(p);
     }

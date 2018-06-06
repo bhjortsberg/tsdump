@@ -54,23 +54,33 @@ std::vector<TSPacketPtr> TransportStream::getPackets()
     return packets;
 }
 
-std::vector< TSPacketPtr >::iterator TransportStream::find_pat()
+TSPacketPtr TransportStream::find_pat()
 {
     auto start = std::begin(m_packets);
     return find_pat(start);
 }
 
-// TODO: Use TSPacket instead of the iterator?
-std::vector< TSPacketPtr >::iterator TransportStream::find_pat(const std::vector< TSPacketPtr >::iterator &it)
+TSPacketPtr TransportStream::find_pat(const std::vector< TSPacketPtr >::iterator &it)
 {
-    auto start = it;
-    return std::find_if(start, std::end(m_packets),
+
+    if (m_packets.empty())
+    {
+        m_packets = getPackets();
+    }
+    auto pat = std::find_if(std::begin(m_packets), std::end(m_packets),
                         [](const TSPacketPtr & a) {
                             if (a->pid() == 0x00) {
                                 return true;
                             }
                             return false;
                         });
+
+    if (pat != std::end(m_packets))
+    {
+        return *pat;
+    }
+    std::cout << "Could not find PAT\n";
+    return nullptr;
 
 }
 
@@ -86,14 +96,16 @@ std::vector< int > TransportStream::find_pmt_pids(const TSPacketPtr & pat) const
     return pids;
 }
 
+//TODO: Not used, remove of make usefull
 std::vector< int > TransportStream::find_pids()
 {
     std::vector<int> pids;
     std::vector<int> ppids;
     TSPacketPtr pmt_pkt;
 
+    m_packets = getPackets();
     auto pat = find_pat();
-    auto pmt_pids = find_pmt_pids(*pat);
+    auto pmt_pids = find_pmt_pids(pat);
     pids = pmt_pids;
 
     for (auto p : pmt_pids) {
@@ -119,7 +131,12 @@ TSPacketPtr TransportStream::find_pmt(int pid)
                 return false;
             });
 
-    return *it;
+    if (it != std::end(m_packets))
+    {
+        return *it;
+    }
+    std::cout << "Could not packet with pid: " << pid << "\n";
+    return nullptr;
 }
 
 std::vector< PMTPacket > TransportStream::get_pmts()
@@ -128,7 +145,7 @@ std::vector< PMTPacket > TransportStream::get_pmts()
     TSPacketPtr pmt_pkt;
 
     auto pat = find_pat();
-    auto pmt_pids = find_pmt_pids(*pat);
+    auto pmt_pids = find_pmt_pids(pat);
 
     for (auto p : pmt_pids) {
         pmt_pkt = find_pmt(p);

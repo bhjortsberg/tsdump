@@ -24,8 +24,8 @@ public:
                     std::mutex & mutex);
 
     std::vector<TSPacketPtr> getPackets();
-    std::vector<TSPacketPtr>::iterator find_pat();
-    std::vector<TSPacketPtr>::iterator find_pat(const std::vector<TSPacketPtr>::iterator & it );
+    TSPacketPtr find_pat();
+    TSPacketPtr find_pat(const std::vector<TSPacketPtr>::iterator & it );
     std::vector<int> find_pmt_pids(const TSPacketPtr & pat) const;
     std::vector<int> find_pids();
     TSPacketPtr find_pmt(int pid);
