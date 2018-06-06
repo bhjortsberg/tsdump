@@ -13,8 +13,8 @@
               -e                  Print packets with EBP markers
               -r                  Print packets with random access indicators
               -p <pid1,pid2...>   Print only packets with specified pids, comma separated
-                                  list of pids. If no pids given, print a list of pids in
-                                  transport stream
+                                  list of pids
+              --pids              Print a list of pids in the transport stream
               -i <pkt1, pk2...>   Inspect (print) packet with given number, range or comma
                                   separated list of packets
               -s                  Print only payload start packets
