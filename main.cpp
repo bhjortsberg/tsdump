@@ -2,6 +2,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <array>
+#include <getopt.h>
 #include "SourceFactory.h"
 #include "TransportStream.h"
 #include "TSReport.h"
@@ -31,55 +32,66 @@ int main(int argc, char ** argv)
         return 0;
     }
 
-    while ((ch = getopt(argc, argv, "i:hf:p:tesrXx")) != -1) {
+    const int show_pids_only = 1001;
+    struct option opts[1];
+    opts[0].name = "pids";
+    opts[0].has_arg = 0;
+    opts[0].flag = nullptr;
+    opts[0].val = show_pids_only;
+    int longindex;
+
+    while ((ch = getopt_long(argc, argv, "i:hf:p:tesrXx", opts, &longindex)) != -1) {
         std::string pids_str;
         std::vector<int> pids;
         std::stringstream ss;
 
-        switch (ch) {
-            case 'i':
-                filter->packets(get_opt_values(optarg));
-                break;
-            case 'h':
-                usage();
-                return 0;
-            case 'f':
-                file_name = std::string(optarg);
-                break;
-            case 'p':
-                ss << std::string(optarg);
-                pids = get_opt_values(optarg);
-                if (pids.empty())
-                {
+        try
+        {
+            switch (ch)
+            {
+                case 'i':
+                    filter->packets(get_opt_values(optarg));
+                    break;
+                case 'h':
+                    usage();
+                    return 0;
+                case 'f':
+                    file_name = std::string(optarg);
+                    break;
+                case 'p':
+                    filter->pids(get_opt_values(optarg));
+                    break;
+                case show_pids_only:
                     option->listPids();
-                    // No option argument was given -> optarg is an argument.
-                    optind--;
-                }
-                else{
-                    filter->pids(pids);
-                }
-                break;
-            case 't':
-                filter->pts();
-                break;
-            case 'e':
-                filter->ebp();
-                break;
-            case 'r':
-                filter->rai();
-                break;
-            case 's':
-                filter->payloadStart();
-                break;
-            case 'x':
-                option->extraInfo();
-                break;
-            case 'X':
-                option->payload();
-                break;
-            default:
-                usage();
-                break;
+                    break;
+                case 't':
+                    filter->pts();
+                    break;
+                case 'e':
+                    filter->ebp();
+                    break;
+                case 'r':
+                    filter->rai();
+                    break;
+                case 's':
+                    filter->payloadStart();
+                    break;
+                case 'x':
+                    option->extraInfo();
+                    break;
+                case 'X':
+                    option->payload();
+                    break;
+                default:
+                    usage();
+                    break;
+            }
+        }
+        catch (const FilterError& e)
+        {
+            std::cout << e.what();
+            usage();
+            return 0;
         }
 
     }
@@ -144,6 +156,10 @@ std::vector<std::string> get_opt_comma_separated(const char * opt)
     std::stringstream pss;
     std::string pkt_str;
     std::vector<std::string> vec;
+    if (not opt)
+    {
+        return vec;
+    }
     pss << std::string(opt);
 
     while (std::getline(pss, pkt_str, ','))

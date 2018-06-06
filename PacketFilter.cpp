@@ -61,6 +61,10 @@ void PacketFilter::pts()
 
 void PacketFilter::pids(std::vector< int > pids)
 {
+    if (pids.empty())
+    {
+        throw FilterError("Wrong number of arguments for pid listing");
+    }
     m_pids = pids;
 }
 
@@ -100,6 +104,10 @@ void PacketFilter::payloadStart()
 
 void PacketFilter::packets(std::vector<int> pkts)
 {
+    if (pkts.empty())
+    {
+        throw FilterError("Wrong number of arguments for packet listing");
+    }
     m_pkts = pkts;
 }
 

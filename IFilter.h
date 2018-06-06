@@ -8,6 +8,14 @@
 #include <memory>
 #include "TSPacket.h"
 
+class FilterError : public std::runtime_error
+{
+public:
+    explicit FilterError(const std::string& message):
+            std::runtime_error(message)
+    {
+    }
+};
 
 class IFilter
 {
