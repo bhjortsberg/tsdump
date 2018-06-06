@@ -231,8 +231,8 @@ void usage()
     std::cout << "          -e                  Print packets with EBP markers\n";
     std::cout << "          -r                  Print packets with random access indicators\n";
     std::cout << "          -p <pid1,pid2...>   Print only packets with specified pids, comma separated\n"
-                 "                              list of pids. If no pids given, print a list of pids in\n"
-                 "                              transport stream\n";
+                 "                              list of pids\n";
+    std::cout << "          --pids              Print a list of pids in the transport stream\n";
     std::cout << "          -i <pkt1, pk2...>   Inspect (print) packet with given number, range or comma\n"
                  "                              separated list of packets\n";
     std::cout << "          -s                  Print only payload start packets\n";
