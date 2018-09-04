@@ -21,6 +21,8 @@ void TSReport::report()
 {
     if (m_option->listPidsOnly()) {
         print_pid_info();
+        m_ts.stop();
+        m_ts.getPackets();
         return;
     }
 

@@ -16,6 +16,7 @@ public:
     virtual std::vector<TSPacketPtr> getPackets() = 0;
     virtual std::vector<TSPacketPtr> doRead() = 0;
     virtual bool isDone() = 0;
+    virtual void stop() = 0;
 };
 
 

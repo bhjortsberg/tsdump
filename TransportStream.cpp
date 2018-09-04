@@ -155,4 +155,7 @@ std::vector< PMTPacket > TransportStream::get_pmts()
     return pmts;
 }
 
-
+void TransportStream::stop()
+{
+    m_sourcePtr->stop();
+}

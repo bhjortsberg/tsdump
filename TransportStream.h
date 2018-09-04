@@ -31,6 +31,7 @@ public:
     TSPacketPtr find_pmt(int pid);
     std::vector<PMTPacket> get_pmts();
     bool isDone() const { return m_done; }
+    void stop();
 
 private:
     std::vector<TSPacketPtr> m_packets;

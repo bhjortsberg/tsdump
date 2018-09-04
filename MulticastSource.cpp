@@ -17,7 +17,7 @@ MulticastSource::MulticastSource(const std::string &source, std::condition_varia
  m_joined(false),
  m_done(false)
 {
-    size_t port_delim = source.find(":");
+    size_t port_delim = source.find(':');
     if (port_delim != std::string::npos)
     {
         m_addr = source.substr(0, port_delim);
@@ -29,10 +29,6 @@ MulticastSource::MulticastSource(const std::string &source, std::condition_varia
     } else {
         throw std::runtime_error("ERROR: Invalid address format should be <ip>:<port>");
     }
-}
-
-MulticastSource::~MulticastSource() {
-
 }
 
 void MulticastSource::join(const std::string & addr)
@@ -98,10 +94,10 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
     pkt_cnt++;
 
     uint32_t total = 0;
-    uint32_t num_packets = 64;
+    uint32_t num_packets = 100;
     std::vector<uint8_t> multi_packets(num_packets*TSPacket::TS_PACKET_SIZE);
 
-    while (true)
+    while (not m_stop)
     {
         // TODO: Add multiplexing
         uint32_t pos = 0;
@@ -120,6 +116,7 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
             pos += bytes;
             if (pos == multi_packets.size())
             {
+                // TODO: This will miss some packets
                 // Destination buffer is full
                 break;
             }
@@ -129,6 +126,10 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
                 // TODO: Handle exception in thread
                 throw std::runtime_error(std::string(strerror(errno)));
             }
+        }
+        if (bytes == 0)
+        {
+            std::cout << "Read 0 bytes, pos: " << pos << "\n";
         }
 
         // Loop all packets
@@ -152,6 +153,7 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
         m_partially_read.notify_one();
     }
 
+    m_done = true;
     std::vector<TSPacketPtr> packets;
     {
         std::lock_guard< std::mutex > lock(m_mutex);
@@ -187,3 +189,7 @@ bool MulticastSource::isDone() {
     return m_done;
 }
 
+void MulticastSource::stop()
+{
+    m_stop = true;
+}

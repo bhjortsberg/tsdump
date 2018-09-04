@@ -22,7 +22,7 @@ public:
     virtual std::vector<TSPacketPtr> getPackets() override;
     virtual std::vector<TSPacketPtr> doRead() override;
     virtual bool isDone() override;
-
+    virtual void stop() override;
 
 protected:
 //    void add_packet(std::vector<unsigned char > & raw_packet, int cnt);
@@ -37,6 +37,7 @@ protected:
     std::vector<TSPacketPtr> read();
     void add_packet(std::vector< unsigned char > & raw_packet, int cnt);
     bool m_done = false;
+    bool m_stop = false;
 };
 
 typedef std::shared_ptr<FileSource> FileSourcePtr;

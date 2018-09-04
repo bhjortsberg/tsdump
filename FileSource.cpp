@@ -52,6 +52,10 @@ std::vector<TSPacketPtr> FileSource::read()
                 std::cout << "Out of sync throw in async task\n";
                 throw std::runtime_error("Error in sync byte");
             }
+            if (m_stop)
+            {
+                break;
+            }
         }
         m_done = true;
         //File read done notify the remaining packets
@@ -111,3 +115,7 @@ bool FileSource::isDone()
     return m_done;
 }
 
+void FileSource::stop()
+{
+    m_stop = true;
+}

@@ -12,10 +12,11 @@ class MulticastSource : public TSSource
 {
 public:
     MulticastSource(const std::string& source, std::condition_variable& cond, std::mutex& mutex);
-    virtual ~MulticastSource();
+    virtual ~MulticastSource() = default;
     virtual std::vector<TSPacketPtr> getPackets() override;
     virtual std::vector<TSPacketPtr> doRead() override;
     virtual bool isDone() override ;
+    virtual void stop() override;
 
 private:
     void join(const std::string & addr);
@@ -31,6 +32,7 @@ private:
     int m_sock;
     bool m_joined;
     bool m_done;
+    bool m_stop = false;
 };
 
 
