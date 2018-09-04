@@ -65,42 +65,61 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
         throw std::runtime_error("Bind error: " + std::string(strerror(errno)));
     }
 
-    std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE * 2);
+    std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE * 10);
     socklen_t len;
-    ssize_t bytes;
+    ssize_t bytes = 0;
 
     int pkt_cnt = 0;
     uint32_t i = 0;
-    bytes = recvfrom(m_sock, raw_packet.data(), raw_packet.capacity(), 0, (struct sockaddr*)&addr, &len);
-    while (raw_packet[i] != TSPacket::SYNC_BYTE && raw_packet[i+TSPacket::TS_PACKET_SIZE])
+    uint32_t aPos = 0;
+    while ((bytes = recvfrom(m_sock, raw_packet.data() + aPos, raw_packet.capacity() - aPos, 0, (struct sockaddr*)&addr, &len)))
     {
-        if (++i > raw_packet.size())
+        if ((bytes < 0 && errno == EAGAIN))
+        {
+            if (aPos > 0)
+            {
+                break;
+            }
+            else
+            {
+                usleep(100000);
+                std::cout << "EAGAIN\n";
+            }
+        }
+        if (bytes > 0)
+        {
+            aPos += bytes;
+        }
+    }
+
+    while (raw_packet[i] != TSPacket::SYNC_BYTE && raw_packet[i + TSPacket::TS_PACKET_SIZE] != TSPacket::SYNC_BYTE)
+    {
+        if (++i + TSPacket::TS_PACKET_SIZE > aPos)
         {
             throw std::runtime_error("Cannot find sync byte");
         }
     }
 
-    // Sync byte found, copy first packet and add to list
+    // Sync byte found, add packets to list
     std::vector<uint8_t> packet(TSPacket::TS_PACKET_SIZE);
-    std::copy(raw_packet.begin() + i, raw_packet.begin() + i + TSPacket::TS_PACKET_SIZE, packet.begin());
-    add_packet(packet, pkt_cnt);
-    pkt_cnt++;
+    for (; i + (pkt_cnt + 1) * TSPacket::TS_PACKET_SIZE < aPos + 1; pkt_cnt++)
+    {
+        std::copy(raw_packet.begin() + i + pkt_cnt * TSPacket::TS_PACKET_SIZE,
+                raw_packet.begin() + i + (pkt_cnt + 1)  * TSPacket::TS_PACKET_SIZE,
+                packet.begin());
+        add_packet(packet, pkt_cnt);
+    }
 
-    // Copy part of next packet and then read rest of packet and add to list
-    std::copy(raw_packet.begin() + i + TSPacket::TS_PACKET_SIZE, raw_packet.end(), packet.begin());
-    recvfrom(m_sock, raw_packet.data(), TSPacket::TS_PACKET_SIZE - i, 0, (struct sockaddr*)&addr, &len);
-    std::copy(raw_packet.begin(), raw_packet.begin() + TSPacket::TS_PACKET_SIZE - i, packet.begin() + i);
-    add_packet(packet, pkt_cnt);
-    pkt_cnt++;
-
-    uint32_t total = 0;
     uint32_t num_packets = 100;
-    std::vector<uint8_t> multi_packets(num_packets*TSPacket::TS_PACKET_SIZE);
+    uint32_t bytes_left = aPos - (i + pkt_cnt * TSPacket::TS_PACKET_SIZE);
 
+    std::vector<uint8_t> multi_packets(num_packets * TSPacket::TS_PACKET_SIZE + bytes_left);
+    // Copy part of last packet and then read rest of packet and add to list
+    std::copy(raw_packet.begin() + aPos - bytes_left, raw_packet.begin() + aPos, multi_packets.begin());
     while (not m_stop)
     {
         // TODO: Add multiplexing
-        uint32_t pos = 0;
+        uint32_t pos = bytes_left;
         // Fill destination vector with packets
         while ((bytes = recvfrom(m_sock, multi_packets.data() + pos,
                                  multi_packets.capacity() - pos,
@@ -110,15 +129,15 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
         {
             if (bytes < 0 && errno == EAGAIN)
             {
-                usleep(10000);
-                continue;
+                // No more data available
+                break;
             }
             pos += bytes;
             if (pos == multi_packets.size())
             {
-                // TODO: This will miss some packets
                 // Destination buffer is full
-                break;
+                perror("recvfrom: Buffer full");
+                return m_packets;
             }
             if (bytes < 0 && errno != EAGAIN)
             {
@@ -127,14 +146,10 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
                 throw std::runtime_error(std::string(strerror(errno)));
             }
         }
-        if (bytes == 0)
-        {
-            std::cout << "Read 0 bytes, pos: " << pos << "\n";
-        }
 
-        // Loop all packets
+        // Loop all received packets
         uint32_t i = 0;
-        for (; i < num_packets; i++)
+        for (; i < pos/TSPacket::TS_PACKET_SIZE; i++)
         {
             if (multi_packets[i * TSPacket::TS_PACKET_SIZE] == TSPacket::SYNC_BYTE)
             {
@@ -149,6 +164,7 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
                 throw std::runtime_error("Error in sync byte");
             }
         }
+        bytes_left = 0;
         // Notify that packets has been read
         m_partially_read.notify_one();
     }
