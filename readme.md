@@ -30,7 +30,7 @@
 - Replace raw loops with std::algorithms
 - Add unit test with catch framework
 
-- rename to ints, inspects, bints, bjints, hints,  "inspect ts"
+- rename to ints, inspects, bints, bjints, hints,  "inspect ts", tsdump
 - Handle pts as a <chrono> to ease printout and calculations
 - Group packets that belong to same frame.
 - Print all packets in this payload (all packets with this pid util next payload start)
