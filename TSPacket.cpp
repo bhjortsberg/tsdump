@@ -192,5 +192,15 @@ Chunk::const_iterator TSPacket::payload() const
     return payload_it;
 }
 
+const uint8_t * TSPacket::raw() const
+{
+    return chunk.data();
+}
+
+size_t TSPacket::size() const
+{
+    return chunk.size();
+}
+
 
 

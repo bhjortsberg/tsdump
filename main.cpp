@@ -40,13 +40,14 @@ int main(int argc, char ** argv)
     opts[0].val = show_pids_only;
     int longindex;
 
-    while ((ch = getopt_long(argc, argv, "i:hf:p:tesrXx", opts, &longindex)) != -1) {
+    while ((ch = getopt_long(argc, argv, "i:hf:p:tesrXxw:", opts, &longindex)) != -1) {
         std::string pids_str;
         std::vector<int> pids;
         std::stringstream ss;
 
         try
         {
+            std::string filename;
             switch (ch)
             {
                 case 'i':
@@ -75,6 +76,13 @@ int main(int argc, char ** argv)
                     break;
                 case 's':
                     filter->payloadStart();
+                    break;
+                case 'w':
+                    if (optarg)
+                    {
+                        filename = std::string(optarg);
+                        option->outputFile(filename);
+                    }
                     break;
                 case 'x':
                     option->extraInfo();
@@ -236,6 +244,7 @@ void usage()
     std::cout << "          -i <pkt1, pk2...>   Inspect (print) packet with given number, range or comma\n"
                  "                              separated list of packets\n";
     std::cout << "          -s                  Print only payload start packets\n";
+    std::cout << "          -w <file>           Write data for printed packets to <file>\n";
     std::cout << "          -x                  Print adaptation field and PES header\n";
     std::cout << "          -X                  Print packet payload in hex\n";
     std::cout << "\n";

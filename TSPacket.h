@@ -44,6 +44,8 @@ public:
     std::vector<int> parse_pmt() const;
 
     virtual Chunk::const_iterator payload() const;
+    const uint8_t * raw() const;
+    size_t size() const;
 
 private:
     char adaptation_field_control() const;

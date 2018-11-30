@@ -17,6 +17,12 @@ m_option(option)
 
 }
 
+void writePacket(const TSPacketPtr& packet, std::ofstream& stream)
+{
+    const char * packet_data = reinterpret_cast<const char*>(packet->raw());
+    stream.write(packet_data, packet->size());
+}
+
 void TSReport::report()
 {
     if (m_option->listPidsOnly()) {
@@ -59,6 +65,10 @@ void TSReport::report()
                         std::vector<int> v {packet->num()};
                         m_continuity_error.emplace(packet->pid(), v);
                     }
+                }
+                if (m_option->fileOutput())
+                {
+                    writePacket(packet, m_option->outputFile());
                 }
             }
         }
