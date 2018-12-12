@@ -13,12 +13,13 @@
 
 
 namespace {
-int read_net_packets(
+uint32_t read_net_packets(
         int sock,
         unsigned char *dest_buf,
         size_t buf_size,
         fd_set read_set,
         struct sockaddr *addr);
+uint32_t find_synch_byte(const std::vector<uint8_t>& src_packets, uint32_t size);
 }
 
 MulticastSource::MulticastSource(const std::string &source, std::condition_variable &cond, std::mutex &mutex)
@@ -80,35 +81,30 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
     FD_SET(m_sock, &readSet);
 
     std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE * 10);
-    socklen_t len;
-    ssize_t bytes = 0;
+
+
+    uint32_t aPos = read_net_packets(
+            m_sock,
+            raw_packet.data(),
+            raw_packet.capacity(),
+            readSet,
+            (struct sockaddr *) &addr);
+
+    uint32_t sync_byte = find_synch_byte(raw_packet, aPos);
 
     int pkt_cnt = 0;
-    uint32_t i = 0;
-    uint32_t aPos = 0;
-
-    aPos = read_net_packets(m_sock, raw_packet.data(), raw_packet.capacity(), readSet, (struct sockaddr *) &addr);
-
-    while (raw_packet[i] != TSPacket::SYNC_BYTE && raw_packet[i + TSPacket::TS_PACKET_SIZE] != TSPacket::SYNC_BYTE)
-    {
-        if (++i + TSPacket::TS_PACKET_SIZE > aPos)
-        {
-            throw std::runtime_error("Cannot find sync byte");
-        }
-    }
-
     // Sync byte found, add packets to list
     std::vector<uint8_t> packet(TSPacket::TS_PACKET_SIZE);
-    for (; i + (pkt_cnt + 1) * TSPacket::TS_PACKET_SIZE < aPos + 1; pkt_cnt++)
+    for (; sync_byte + (pkt_cnt + 1) * TSPacket::TS_PACKET_SIZE < aPos + 1; pkt_cnt++)
     {
-        std::copy(raw_packet.begin() + i + pkt_cnt * TSPacket::TS_PACKET_SIZE,
-                raw_packet.begin() + i + (pkt_cnt + 1)  * TSPacket::TS_PACKET_SIZE,
+        std::copy(raw_packet.begin() + sync_byte + pkt_cnt * TSPacket::TS_PACKET_SIZE,
+                raw_packet.begin() + sync_byte + (pkt_cnt + 1)  * TSPacket::TS_PACKET_SIZE,
                 packet.begin());
         add_packet(packet, pkt_cnt);
     }
 
     uint32_t num_packets = 100;
-    uint32_t bytes_left = aPos - (i + pkt_cnt * TSPacket::TS_PACKET_SIZE);
+    uint32_t bytes_left = aPos - (sync_byte + pkt_cnt * TSPacket::TS_PACKET_SIZE);
 
     std::vector<uint8_t> multi_packets(num_packets * TSPacket::TS_PACKET_SIZE + bytes_left);
     // Copy part of last packet and then read rest of packet and add to list
@@ -194,7 +190,7 @@ void MulticastSource::stop()
 }
 
 namespace {
-int read_net_packets(
+uint32_t read_net_packets(
         int sock,
         unsigned char* dest_buf,
         size_t buf_size,
@@ -202,7 +198,7 @@ int read_net_packets(
         struct sockaddr* addr)
 {
     socklen_t len;
-    int num_bytes = 0;
+    uint32_t num_bytes = 0;
 
     fd_set testset = read_set;
 
@@ -226,5 +222,18 @@ int read_net_packets(
         }
     }
     return num_bytes;
+}
+
+uint32_t find_synch_byte(const std::vector<uint8_t>& src_packets, uint32_t size)
+{
+    uint32_t synch_byte = 0;
+    while (src_packets[synch_byte] != TSPacket::SYNC_BYTE && src_packets[synch_byte + TSPacket::TS_PACKET_SIZE] != TSPacket::SYNC_BYTE)
+    {
+        if (++synch_byte + TSPacket::TS_PACKET_SIZE > size)
+        {
+            throw std::runtime_error("Cannot find sync byte");
+        }
+    }
+    return synch_byte;
 }
 }
