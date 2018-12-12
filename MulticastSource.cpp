@@ -92,6 +92,7 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
         }
         if (bytes < 0 && errno != EAGAIN)
         {
+            // Failed to read but there are still data
             std::cout << "Fail to read socket\n";
         }
     }
@@ -122,26 +123,18 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
     std::copy(raw_packet.begin() + aPos - bytes_left, raw_packet.begin() + aPos, multi_packets.begin());
     while (not m_stop)
     {
-        // TODO: Add multiplexing
         uint32_t pos = bytes_left;
-        // Fill destination vector with packets
-        while ((bytes = recvfrom(m_sock, multi_packets.data() + pos,
-                                 multi_packets.capacity() - pos,
-                                 0,
-                                 (struct sockaddr*)&addr,
-                                 &len)))
+        result = select(FD_SETSIZE, &testset, NULL, NULL, NULL);
+        if (FD_ISSET(m_sock, &testset))
         {
-            if (bytes < 0 && errno == EAGAIN)
+            // Fill destination vector with packets
+            while ((bytes = recvfrom(m_sock, multi_packets.data() + pos,
+                                     multi_packets.capacity() - pos,
+                                     0,
+                                     (struct sockaddr *) &addr,
+                                     &len)) > 0)
             {
-                // No more data available
-                break;
-            }
-            pos += bytes;
-            if (pos == multi_packets.size())
-            {
-                // Destination buffer is full
-                perror("recvfrom: Buffer full");
-                return m_packets;
+                pos += bytes;
             }
             if (bytes < 0 && errno != EAGAIN)
             {
@@ -151,7 +144,14 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
             }
         }
 
-        // Loop all received packets
+        if (pos == multi_packets.size())
+        {
+            // Destination buffer is full
+            perror("recvfrom: Buffer full");
+            return m_packets;
+        }
+
+        // Add all received packets to packet list
         uint32_t i = 0;
         for (; i < pos/TSPacket::TS_PACKET_SIZE; i++)
         {
@@ -172,6 +172,7 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
         // Notify that packets has been read
         m_partially_read.notify_one();
     }
+
 
     m_done = true;
     std::vector<TSPacketPtr> packets;
