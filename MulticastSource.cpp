@@ -54,16 +54,20 @@ std::vector<TSPacketPtr> MulticastSource::getPackets() {
 }
 
 std::vector<TSPacketPtr> MulticastSource::doRead() {
+    fd_set readSet;
     struct sockaddr_in addr;
     addr.sin_port = m_port;
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
+    FD_ZERO(&readSet);
     if (bind(m_sock, (struct sockaddr*)&addr, sizeof(addr)))
     {
         perror("bind error");
         throw std::runtime_error("Bind error: " + std::string(strerror(errno)));
     }
+
+    FD_SET(m_sock, &readSet);
 
     std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE * 10);
     socklen_t len;
@@ -72,23 +76,23 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
     int pkt_cnt = 0;
     uint32_t i = 0;
     uint32_t aPos = 0;
-    while ((bytes = recvfrom(m_sock, raw_packet.data() + aPos, raw_packet.capacity() - aPos, 0, (struct sockaddr*)&addr, &len)))
+
+    fd_set testset = readSet;
+    int result = select(FD_SETSIZE, &testset, NULL, NULL, NULL);
+    if (FD_ISSET(m_sock, &testset))
     {
-        if ((bytes < 0 && errno == EAGAIN))
-        {
-            if (aPos > 0)
-            {
-                break;
-            }
-            else
-            {
-                usleep(100000);
-                std::cout << "EAGAIN\n";
-            }
-        }
-        if (bytes > 0)
+        while ((bytes = recvfrom(m_sock,
+                                 raw_packet.data() + aPos,
+                                 raw_packet.capacity() - aPos,
+                                 0,
+                                 (struct sockaddr *) &addr,
+                                 &len)) > 0)
         {
             aPos += bytes;
+        }
+        if (bytes < 0 && errno != EAGAIN)
+        {
+            std::cout << "Fail to read socket\n";
         }
     }
 
