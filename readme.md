@@ -18,6 +18,7 @@
               -i <pkt1, pk2...>   Inspect (print) packet with given number, range or comma
                                   separated list of packets
               -s                  Print only payload start packets
+              -w <file>           Write data for printed packets to <file>
               -x                  Print adaptation field and PES header
               -X                  Print packet payload in hex
 
@@ -42,13 +43,11 @@
 - Payload extract. Class that sums the payloads from a bunch of (all) packets. Return a list of payloads.
   Payloads can then be used to get I-frame info and extract jpeg.
 
-- -p without pid should print a list of pids in transport stream
 - Display config to store what should be printed (for -x -xx, -p, -j and -i)
 - -x and -xx or -X that prints extra information, the adaptation field and the pes-header. And -xx (or -X) prints the payload in hex.
 - -j dump I-frame as jpeg image
 - -s for summary or statistics that prints number of packets and a list of pids.
 - Or a hide statistics if statistics is to be printed always.
-- write file of one pid to an mp4-file.
 
 
 ## Bugs
