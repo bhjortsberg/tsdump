@@ -11,6 +11,16 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+
+namespace {
+int read_net_packets(
+        int sock,
+        unsigned char *dest_buf,
+        size_t buf_size,
+        fd_set read_set,
+        struct sockaddr *addr);
+}
+
 MulticastSource::MulticastSource(const std::string &source, std::condition_variable &cond, std::mutex &mutex)
 :m_partially_read(cond),
  m_mutex(mutex),
@@ -77,25 +87,7 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
     uint32_t i = 0;
     uint32_t aPos = 0;
 
-    fd_set testset = readSet;
-    int result = select(FD_SETSIZE, &testset, NULL, NULL, NULL);
-    if (FD_ISSET(m_sock, &testset))
-    {
-        while ((bytes = recvfrom(m_sock,
-                                 raw_packet.data() + aPos,
-                                 raw_packet.capacity() - aPos,
-                                 0,
-                                 (struct sockaddr *) &addr,
-                                 &len)) > 0)
-        {
-            aPos += bytes;
-        }
-        if (bytes < 0 && errno != EAGAIN)
-        {
-            // Failed to read but there are still data
-            std::cout << "Fail to read socket\n";
-        }
-    }
+    aPos = read_net_packets(m_sock, raw_packet.data(), raw_packet.capacity(), readSet, (struct sockaddr *) &addr);
 
     while (raw_packet[i] != TSPacket::SYNC_BYTE && raw_packet[i + TSPacket::TS_PACKET_SIZE] != TSPacket::SYNC_BYTE)
     {
@@ -124,26 +116,12 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
     while (not m_stop)
     {
         uint32_t pos = bytes_left;
-        result = select(FD_SETSIZE, &testset, NULL, NULL, NULL);
-        if (FD_ISSET(m_sock, &testset))
-        {
-            // Fill destination vector with packets
-            while ((bytes = recvfrom(m_sock, multi_packets.data() + pos,
-                                     multi_packets.capacity() - pos,
-                                     0,
-                                     (struct sockaddr *) &addr,
-                                     &len)) > 0)
-            {
-                pos += bytes;
-            }
-            if (bytes < 0 && errno != EAGAIN)
-            {
-                perror("recvfrom");
-                // TODO: Handle exception in thread
-                throw std::runtime_error(std::string(strerror(errno)));
-            }
-        }
-
+        pos += read_net_packets(
+                m_sock,
+                multi_packets.data() + pos,
+                multi_packets.capacity() - pos,
+                readSet,
+                (struct sockaddr *) &addr);
         if (pos == multi_packets.size())
         {
             // Destination buffer is full
@@ -213,4 +191,40 @@ bool MulticastSource::isDone() {
 void MulticastSource::stop()
 {
     m_stop = true;
+}
+
+namespace {
+int read_net_packets(
+        int sock,
+        unsigned char* dest_buf,
+        size_t buf_size,
+        fd_set read_set,
+        struct sockaddr* addr)
+{
+    socklen_t len;
+    int num_bytes = 0;
+
+    fd_set testset = read_set;
+
+    int result = select(FD_SETSIZE, &testset, NULL, NULL, NULL);
+    if (result == 1 && FD_ISSET(sock, &testset))
+    {
+        ssize_t bytes;
+        while ((bytes = recvfrom(sock,
+                                 dest_buf + num_bytes,
+                                 buf_size - num_bytes,
+                                 0,
+                                 addr,
+                                 &len)) > 0)
+        {
+            num_bytes += bytes;
+        }
+        if (bytes < 0 && errno != EAGAIN)
+        {
+            // Failed to read but there are still data
+            std::cout << "Fail to read socket\n";
+        }
+    }
+    return num_bytes;
+}
 }
