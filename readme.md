@@ -25,13 +25,20 @@
 
 ## Todo
 
-- Look over smart pointer usage, perhaps change to unique_ptr
+- Look over smart pointer usage, change to unique_ptr where possible
 - Implement search for sync-byte if not found at start
+- refactor argument parsing
+- refactor - follow code standard for naming
+- refactor - use pragma once, remove typedefs
+
+- When mc source is interrupted print statistics
+- When a filtered output is complete, abort the source reading
+- start saving to a file when pressing a button
 
 - Replace raw loops with std::algorithms
 - Add unit test with catch framework
+- rename to tsdump
 
-- rename to ints, inspects, bints, bjints, hints,  "inspect ts", tsdump
 - Handle pts as a <chrono> to ease printout and calculations
 - Group packets that belong to same frame.
 - Print all packets in this payload (all packets with this pid util next payload start)
