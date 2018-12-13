@@ -1,9 +1,9 @@
-# TSParser
+# TSDump
 
 ## Usage
 
-    tsparse <source> [options]
-    
+    tsdump <source> [options]
+
       <source>                    Source where transport stream is read.
                                   Can be a file or multicast address on the
                                   form <ip>:<port>
@@ -21,6 +21,7 @@
               -w <file>           Write data for printed packets to <file>
               -x                  Print adaptation field and PES header
               -X                  Print packet payload in hex
+
 
 
 ## Todo
@@ -60,4 +61,4 @@
 ## Bugs
 - Summary printout for this
 
-    $ tsparse -p 8191  ~/vcp-origin/tvb/flash-1.ts
+    $ tsdump -p 8191  ~/vcp-origin/tvb/flash-1.ts

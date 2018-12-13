@@ -225,7 +225,7 @@ std::vector<int> get_single_value(const std::string & str)
 
 void usage()
 {
-    std::cout << "tsparse <source> [options]" << std::endl;
+    std::cout << "tsdump <source> [options]" << std::endl;
     std::cout << "\n";
     std::cout << "  <source>                    Source where transport stream is read.\n"
                  "                              Can be a file or multicast address on the\n"
