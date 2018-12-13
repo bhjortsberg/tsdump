@@ -22,7 +22,6 @@ int main(int argc, char ** argv)
 {
     PacketFilterPtr filter(new PacketFilter());
     OutputOptionsPtr option(new OutputOptions());
-    std:string file_name;
     int ch;
 
     if (argc < 2)
@@ -40,7 +39,7 @@ int main(int argc, char ** argv)
     opts[0].val = show_pids_only;
     int longindex;
 
-    while ((ch = getopt_long(argc, argv, "i:hf:p:tesrXxw:", opts, &longindex)) != -1) {
+    while ((ch = getopt_long(argc, argv, "i:hp:tesrXxw:", opts, &longindex)) != -1) {
         std::string pids_str;
         std::vector<int> pids;
         std::stringstream ss;
@@ -56,9 +55,6 @@ int main(int argc, char ** argv)
                 case 'h':
                     usage();
                     return 0;
-                case 'f':
-                    file_name = std::string(optarg);
-                    break;
                 case 'p':
                     filter->pids(get_opt_values(optarg));
                     break;
@@ -104,6 +100,7 @@ int main(int argc, char ** argv)
 
     }
 
+    std:string file_name;
     if (argv[optind] != 0)
     {
         file_name = std::string(argv[optind]);
