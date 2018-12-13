@@ -19,7 +19,7 @@ uint32_t read_net_packets(
         size_t buf_size,
         fd_set read_set,
         struct sockaddr *addr);
-uint32_t find_synch_byte(const std::vector<uint8_t>& src_packets, uint32_t size);
+uint32_t find_synch_byte(const std::vector<uint8_t>::iterator& src_packets, uint32_t size);
 }
 
 MulticastSource::MulticastSource(const std::string &source, std::condition_variable &cond, std::mutex &mutex)
@@ -90,16 +90,17 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
             readSet,
             (struct sockaddr *) &addr);
 
-    uint32_t sync_byte = find_synch_byte(raw_packet, aPos);
+    uint32_t sync_byte = find_synch_byte(raw_packet.begin(), aPos);
 
+    // Sync byte found, add packets to list
     int pkt_cnt = 0;
     // Sync byte found, add packets to list
     std::vector<uint8_t> packet(TSPacket::TS_PACKET_SIZE);
     for (; sync_byte + (pkt_cnt + 1) * TSPacket::TS_PACKET_SIZE < aPos + 1; pkt_cnt++)
     {
         std::copy(raw_packet.begin() + sync_byte + pkt_cnt * TSPacket::TS_PACKET_SIZE,
-                raw_packet.begin() + sync_byte + (pkt_cnt + 1)  * TSPacket::TS_PACKET_SIZE,
-                packet.begin());
+                  raw_packet.begin() + sync_byte + (pkt_cnt + 1)  * TSPacket::TS_PACKET_SIZE,
+                  packet.begin());
         add_packet(packet, pkt_cnt);
     }
 
@@ -127,19 +128,20 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
 
         // Add all received packets to packet list
         uint32_t i = 0;
-        for (; i < pos/TSPacket::TS_PACKET_SIZE; i++)
+        sync_byte = 0;
+        while (i < pos/TSPacket::TS_PACKET_SIZE)
         {
-            if (multi_packets[i * TSPacket::TS_PACKET_SIZE] == TSPacket::SYNC_BYTE)
+            if (multi_packets[i * TSPacket::TS_PACKET_SIZE + sync_byte] == TSPacket::SYNC_BYTE)
             {
-                add_packet(multi_packets.begin() + (i*TSPacket::TS_PACKET_SIZE), pkt_cnt);
+                add_packet(multi_packets.begin() + sync_byte + (i*TSPacket::TS_PACKET_SIZE), pkt_cnt);
                 pkt_cnt++;
+                i++;
             }
             else
             {
-                std::cout << "Synch error\n";
-                // TODO: Out of sync
-                // TODO: Handle throw in async task
-                throw std::runtime_error("Error in sync byte");
+                sync_byte = find_synch_byte(
+                        multi_packets.begin() + i * TSPacket::TS_PACKET_SIZE,
+                        pos - i * TSPacket::TS_PACKET_SIZE);
             }
         }
         bytes_left = 0;
@@ -224,10 +226,11 @@ uint32_t read_net_packets(
     return num_bytes;
 }
 
-uint32_t find_synch_byte(const std::vector<uint8_t>& src_packets, uint32_t size)
+uint32_t find_synch_byte(const std::vector<uint8_t>::iterator& src_packets_begin, uint32_t size)
 {
     uint32_t synch_byte = 0;
-    while (src_packets[synch_byte] != TSPacket::SYNC_BYTE && src_packets[synch_byte + TSPacket::TS_PACKET_SIZE] != TSPacket::SYNC_BYTE)
+    while (*(src_packets_begin + synch_byte) != TSPacket::SYNC_BYTE ||
+            *(src_packets_begin + synch_byte + TSPacket::TS_PACKET_SIZE) != TSPacket::SYNC_BYTE)
     {
         if (++synch_byte + TSPacket::TS_PACKET_SIZE > size)
         {
@@ -236,4 +239,5 @@ uint32_t find_synch_byte(const std::vector<uint8_t>& src_packets, uint32_t size)
     }
     return synch_byte;
 }
+
 }
