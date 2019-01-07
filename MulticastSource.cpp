@@ -6,6 +6,7 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include "MulticastSource.h"
+#include "TSPacket.h"
 
 #include <iostream>
 #include <sys/ioctl.h>
@@ -19,7 +20,6 @@ uint32_t read_net_packets(
         size_t buf_size,
         fd_set read_set,
         struct sockaddr *addr);
-uint32_t find_synch_byte(const std::vector<uint8_t>::iterator& src_packets, uint32_t size);
 }
 
 MulticastSource::MulticastSource(const std::string &source, std::condition_variable &cond, std::mutex &mutex)
@@ -92,7 +92,6 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
 
     uint32_t sync_byte = find_synch_byte(raw_packet.begin(), aPos);
 
-    // Sync byte found, add packets to list
     int pkt_cnt = 0;
     // Sync byte found, add packets to list
     std::vector<uint8_t> packet(TSPacket::TS_PACKET_SIZE);
@@ -224,20 +223,6 @@ uint32_t read_net_packets(
         }
     }
     return num_bytes;
-}
-
-uint32_t find_synch_byte(const std::vector<uint8_t>::iterator& src_packets_begin, uint32_t size)
-{
-    uint32_t synch_byte = 0;
-    while (*(src_packets_begin + synch_byte) != TSPacket::SYNC_BYTE ||
-            *(src_packets_begin + synch_byte + TSPacket::TS_PACKET_SIZE) != TSPacket::SYNC_BYTE)
-    {
-        if (++synch_byte + TSPacket::TS_PACKET_SIZE > size)
-        {
-            throw std::runtime_error("Cannot find sync byte");
-        }
-    }
-    return synch_byte;
 }
 
 }

@@ -13,6 +13,8 @@
 #include "IPacket.h"
 
 
+uint32_t find_synch_byte(const std::vector<uint8_t>::iterator& src_packets, uint32_t size);
+
 typedef std::pair<Chunk::const_iterator, Chunk::const_iterator> PayloadIterator;
 
 class TSPacket;
