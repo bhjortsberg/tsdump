@@ -36,6 +36,7 @@ protected:
 
     std::vector<TSPacketPtr> read();
     void add_packet(std::vector< unsigned char > & raw_packet, int cnt);
+    void add_packet(const std::vector< unsigned char >::iterator& packet_start, int cnt);
     bool m_done = false;
     bool m_stop = false;
 };

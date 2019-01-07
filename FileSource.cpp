@@ -29,33 +29,74 @@ std::vector<TSPacketPtr> FileSource::read()
 {
     std::ifstream file(m_filename, std::fstream::in);
 
-    std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE);
+    std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE * 10);
+    file.seekg(0, std::istream::end);
+    size_t fileSize = file.tellg();
+    file.seekg(0, std::istream::beg);
+
     if (file.is_open())
     {
         int pkt_cnt = 0;
-        while (file.read(reinterpret_cast<char*>(raw_packet.data()), raw_packet.capacity()))
+        file.read(reinterpret_cast<char*>(raw_packet.data()), raw_packet.capacity());
+        uint32_t aPos = raw_packet.size();
+        uint32_t sync_byte = find_synch_byte(raw_packet.begin(), aPos);
+        // Sync byte found, add packets to list
+        std::vector<uint8_t> packet(TSPacket::TS_PACKET_SIZE);
+        for (; sync_byte + (pkt_cnt + 1) * TSPacket::TS_PACKET_SIZE < aPos + 1; pkt_cnt++)
         {
-            if (raw_packet[0] == TSPacket::SYNC_BYTE)
-            {
+            std::copy(raw_packet.begin() + sync_byte + pkt_cnt * TSPacket::TS_PACKET_SIZE,
+                      raw_packet.begin() + sync_byte + (pkt_cnt + 1)  * TSPacket::TS_PACKET_SIZE,
+                      packet.begin());
+            add_packet(packet, pkt_cnt);
+        }
 
-                add_packet(raw_packet, pkt_cnt);
-                pkt_cnt++;
-                if (pkt_cnt % 10000 == 0)
+        uint32_t num_packets = 100;
+        uint32_t bytes_left = aPos - (sync_byte + pkt_cnt * TSPacket::TS_PACKET_SIZE);
+
+        std::vector<uint8_t> multi_packets(num_packets * TSPacket::TS_PACKET_SIZE + bytes_left);
+        // Copy part of last packet and then read rest of packet and add to list
+        std::copy(raw_packet.begin() + aPos - bytes_left, raw_packet.begin() + aPos, multi_packets.begin());
+
+        while (not m_stop)
+        {
+            uint32_t pos = bytes_left;
+            uint64_t bytes_left_in_file = fileSize - file.tellg();
+            uint64_t readBytes = multi_packets.capacity() - pos;
+            if (readBytes > bytes_left_in_file)
+            {
+                readBytes = bytes_left_in_file;
+            }
+            file.read(reinterpret_cast<char*>(multi_packets.data() + pos),
+                      readBytes);
+            pos += readBytes;
+
+            if (file.tellg() < 0 || file.tellg() == fileSize)
+            {
+                m_stop = true;
+            }
+
+            // Add all received packets to packet list
+            uint32_t i = 0;
+            sync_byte = 0;
+            while (i < pos/TSPacket::TS_PACKET_SIZE)
+            {
+                if (multi_packets[i * TSPacket::TS_PACKET_SIZE + sync_byte] == TSPacket::SYNC_BYTE)
                 {
-                    // Notify that packets has been read
-                    m_partially_read.notify_one();
+                    add_packet(multi_packets.begin() + sync_byte + (i*TSPacket::TS_PACKET_SIZE), pkt_cnt);
+                    pkt_cnt++;
+                    if (pkt_cnt % 10000 == 0)
+                    {
+                        // Notify that packets has been read
+                        m_partially_read.notify_one();
+                    }
+                    ++i;
+                }
+                else
+                {
+                    sync_byte = find_synch_byte(multi_packets.begin() + i * TSPacket::TS_PACKET_SIZE, pos - i * TSPacket::TS_PACKET_SIZE);
                 }
             }
-            else
-            {
-                // TODO: Out of sync
-                std::cout << "Out of sync throw in async task\n";
-                throw std::runtime_error("Error in sync byte");
-            }
-            if (m_stop)
-            {
-                break;
-            }
+            bytes_left = 0;
         }
         m_done = true;
         //File read done notify the remaining packets
@@ -69,6 +110,12 @@ std::vector<TSPacketPtr> FileSource::read()
         throw std::runtime_error(estr.str());
     }
     return m_packets;
+}
+
+void FileSource::add_packet(const std::vector< unsigned char >::iterator& packet_start, int cnt)
+{
+    std::vector<unsigned char> packet(packet_start, packet_start + TSPacket::TS_PACKET_SIZE);
+    add_packet(packet, cnt);
 }
 
 void FileSource::add_packet(std::vector< unsigned char > & raw_packet, int cnt)
