@@ -8,6 +8,7 @@
 #include "TSReport.h"
 #include "PacketFilter.h"
 #include "OutputOptions.h"
+#include <csignal>
 
 using namespace std;
 
@@ -18,11 +19,22 @@ std::vector<int> get_opt_range(const std::string & str);
 std::vector<int> get_range(int from, int to);
 std::vector<int> get_single_value(const std::string & str);
 
+namespace {
+std::function< void(int) > term_handler;
+
+void signal_handler(int signal)
+{
+    term_handler(signal);
+}
+}
+
 int main(int argc, char ** argv)
 {
     PacketFilterPtr filter(new PacketFilter());
     OutputOptionsPtr option(new OutputOptions());
     int ch;
+
+    std::signal(SIGINT, signal_handler);
 
     if (argc < 2)
     {
@@ -114,6 +126,11 @@ int main(int argc, char ** argv)
         TSSourcePtr source = SourceFactory::create(file_name, cond, mutex);
         TransportStream ts(std::move(source), cond, mutex);
         TSReport report(ts, filter, option);
+
+        term_handler = [&ts](int)
+        {
+            ts.stop();
+        };
 
         report.report();
 
