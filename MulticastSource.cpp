@@ -109,6 +109,7 @@ std::vector<TSPacketPtr> MulticastSource::doRead() {
     std::vector<uint8_t> multi_packets(num_packets * TSPacket::TS_PACKET_SIZE + bytes_left);
     // Copy part of last packet and then read rest of packet and add to list
     std::copy(raw_packet.begin() + aPos - bytes_left, raw_packet.begin() + aPos, multi_packets.begin());
+
     while (not m_stop)
     {
         uint32_t pos = bytes_left;

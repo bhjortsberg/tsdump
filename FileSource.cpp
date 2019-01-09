@@ -36,10 +36,11 @@ std::vector<TSPacketPtr> FileSource::read()
 
     if (file.is_open())
     {
-        int pkt_cnt = 0;
         file.read(reinterpret_cast<char*>(raw_packet.data()), raw_packet.capacity());
         uint32_t aPos = raw_packet.size();
         uint32_t sync_byte = find_synch_byte(raw_packet.begin(), aPos);
+
+        int pkt_cnt = 0;
         // Sync byte found, add packets to list
         std::vector<uint8_t> packet(TSPacket::TS_PACKET_SIZE);
         for (; sync_byte + (pkt_cnt + 1) * TSPacket::TS_PACKET_SIZE < aPos + 1; pkt_cnt++)
@@ -84,19 +85,18 @@ std::vector<TSPacketPtr> FileSource::read()
                 {
                     add_packet(multi_packets.begin() + sync_byte + (i*TSPacket::TS_PACKET_SIZE), pkt_cnt);
                     pkt_cnt++;
-                    if (pkt_cnt % 10000 == 0)
-                    {
-                        // Notify that packets has been read
-                        m_partially_read.notify_one();
-                    }
-                    ++i;
+                    i++;
                 }
                 else
                 {
-                    sync_byte = find_synch_byte(multi_packets.begin() + i * TSPacket::TS_PACKET_SIZE, pos - i * TSPacket::TS_PACKET_SIZE);
+                    sync_byte = find_synch_byte(
+                            multi_packets.begin() + i * TSPacket::TS_PACKET_SIZE,
+                            pos - i * TSPacket::TS_PACKET_SIZE);
                 }
             }
             bytes_left = 0;
+            // Notify that packets has been read
+            m_partially_read.notify_one();
         }
         m_done = true;
         //File read done notify the remaining packets
