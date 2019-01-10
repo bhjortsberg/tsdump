@@ -35,10 +35,13 @@ protected:
     std::vector<TSPacketPtr>::iterator m_nullIterator;
 
     std::vector<TSPacketPtr> read();
-    void add_packet(std::vector< unsigned char > & raw_packet, int cnt);
-    void add_packet(const std::vector< unsigned char >::iterator& packet_start, int cnt);
+    void add_packet(std::vector< unsigned char > & raw_packet);
+    void add_packet(const std::vector< unsigned char >::const_iterator& packet_start);
+    std::tuple<uint32_t, std::vector<uint8_t>> findSynchAndAddPackets(uint32_t initialPos, const std::vector<unsigned char>& raw_packet);
+    void addAllPacketsAndResync(uint32_t numberOfPackets, const std::vector<uint8_t>& multi_packets);
     bool m_done = false;
     bool m_stop = false;
+    uint32_t mPacketCount = 0;
 };
 
 typedef std::shared_ptr<FileSource> FileSourcePtr;

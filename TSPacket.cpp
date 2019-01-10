@@ -202,7 +202,7 @@ size_t TSPacket::size() const
     return chunk.size();
 }
 
-uint32_t find_synch_byte(const std::vector<uint8_t>::iterator& src_packets_begin, uint32_t size)
+uint32_t find_synch_byte(const std::vector<uint8_t>::const_iterator& src_packets_begin, uint32_t size)
 {
     uint32_t synch_byte = 0;
     while (*(src_packets_begin + synch_byte) != TSPacket::SYNC_BYTE ||
