@@ -6,33 +6,23 @@
 
 #include <mutex>
 #include <condition_variable>
-#include "TSSource.h"
+#include "TSSourceAbstract.h"
 
-class MulticastSource : public TSSource
+class MulticastSource : public TSSourceAbstract
 {
 public:
     MulticastSource(const std::string& source, std::condition_variable& cond, std::mutex& mutex);
     virtual ~MulticastSource() = default;
-    virtual std::vector<TSPacketPtr> getPackets() override;
-    virtual std::vector<TSPacketPtr> doRead() override;
-    virtual bool isDone() override ;
-    virtual void stop() override;
 
-private:
+protected:
+    std::vector<TSPacketPtr> read() override;
     void join(const std::string & addr);
-    void add_packet(std::vector< unsigned char > & raw_packet, int cnt);
-    void add_packet(const std::vector< unsigned char >::iterator& packet_start, int cnt);
 
-    std::vector<TSPacketPtr> m_packets;
-    std::map<int, TSPacketPtr> m_latest_packets;
-    std::condition_variable & m_partially_read;
-    std::mutex & m_mutex;
-    std::string m_addr;
-    uint16_t m_port;
-    int m_sock;
-    bool m_joined;
-    bool m_done;
-    bool m_stop = false;
+    std::condition_variable& mPartiallyRead;
+    std::string mAddr;
+    uint16_t mPort;
+    int mSock;
+    bool mJoined;
 };
 
 
