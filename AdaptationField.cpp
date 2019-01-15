@@ -1,5 +1,5 @@
 //
-// Created by Björn Hjortsberg on 20/02/16.
+// Created by Björn Hjortsberg on 2016-02-20.
 //
 
 #include <string>
