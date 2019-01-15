@@ -2,8 +2,7 @@
 // Created by Björn Hjortsberg on 22/02/16.
 //
 
-#ifndef TSPARSE_IFILTER_H
-#define TSPARSE_IFILTER_H
+#pragma once
 
 #include <memory>
 #include "TSPacket.h"
@@ -26,4 +25,3 @@ public:
 
 using IFilterPtr = std::shared_ptr<IFilter>;
 
-#endif //TSPARSE_IFILTER_H

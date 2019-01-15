@@ -2,9 +2,7 @@
 // Created by Björn Hjortsberg on 04/03/16.
 //
 
-#ifndef TSPARSE_OUTPUTOPTIONS_H
-#define TSPARSE_OUTPUTOPTIONS_H
-
+#pragma once
 
 #include <future>
 #include <fstream>
@@ -33,4 +31,3 @@ private:
 
 using OutputOptionsPtr = std::shared_ptr<OutputOptions>;
 
-#endif //TSPARSE_OUTPUTOPTIONS_H

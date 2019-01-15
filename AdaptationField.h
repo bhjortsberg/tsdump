@@ -2,8 +2,7 @@
 // Created by Björn Hjortsberg on 20/02/16.
 //
 
-#ifndef TSPARSER_ADAPTATIONFIELD_H
-#define TSPARSER_ADAPTATIONFIELD_H
+#pragma once
 
 
 #include <vector>
@@ -36,5 +35,3 @@ private:
     Chunk chunk;
 };
 
-
-#endif //TSPARSER_ADAPTATIONFIELD_H

@@ -2,9 +2,7 @@
 // Created by Björn Hjortsberg on 20/02/16.
 //
 
-#ifndef TSPARSER_TRANSPORTSTREAM_H
-#define TSPARSER_TRANSPORTSTREAM_H
-
+#pragma once
 
 #include <condition_variable>
 #include <future>
@@ -46,4 +44,3 @@ private:
 };
 
 
-#endif //TSPARSER_TRANSPORTSTREAM_H

@@ -2,8 +2,7 @@
 // Created by Björn Hjortsberg on 20/02/16.
 //
 
-#ifndef TSPARSER_TSPACKET_H
-#define TSPARSER_TSPACKET_H
+#pragma once
 
 #include <vector>
 #include <map>
@@ -70,5 +69,3 @@ private:
     Chunk::const_iterator payload_it;
 };
 
-
-#endif //TSPARSER_TSPACKET_H

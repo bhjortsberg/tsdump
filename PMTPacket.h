@@ -2,8 +2,7 @@
 // Created by Björn Hjortsberg on 20/04/16.
 //
 
-#ifndef TSPARSE_PMTPACKET_H
-#define TSPARSE_PMTPACKET_H
+#pragma once
 
 #include <map>
 #include <vector>
@@ -39,5 +38,3 @@ private:
 
 };
 
-
-#endif //TSPARSE_PMTPACKET_H

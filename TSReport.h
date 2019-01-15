@@ -2,8 +2,7 @@
 // Created by Björn Hjortsberg on 22/02/16.
 //
 
-#ifndef TSPARSE_TSREPORT_H
-#define TSPARSE_TSREPORT_H
+#pragma once
 
 #include "TransportStream.h"
 #include "IFilter.h"
@@ -35,5 +34,3 @@ private:
 
 };
 
-
-#endif //TSPARSE_TSREPORT_H

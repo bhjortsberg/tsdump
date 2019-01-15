@@ -2,8 +2,7 @@
 // Created by Björn Hjortsberg on 28/06/16.
 //
 
-#ifndef TSPARSE_TSSOURCE_H
-#define TSPARSE_TSSOURCE_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -22,5 +21,3 @@ public:
 
 
 using TSSourcePtr = std::shared_ptr<TSSource>;
-
-#endif //TSPARSE_TSSOURCE_H

@@ -2,8 +2,7 @@
 // Created by Björn Hjortsberg on 22/02/16.
 //
 
-#ifndef TSPARSE_IPACKET_H
-#define TSPARSE_IPACKET_H
+#pragma once
 
 #include <memory>
 
@@ -17,4 +16,3 @@ public:
 
 using IPacketPtr = std::shared_ptr<IPacket>;
 
-#endif //TSPARSE_IPACKET_H

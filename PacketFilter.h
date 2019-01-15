@@ -2,9 +2,7 @@
 // Created by Björn Hjortsberg on 22/02/16.
 //
 
-#ifndef TSPARSE_REPORTFILTER_H
-#define TSPARSE_REPORTFILTER_H
-
+#pragma once
 
 #include <string>
 #include <vector>
@@ -36,4 +34,3 @@ private:
 
 using PacketFilterPtr = std::shared_ptr< PacketFilter >;
 
-#endif //TSPARSE_REPORTFILTER_H

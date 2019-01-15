@@ -2,8 +2,7 @@
 // Created by Björn Hjortsberg on 20/02/16.
 //
 
-#ifndef TSPARSER_PESHEADER_H
-#define TSPARSER_PESHEADER_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -30,5 +29,3 @@ private:
 
 };
 
-
-#endif //TSPARSER_PESHEADER_H
