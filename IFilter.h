@@ -24,6 +24,6 @@ public:
 
 };
 
-typedef std::shared_ptr<IFilter> IFilterPtr;
+using IFilterPtr = std::shared_ptr<IFilter>;
 
 #endif //TSPARSE_IFILTER_H

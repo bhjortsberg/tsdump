@@ -21,6 +21,6 @@ public:
 };
 
 
-typedef std::shared_ptr<TSSource> TSSourcePtr;
+using TSSourcePtr = std::shared_ptr<TSSource>;
 
 #endif //TSPARSE_TSSOURCE_H

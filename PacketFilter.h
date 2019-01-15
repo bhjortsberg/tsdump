@@ -34,6 +34,6 @@ private:
     std::vector<int> m_pkts;
 };
 
-typedef std::shared_ptr< PacketFilter > PacketFilterPtr;
+using PacketFilterPtr = std::shared_ptr< PacketFilter >;
 
 #endif //TSPARSE_REPORTFILTER_H

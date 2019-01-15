@@ -15,10 +15,10 @@
 
 uint32_t find_synch_byte(const std::vector<uint8_t>::const_iterator& src_packets, uint32_t size);
 
-typedef std::pair<Chunk::const_iterator, Chunk::const_iterator> PayloadIterator;
+using PayloadIterator = std::pair<Chunk::const_iterator, Chunk::const_iterator>;
 
 class TSPacket;
-typedef std::shared_ptr<TSPacket> TSPacketPtr;
+using TSPacketPtr = std::shared_ptr<TSPacket>;
 
 class TSPacket : public IPacket
 {

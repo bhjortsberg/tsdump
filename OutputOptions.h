@@ -31,6 +31,6 @@ private:
     std::ofstream m_outputFile;
 };
 
-typedef std::shared_ptr<OutputOptions> OutputOptionsPtr;
+using OutputOptionsPtr = std::shared_ptr<OutputOptions>;
 
 #endif //TSPARSE_OUTPUTOPTIONS_H

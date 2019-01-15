@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-typedef std::vector<unsigned char> Chunk;
+using Chunk = std::vector<unsigned char>;
 
 class PESHeader
 {

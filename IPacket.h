@@ -7,7 +7,7 @@
 
 #include <memory>
 
-typedef std::vector<unsigned char> Chunk;
+using Chunk = std::vector<unsigned char>;
 
 class IPacket
 {
@@ -15,6 +15,6 @@ public:
     virtual Chunk::const_iterator payload() const = 0;
 };
 
-typedef std::shared_ptr<IPacket> IPacketPtr;
+using IPacketPtr = std::shared_ptr<IPacket>;
 
 #endif //TSPARSE_IPACKET_H

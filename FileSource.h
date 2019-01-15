@@ -27,5 +27,5 @@ protected:
 
 };
 
-typedef std::shared_ptr<FileSource> FileSourcePtr;
+using FileSourcePtr = std::shared_ptr<FileSource>;
 
