@@ -93,7 +93,7 @@ std::vector<TSPacketPtr> MulticastSource::read() {
                 multi_packets.capacity() - pos,
                 readSet,
                 (struct sockaddr *) &addr);
-        if (pos == multi_packets.size())
+        if (pos > multi_packets.size())
         {
             // Destination buffer is full
             perror("recvfrom: Buffer full");
