@@ -126,12 +126,13 @@ uint32_t read_net_packets(
         fd_set read_set,
         struct sockaddr* addr)
 {
+    struct timeval timeout = { .tv_sec = 1, .tv_usec = 0 };
     socklen_t len;
     uint32_t num_bytes = 0;
 
     fd_set testset = read_set;
 
-    int result = select(FD_SETSIZE, &testset, NULL, NULL, NULL);
+    int result = select(FD_SETSIZE, &testset, NULL, NULL, &timeout);
     if (result == 1 && FD_ISSET(sock, &testset))
     {
         ssize_t bytes;
