@@ -11,6 +11,7 @@
 #include <iostream>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <signal.h>
 
 
 namespace {
@@ -19,7 +20,8 @@ uint32_t read_net_packets(
         unsigned char *dest_buf,
         size_t buf_size,
         fd_set read_set,
-        struct sockaddr *addr);
+        struct sockaddr *addr,
+        sigset_t* mask);
 }
 
 MulticastSource::MulticastSource(const std::string &source, std::condition_variable &cond, std::mutex &mutex)
@@ -74,13 +76,21 @@ std::vector<TSPacketPtr> MulticastSource::read() {
     FD_SET(mSock, &readSet);
 
     std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE * 10);
+    sigset_t mask;
+    sigset_t orig_mask;
+    sigemptyset (&mask);
+    sigaddset (&mask, SIGTERM);
+
+    if (sigprocmask(SIG_BLOCK, &mask, &orig_mask) < 0) {
+        perror ("sigprocmask");
+    }
 
     uint32_t aPos = read_net_packets(
             mSock,
             raw_packet.data(),
             raw_packet.capacity(),
             readSet,
-            (struct sockaddr *) &addr);
+            (struct sockaddr *) &addr, &orig_mask);
 
     auto [bytes_left, multi_packets] = findSynchAndAddPackets(aPos, raw_packet);
 
@@ -92,7 +102,7 @@ std::vector<TSPacketPtr> MulticastSource::read() {
                 multi_packets.data() + pos,
                 multi_packets.capacity() - pos,
                 readSet,
-                (struct sockaddr *) &addr);
+                (struct sockaddr *) &addr, &orig_mask);
         if (pos > multi_packets.size())
         {
             // Destination buffer is full
@@ -124,15 +134,15 @@ uint32_t read_net_packets(
         unsigned char* dest_buf,
         size_t buf_size,
         fd_set read_set,
-        struct sockaddr* addr)
+        struct sockaddr* addr,
+        sigset_t* mask)
 {
-    struct timeval timeout = { .tv_sec = 1, .tv_usec = 0 };
     socklen_t len;
     uint32_t num_bytes = 0;
 
     fd_set testset = read_set;
 
-    int result = select(FD_SETSIZE, &testset, NULL, NULL, &timeout);
+    int result = pselect(FD_SETSIZE, &testset, NULL, NULL, NULL, mask);
     if (result == 1 && FD_ISSET(sock, &testset))
     {
         ssize_t bytes;
