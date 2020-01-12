@@ -59,6 +59,9 @@ void MulticastSource::join(const std::string & addr)
 
 }
 
+// Implement according to code example in:
+// https://stackoverflow.com/questions/6962150/catching-signals-while-reading-from-pipe-with-select
+
 std::vector<TSPacketPtr> MulticastSource::read() {
     fd_set readSet;
     struct sockaddr_in addr;
@@ -79,30 +82,38 @@ std::vector<TSPacketPtr> MulticastSource::read() {
     sigset_t mask;
     sigset_t orig_mask;
     sigemptyset (&mask);
-    sigaddset (&mask, SIGTERM);
+    sigaddset (&mask, SIGINT);
 
     if (sigprocmask(SIG_BLOCK, &mask, &orig_mask) < 0) {
         perror ("sigprocmask");
     }
 
-    uint32_t aPos = read_net_packets(
-            mSock,
-            raw_packet.data(),
-            raw_packet.capacity(),
-            readSet,
-            (struct sockaddr *) &addr, &orig_mask);
-
-    auto [bytes_left, multi_packets] = findSynchAndAddPackets(aPos, raw_packet);
+    uint32_t aPos = 0;
+    while (not mStop && aPos == 0)
+    {
+        aPos = read_net_packets(
+                mSock,
+                raw_packet.data(),
+                raw_packet.capacity(),
+                readSet,
+                (struct sockaddr *) &addr, &orig_mask);
+    }
+    auto[bytes_left, multi_packets] = findSynchAndAddPackets(aPos, raw_packet);
 
     while (not mStop)
     {
         uint32_t pos = bytes_left;
-        pos += read_net_packets(
+        uint32_t bytes = read_net_packets(
                 mSock,
                 multi_packets.data() + pos,
                 multi_packets.capacity() - pos,
                 readSet,
                 (struct sockaddr *) &addr, &orig_mask);
+        if (bytes == 0) {
+            // No data
+            continue;
+        }
+        pos += bytes;
         if (pos > multi_packets.size())
         {
             // Destination buffer is full
@@ -110,7 +121,7 @@ std::vector<TSPacketPtr> MulticastSource::read() {
             return mPackets;
         }
 
-        auto numberOfPackets = pos/TSPacket::TS_PACKET_SIZE;
+        auto numberOfPackets = pos / TSPacket::TS_PACKET_SIZE;
         addAllPacketsAndResync(numberOfPackets, multi_packets);
 
         bytes_left = 0;
@@ -119,6 +130,8 @@ std::vector<TSPacketPtr> MulticastSource::read() {
     }
 
     mDone = true;
+    // Release the waiting thread
+    mPartiallyRead.notify_one();
     std::vector<TSPacketPtr> packets;
     {
         std::lock_guard< std::mutex > lock(mMutex);
@@ -142,7 +155,16 @@ uint32_t read_net_packets(
 
     fd_set testset = read_set;
 
-    int result = pselect(FD_SETSIZE, &testset, NULL, NULL, NULL, mask);
+    struct timespec timeout;
+    int result = 0;
+    timeout.tv_sec = 0;
+    timeout.tv_nsec = 1000000L; // Poll
+    result = pselect(FD_SETSIZE, &testset, NULL, NULL, &timeout, mask);
+    // Timeout continue to poll
+    if (result == -1 && errno == EINTR) {
+        std::cout << "pselect signal caught\n";
+    }
+
     if (result == 1 && FD_ISSET(sock, &testset))
     {
         ssize_t bytes;

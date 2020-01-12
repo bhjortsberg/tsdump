@@ -38,6 +38,9 @@ void TSSourceAbstract::add_packet(std::vector< unsigned char > & raw_packet)
 
 std::tuple<uint32_t, std::vector<uint8_t>> TSSourceAbstract::findSynchAndAddPackets(uint32_t dataSize, const std::vector<unsigned char>& raw_packet)
 {
+    if (dataSize == 0) {
+        return std::make_tuple(0, std::vector<uint8_t>());
+    }
     uint32_t sync_byte = find_synch_byte(raw_packet.begin(), dataSize);
     // Sync byte found, add packets to list
     while (sync_byte + (mPacketCount + 1) * TSPacket::TS_PACKET_SIZE < dataSize + 1)
