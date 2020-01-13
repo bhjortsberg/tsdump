@@ -53,13 +53,13 @@ std::vector<TSPacketPtr> FileSource::read()
                       readBytes);
             pos += readBytes;
 
-            if (file.tellg() < 0 || file.tellg() == fileSize)
-            {
-                mStop = true;
-            }
-
             auto numberOfPackets = pos/TSPacket::TS_PACKET_SIZE;
             addAllPacketsAndResync(numberOfPackets, multi_packets);
+
+            if (file.tellg() < 0 || file.tellg() == fileSize)
+            {
+                break;
+            }
 
             // Notify that packets has been read
             mPartiallyRead.notify_one();

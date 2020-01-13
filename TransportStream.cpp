@@ -46,7 +46,10 @@ std::vector<TSPacketPtr> TransportStream::getPackets()
     }
     else
     {
-        packets = m_future.get();
+        if (m_future.valid())
+        {
+            packets = m_future.get();
+        }
         // Source read is completed
         m_done = true;
     }

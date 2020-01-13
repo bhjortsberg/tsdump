@@ -106,3 +106,7 @@ void TSSourceAbstract::stop()
     mStop = true;
 }
 
+bool TSSourceAbstract::isStopped()
+{
+    return mStop;
+}

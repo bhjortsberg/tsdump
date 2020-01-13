@@ -17,6 +17,7 @@ public:
     std::vector<TSPacketPtr> doRead() override;
     bool isDone() override;
     void stop() override;
+    virtual bool isStopped() override;
 
 protected:
     virtual std::vector<TSPacketPtr> read() = 0;

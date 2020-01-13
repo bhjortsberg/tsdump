@@ -34,7 +34,8 @@ void TSReport::report()
 
     m_packetCount = 0;
     print_header();
-    while (true)
+    bool do_loop = true;
+    while (do_loop)
     {
         for (const auto& packet : m_ts.getPackets())
         {
@@ -71,13 +72,16 @@ void TSReport::report()
                     writePacket(packet, m_option->outputFile());
                 }
             }
+            if (m_ts.isStopped())
+            {
+                do_loop = false;
+                break;
+            }
         }
-
         if (m_ts.isDone())
         {
             break;
         }
-
     }
 
     print_summary();
