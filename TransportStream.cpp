@@ -82,7 +82,7 @@ TSPacketPtr TransportStream::find_pat(const std::vector< TSPacketPtr >::iterator
     {
         return *pat;
     }
-    std::cout << "Could not find PAT\n";
+    m_packets.clear();
     return nullptr;
 
 }

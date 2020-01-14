@@ -247,7 +247,14 @@ void TSReport::print_pid_info()
 {
     std::cout << std::setw(6) << "Pid\tType" << std::endl;
     std::cout << "=====================" << std::endl;
-    auto pat = m_ts.find_pat();
+    TSPacketPtr pat;
+    while (!pat) {
+        pat = m_ts.find_pat();
+        if (m_ts.isStopped()) {
+            return;
+        }
+    }
+
     auto pmt_pids = m_ts.find_pmt_pids(pat);
     for (auto p : pmt_pids) {
         std::cout << get_pmt_string(p);
