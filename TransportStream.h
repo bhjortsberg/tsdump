@@ -27,7 +27,7 @@ public:
     std::vector<int> find_pmt_pids(const TSPacketPtr & pat) const;
     std::vector<int> find_pids();
     TSPacketPtr find_pmt(int pid);
-    std::vector<PMTPacket> get_pmts();
+    std::vector<PMTPacket> get_pmts(const TSPacketPtr& pat);
     bool isDone() const { return m_done; }
     bool isStopped() const { return m_sourcePtr->isStopped(); }
     void stop();

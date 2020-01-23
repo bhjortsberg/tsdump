@@ -260,7 +260,7 @@ void TSReport::print_pid_info()
         std::cout << get_pmt_string(p);
     }
 
-    auto pmts = m_ts.get_pmts();
+    auto pmts = m_ts.get_pmts(pat);
     for (auto p : pmts) {
         std::cout << get_es_string(p) << std::endl;
     }

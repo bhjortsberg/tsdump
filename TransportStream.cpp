@@ -126,32 +126,39 @@ std::vector< int > TransportStream::find_pids()
 // Then find_pmt(pid) and find_pat() calls that
 TSPacketPtr TransportStream::find_pmt(int pid)
 {
+    if (m_packets.empty())
+    {
+        m_packets = getPackets();
+    }
     auto it = find_if(std::begin(m_packets), std::end(m_packets),
-            [&pid] (const TSPacketPtr& packet) {
-                if (packet->pid() == pid) {
-                    return true;
-                }
-                return false;
-            });
+                      [&pid](const TSPacketPtr &packet) {
+                          if (packet->pid() == pid)
+                          {
+                              return true;
+                          }
+                          return false;
+                      });
 
     if (it != std::end(m_packets))
     {
         return *it;
     }
-    std::cout << "Could not packet with pid: " << pid << "\n";
+    m_packets.clear();
     return nullptr;
 }
 
-std::vector< PMTPacket > TransportStream::get_pmts()
+std::vector< PMTPacket > TransportStream::get_pmts(const TSPacketPtr& pat)
 {
     std::vector<PMTPacket> pmts;
-    TSPacketPtr pmt_pkt;
 
-    auto pat = find_pat();
     auto pmt_pids = find_pmt_pids(pat);
 
     for (auto p : pmt_pids) {
-        pmt_pkt = find_pmt(p);
+        TSPacketPtr pmt_pkt;
+        while (!pmt_pkt)
+        {
+            pmt_pkt = find_pmt(p);
+        }
         pmts.push_back(parse_pmt(pmt_pkt));
     }
 
