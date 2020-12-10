@@ -290,11 +290,12 @@ std::vector< int > PMTPacket::get_elementary_pids() const
 
 bool PMTPacket::is_pmt() const
 {
-    if (*(m_this->payload() + 7) != 0 ||  *(m_this->payload() + 8) != 0)
+    // section_number and last_section_number should be zero
+    if (*(m_this->payload() + 7) == 0 &&  *(m_this->payload() + 8) == 0)
     {
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 
 unsigned int PMTPacket::program_info_len() const
