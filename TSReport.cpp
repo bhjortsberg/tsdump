@@ -211,7 +211,7 @@ void TSReport::print_summary()
 
     if (!m_continuity_error.empty())
     {
-        std::cout << "\tContinutity count error in:" << std::endl;
+        std::cout << "\tContinuity count error in:" << std::endl;
         for (const auto & a : m_continuity_error)
         {
             bool first = true;

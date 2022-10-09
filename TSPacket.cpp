@@ -49,7 +49,7 @@ unsigned short TSPacket::continuity_count() const
 
 bool TSPacket::has_adaptation_field() const
 {
-    return adaptation_field_control() & 0x02 ? true : false;
+    return (adaptation_field_control() & 0x02) != 0;
 }
 
 char TSPacket::adaptation_field_control() const
@@ -145,6 +145,16 @@ bool TSPacket::continuity() const
     if (!m_prev)
         return true;
 
+    if ((adaptation_field_control() & 0x1) == 0) {
+        // No payload flag is set - continuity is not incremented
+        // Packet has only adaptation field
+        return true;
+    }
+
+    if (pid() == 8191) {
+        // This is a null packet for bandwidth padding - continuity is not incremented
+        return true;
+    }
     return (m_prev->continuity_count() +1)%16 == m_continuity_count;
 }
 
