@@ -10,21 +10,21 @@ mMutex(mutex)
 
 }
 
-void TSSourceAbstract::add_packet(const std::vector< unsigned char >::const_iterator& packet_start)
+void TSSourceAbstract::addPacket(const std::vector< unsigned char >::const_iterator& packetStart)
 {
-    std::vector<unsigned char> packet(packet_start, packet_start + TSPacket::TS_PACKET_SIZE);
-    add_packet(packet);
+    std::vector<unsigned char> packet(packetStart, packetStart + TSPacket::TS_PACKET_SIZE);
+    addPacket(packet);
 }
 
-void TSSourceAbstract::add_packet(std::vector< unsigned char > & raw_packet)
+void TSSourceAbstract::addPacket(std::vector< unsigned char > & rawPacket)
 {
 
-    TSPacketPtr packet(new TSPacket(raw_packet, mPacketCount));
+    TSPacketPtr packet(new TSPacket(rawPacket, mPacketCount));
     auto p = mLatestPackets.find(packet->pid());
     if (p != std::end(mLatestPackets))
     {
-        p->second->set_next(packet);
-        packet->set_prev(p->second);
+        p->second->setNextPacket(packet);
+        packet->setPreviousPacket(p->second);
         mLatestPackets.erase(p);
     }
     mLatestPackets.emplace(packet->pid(), packet);
@@ -36,16 +36,16 @@ void TSSourceAbstract::add_packet(std::vector< unsigned char > & raw_packet)
     ++mPacketCount;
 }
 
-std::tuple<uint32_t, std::vector<uint8_t>> TSSourceAbstract::findSynchAndAddPackets(uint32_t dataSize, const std::vector<unsigned char>& raw_packet)
+std::tuple<uint32_t, std::vector<uint8_t>> TSSourceAbstract::findSynchAndAddPackets(uint32_t dataSize, const std::vector<unsigned char>& rawPacket)
 {
     if (dataSize == 0) {
         return std::make_tuple(0, std::vector<uint8_t>());
     }
-    uint32_t sync_byte = find_synch_byte(raw_packet.begin(), dataSize);
+    uint32_t sync_byte = findSynchByte(rawPacket.begin(), dataSize);
     // Sync byte found, add packets to list
     while (sync_byte + (mPacketCount + 1) * TSPacket::TS_PACKET_SIZE < dataSize + 1)
     {
-        add_packet(raw_packet.begin() + sync_byte + mPacketCount * TSPacket::TS_PACKET_SIZE);
+        addPacket(rawPacket.begin() + sync_byte + mPacketCount * TSPacket::TS_PACKET_SIZE);
     }
 
     uint32_t num_packets = 100;
@@ -53,7 +53,7 @@ std::tuple<uint32_t, std::vector<uint8_t>> TSSourceAbstract::findSynchAndAddPack
 
     std::vector<uint8_t> multi_packets(num_packets * TSPacket::TS_PACKET_SIZE + bytes_left);
     // Copy part of last packet and then read rest of packet and add to list
-    std::copy(raw_packet.begin() + dataSize - bytes_left, raw_packet.begin() + dataSize, multi_packets.begin());
+    std::copy(rawPacket.begin() + dataSize - bytes_left, rawPacket.begin() + dataSize, multi_packets.begin());
     return std::make_tuple(bytes_left, multi_packets);
 }
 
@@ -65,12 +65,12 @@ void TSSourceAbstract::addAllPacketsAndResync(uint32_t numberOfPackets, const st
     {
         if (multi_packets[i * TSPacket::TS_PACKET_SIZE + sync_byte] == TSPacket::SYNC_BYTE)
         {
-            add_packet(multi_packets.begin() + sync_byte + (i*TSPacket::TS_PACKET_SIZE));
+            addPacket(multi_packets.begin() + sync_byte + (i * TSPacket::TS_PACKET_SIZE));
             i++;
         }
         else
         {
-            sync_byte = find_synch_byte(
+            sync_byte = findSynchByte(
                     multi_packets.begin() + i * TSPacket::TS_PACKET_SIZE,
                     (numberOfPackets - i) * TSPacket::TS_PACKET_SIZE);
         }
@@ -79,13 +79,13 @@ void TSSourceAbstract::addAllPacketsAndResync(uint32_t numberOfPackets, const st
 
 std::vector< TSPacketPtr > TSSourceAbstract::getPackets()
 {
-    //std::unique_lock< std::mutex > lock(m_mutex);
+    //std::unique_lock< std::mutex > lock(mMutex);
     //m_partially_read.wait(lock);
-/*    auto packets = m_packets;
+/*    auto packets = mPackets;
     {
         std::cout << "Get packets and clear list\n";
-        //std::lock_guard< std::mutex > lock(m_mutex);
-        m_packets.clear();
+        //std::lock_guard< std::mutex > lock(mMutex);
+        mPackets.clear();
     }
     return packets;*/
     return std::move(mPackets);

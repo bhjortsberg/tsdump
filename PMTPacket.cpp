@@ -9,7 +9,7 @@
 #include "TSPacket.h"
 
 
-const std::string stream_type_arr[] = {
+const std::string streamTypeArr[] = {
         "ITU-T | ISO/IEC Reserved",
         "ISO/IEC 11172-2 (MPEG-1 video)",
         "ITU-T Rec. H.262 and ISO/IEC 13818-2 (MPEG-2 higher rate interlaced video)",
@@ -268,66 +268,66 @@ const std::string stream_type_arr[] = {
         "Privately defined.",   // 255
 };
 
-const std::string stream_type_reserved = "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved";
-const std::string stream_type_user_private = "User Private";
+const std::string streamTypeReserved = "ITU-T Rec. H.222.0 | ISO/IEC 13818-1 Reserved";
+const std::string streamTypeUserPrivate = "User Private";
 
 PMTPacket::PMTPacket(const TSPacketPtr &packet):
-m_this(packet)
+        mThis(packet)
 {
 
 }
 
-std::vector< int > PMTPacket::get_elementary_pids() const
+std::vector< int > PMTPacket::getElementaryPids() const
 {
     std::vector<int> pids;
 
-    std::for_each(std::begin(m_elementary_streams), std::end(m_elementary_streams),
+    std::for_each(std::begin(mElementaryStreams), std::end(mElementaryStreams),
                   [&pids](std::pair< unsigned int, unsigned char> thing){
                       pids.emplace_back(thing.first);
                   });
     return pids;
 }
 
-bool PMTPacket::is_pmt() const
+bool PMTPacket::isPmt() const
 {
     // section_number and last_section_number should be zero
-    if (*(m_this->payload() + 7) == 0 &&  *(m_this->payload() + 8) == 0)
+    if (*(mThis->payload() + 7) == 0 && *(mThis->payload() + 8) == 0)
     {
         return true;
     }
     return false;
 }
 
-unsigned int PMTPacket::program_info_len() const
+unsigned int PMTPacket::programInfoLength() const
 {
-    unsigned short program_info_length = 0;
+    unsigned short programInfoLength = 0;
 
-    program_info_length |= (*(m_this->payload() + 11) & 0x0F) << 8;
-    program_info_length |= *(m_this->payload() + 12);
+    programInfoLength |= (*(mThis->payload() + 11) & 0x0F) << 8;
+    programInfoLength |= *(mThis->payload() + 12);
 
-    return program_info_length;
+    return programInfoLength;
 }
 
-std::string PMTPacket::stream_type_string(unsigned int pid) const
+std::string PMTPacket::streamTypeString(unsigned int pid) const
 {
-    std::string type_string;
-    auto type = stream_type(pid);
+    std::string typeString;
+    auto type = streamType(pid);
 
     if (type < 0x29) {
-        type_string = stream_type_arr[type];
+        typeString = streamTypeArr[type];
     } else if (type < 0x80) {
-        type_string = stream_type_reserved;
+        typeString = streamTypeReserved;
     } else {
-        type_string = stream_type_user_private;
+        typeString = streamTypeUserPrivate;
     }
 
-    return type_string;
+    return typeString;
 }
 
-unsigned char PMTPacket::stream_type(unsigned int pid) const
+unsigned char PMTPacket::streamType(unsigned int pid) const
 {
-    auto it = m_elementary_streams.find(pid);
-    if (it != std::end(m_elementary_streams))
+    auto it = mElementaryStreams.find(pid);
+    if (it != std::end(mElementaryStreams))
     {
         return it->second;
     }
@@ -338,16 +338,16 @@ void PMTPacket::parse()
 {
 
     unsigned short section_length;
-    section_length = (*(m_this->payload() + 2) & 0x0f) << 8;
-    section_length |= *(m_this->payload() + 3);
+    section_length = (*(mThis->payload() + 2) & 0x0f) << 8;
+    section_length |= *(mThis->payload() + 3);
 
-    m_program_info_length = program_info_len();
-    auto pit = m_this->payload() + 13 + m_program_info_length;
+    mProgramInfoLength = programInfoLength();
+    auto pit = mThis->payload() + 13 + mProgramInfoLength;
 
-    unsigned short elemntary_stream_info_length = 0;
+    unsigned short elementaryStreamInfoLength = 0;
 
-    int bytes_left2 = section_length - 13 - m_program_info_length;
-    for (int bytes_left = section_length - 13 - m_program_info_length; bytes_left > 0; bytes_left -= 5 + elemntary_stream_info_length)
+    int bytes_left2 = section_length - 13 - mProgramInfoLength;
+    for (int bytes_left = section_length - 13 - mProgramInfoLength; bytes_left > 0; bytes_left -= 5 + elementaryStreamInfoLength)
     {
         unsigned short elementary_pid = 0;
         unsigned char stream_type = *(pit++);
@@ -355,18 +355,18 @@ void PMTPacket::parse()
         elementary_pid |= (*(pit++) & 0x1F) << 8;
         elementary_pid |= *(pit++);
 
-        elemntary_stream_info_length = (*(pit++) & 0x0F) << 8;
-        elemntary_stream_info_length |= *(pit++);
+        elementaryStreamInfoLength = (*(pit++) & 0x0F) << 8;
+        elementaryStreamInfoLength |= *(pit++);
 
-        pit += elemntary_stream_info_length;
-        m_elementary_streams.insert( {elementary_pid, stream_type});
+        pit += elementaryStreamInfoLength;
+        mElementaryStreams.insert({elementary_pid, stream_type});
     }
 
 }
 
 Chunk::const_iterator PMTPacket::payload() const
 {
-    return m_this->payload();
+    return mThis->payload();
 }
 
 
@@ -374,11 +374,11 @@ PMTPacket parse_pmt(const TSPacketPtr & packet)
 {
     PMTPacket pmt(packet);
 
-    if (!pmt.is_pmt()) {
+    if (!pmt.isPmt()) {
         throw std::runtime_error("Packet not a PMT");
     }
 
-    if (pmt.program_info_len()!= 0) {
+    if (pmt.programInfoLength() != 0) {
         throw std::runtime_error("Program info length not 0");
     }
 

@@ -22,75 +22,75 @@ std::vector<TSPacketPtr> thread_body(const TSSourcePtr & sourcePtr)
 TransportStream::TransportStream(TSSourcePtr sourcePtr,
                                  std::condition_variable & cond,
                                  std::mutex & mutex):
-m_sourcePtr(std::move(sourcePtr)),
-m_cond(cond),
-m_mutex(mutex),
-m_done(false)
+        mSourcePtr(std::move(sourcePtr)),
+        mCond(cond),
+        mMutex(mutex),
+        mDone(false)
 {
-    m_future = std::async(thread_body, m_sourcePtr);
+    mFuture = std::async(thread_body, mSourcePtr);
     // TODO: Test if std::yield can make the other thread run
 }
 
 std::vector<TSPacketPtr> TransportStream::getPackets()
 {
     std::vector<TSPacketPtr> packets;
-    if (!m_sourcePtr->isDone())
+    if (!mSourcePtr->isDone())
     {
         // Aquire mutex
-        std::unique_lock< std::mutex > lock(m_mutex);
+        std::unique_lock< std::mutex > lock(mMutex);
         // Release mutex and wait, re-aquire mutex on wakeup
-        m_cond.wait(lock);
-        packets = m_sourcePtr->getPackets();
+        mCond.wait(lock);
+        packets = mSourcePtr->getPackets();
         // It could be done now
-        m_done = m_sourcePtr->isDone();
+        mDone = mSourcePtr->isDone();
     }
     else
     {
-        if (m_future.valid())
+        if (mFuture.valid())
         {
-            packets = m_future.get();
+            packets = mFuture.get();
         }
         // Source read is completed
-        m_done = true;
+        mDone = true;
     }
-    m_packetCount += packets.size();
+    mPacketCount += packets.size();
     return packets;
 }
 
-TSPacketPtr TransportStream::find_pat()
+TSPacketPtr TransportStream::findPat()
 {
-    auto start = std::begin(m_packets);
-    return find_pat(start);
+    auto start = std::begin(mPackets);
+    return findPat(start);
 }
 
-TSPacketPtr TransportStream::find_pat(const std::vector< TSPacketPtr >::iterator &it)
+TSPacketPtr TransportStream::findPat(const std::vector< TSPacketPtr >::iterator &it)
 {
 
-    if (m_packets.empty())
+    if (mPackets.empty())
     {
-        m_packets = getPackets();
+        mPackets = getPackets();
     }
-    auto pat = std::find_if(std::begin(m_packets), std::end(m_packets),
-                        [](const TSPacketPtr & a) {
+    auto pat = std::find_if(std::begin(mPackets), std::end(mPackets),
+                            [](const TSPacketPtr & a) {
                             if (a->pid() == 0x00) {
                                 return true;
                             }
                             return false;
                         });
 
-    if (pat != std::end(m_packets))
+    if (pat != std::end(mPackets))
     {
         return *pat;
     }
-    m_packets.clear();
+    mPackets.clear();
     return nullptr;
 
 }
 
-std::vector< int > TransportStream::find_pmt_pids(const TSPacketPtr & pat) const
+std::vector< int > TransportStream::findPmtPids(const TSPacketPtr & pat) const
 {
     std::vector<int> pids;
-    auto programs = pat->get_program_pids();
+    auto programs = pat->getProgramPids();
 
     for (auto p : programs)
     {
@@ -99,22 +99,22 @@ std::vector< int > TransportStream::find_pmt_pids(const TSPacketPtr & pat) const
     return pids;
 }
 
-//TODO: Not used, remove of make usefull
-std::vector< int > TransportStream::find_pids()
+//TODO: Not used, remove or make usefull
+std::vector< int > TransportStream::findPids()
 {
     std::vector<int> pids;
     std::vector<int> ppids;
     TSPacketPtr pmt_pkt;
 
-    m_packets = getPackets();
-    auto pat = find_pat();
-    auto pmt_pids = find_pmt_pids(pat);
+    mPackets = getPackets();
+    auto pat = findPat();
+    auto pmt_pids = findPmtPids(pat);
     pids = pmt_pids;
 
     for (auto p : pmt_pids) {
-        pmt_pkt = find_pmt(p);
+        pmt_pkt = findPmt(p);
         auto pmt = parse_pmt(pmt_pkt);
-        ppids = pmt.get_elementary_pids();
+        ppids = pmt.getElementaryPids();
         pids.insert(std::end(pids), std::begin(ppids), std::end(ppids));
     }
 
@@ -123,14 +123,14 @@ std::vector< int > TransportStream::find_pids()
 
 // TODO: Create a common find_packet(int pid, iterator it)
 // That returns a packet with pid starting from it.
-// Then find_pmt(pid) and find_pat() calls that
-TSPacketPtr TransportStream::find_pmt(int pid)
+// Then findPmt(pid) and findPat() calls that
+TSPacketPtr TransportStream::findPmt(int pid)
 {
-    if (m_packets.empty())
+    if (mPackets.empty())
     {
-        m_packets = getPackets();
+        mPackets = getPackets();
     }
-    auto it = find_if(std::begin(m_packets), std::end(m_packets),
+    auto it = find_if(std::begin(mPackets), std::end(mPackets),
                       [&pid](const TSPacketPtr &packet) {
                           if (packet->pid() == pid)
                           {
@@ -139,25 +139,25 @@ TSPacketPtr TransportStream::find_pmt(int pid)
                           return false;
                       });
 
-    if (it != std::end(m_packets))
+    if (it != std::end(mPackets))
     {
         return *it;
     }
-    m_packets.clear();
+    mPackets.clear();
     return nullptr;
 }
 
-std::vector< PMTPacket > TransportStream::get_pmts(const TSPacketPtr& pat)
+std::vector< PMTPacket > TransportStream::getPmts(const TSPacketPtr& pat)
 {
     std::vector<PMTPacket> pmts;
 
-    auto pmt_pids = find_pmt_pids(pat);
+    auto pmt_pids = findPmtPids(pat);
 
     for (auto p : pmt_pids) {
         TSPacketPtr pmt_pkt;
         while (!pmt_pkt)
         {
-            pmt_pkt = find_pmt(p);
+            pmt_pkt = findPmt(p);
         }
         pmts.push_back(parse_pmt(pmt_pkt));
     }
@@ -167,5 +167,5 @@ std::vector< PMTPacket > TransportStream::get_pmts(const TSPacketPtr& pat)
 
 void TransportStream::stop()
 {
-    m_sourcePtr->stop();
+    mSourcePtr->stop();
 }

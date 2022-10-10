@@ -10,9 +10,9 @@
 TSReport::TSReport(TransportStream &tstream,
                    const IFilterPtr & filter,
                    const OutputOptionsPtr & option):
-m_ts(tstream),
-m_filter(filter),
-m_option(option)
+        mTransportStream(tstream),
+        mFilter(filter),
+        mOption(option)
 {
 
 }
@@ -25,90 +25,90 @@ void writePacket(const TSPacketPtr& packet, std::ofstream& stream)
 
 void TSReport::report()
 {
-    if (m_option->listPidsOnly()) {
-        print_pid_info();
-        m_ts.stop();
-        m_ts.getPackets();
+    if (mOption->listPidsOnly()) {
+        printPidInfo();
+        mTransportStream.stop();
+        mTransportStream.getPackets();
         return;
     }
 
-    m_packetCount = 0;
-    print_header();
+    mPacketCount = 0;
+    printHeader();
     bool do_loop = true;
     while (do_loop)
     {
-        for (const auto& packet : m_ts.getPackets())
+        for (const auto& packet : mTransportStream.getPackets())
         {
-            ++m_packetCount;
-            if (m_filter->show(packet))
+            ++mPacketCount;
+            if (mFilter->show(packet))
             {
-                std::cout << get_packet_string(packet);
+                std::cout << getPacketString(packet);
 
-                if (m_option->printExtraInfo())
+                if (mOption->printExtraInfo())
                 {
-                    std::cout << get_packet_extra_info_string(packet) << "\n";
+                    std::cout << getPacketExtraInfoString(packet) << "\n";
                 }
-                if (m_option->printPayload())
+                if (mOption->printPayload())
                 {
-                    std::cout << get_packet_payload_string(packet) << "\n";
+                    std::cout << getPacketPayloadString(packet) << "\n";
                 }
 
                 if (!packet->continuity())
                 {
-                    auto it = m_continuity_error.find(packet->pid());
-                    if (it != std::end(m_continuity_error))
+                    auto it = mContinuityError.find(packet->pid());
+                    if (it != std::end(mContinuityError))
                     {
-                        it->second.push_back(packet->num());
-                        m_continuity_error.emplace(packet->pid(), it->second);
+                        it->second.push_back(packet->number());
+                        mContinuityError.emplace(packet->pid(), it->second);
                     }
                     else
                     {
-                        std::vector<int> v {packet->num()};
-                        m_continuity_error.emplace(packet->pid(), v);
+                        std::vector<int> v {packet->number()};
+                        mContinuityError.emplace(packet->pid(), v);
                     }
                 }
-                if (m_option->fileOutput())
+                if (mOption->fileOutput())
                 {
-                    writePacket(packet, m_option->outputFile());
+                    writePacket(packet, mOption->outputFile());
                 }
             }
-            if (m_ts.isStopped())
+            if (mTransportStream.isStopped())
             {
                 do_loop = false;
                 break;
             }
         }
-        if (m_ts.isDone())
+        if (mTransportStream.isDone())
         {
             break;
         }
     }
 
-    print_summary();
+    printSummary();
 
-//    std::cout << m_filter->statistics();
+//    std::cout << mFilter->statistics();
 
 }
 
-std::string TSReport::get_packet_string(const TSPacketPtr & packet)
+std::string TSReport::getPacketString(const TSPacketPtr & packet)
 {
     std::stringstream packet_string;
 
-    packet_string << packet->num() << "\t" << packet->pid() << "\t" << packet->continuity_count() << "\t\t";
-    if (packet->has_pes_header())
+    packet_string << packet->number() << "\t" << packet->pid() << "\t" << packet->continuityCount() << "\t\t";
+    if (packet->hasPesHeader())
     {
         packet_string << std::hex << "0x"
-                    << packet->pes_header().get_pts()
-                    << std::dec << "\t"
-                    << packet->pes_header().get_pts_str() << "\t"
-                    << packet->pes_header().get_length() << "\t";
+                      << packet->pesHeader().getPts()
+                      << std::dec << "\t"
+                      << packet->pesHeader().getPtsStr() << "\t"
+                      << packet->pesHeader().getLength() << "\t";
     }
     else {
         packet_string << "\t\t\t\t";
     }
 
 
-    if (packet->has_adaptation_field() && packet->has_ebp())
+    if (packet->hasAdaptationField() && packet->hasEbp())
     {
         packet_string << "EBP\t";
     }
@@ -116,7 +116,7 @@ std::string TSReport::get_packet_string(const TSPacketPtr & packet)
         packet_string << "   \t";
     }
 
-    if (packet->has_random_access_indicator())
+    if (packet->hasRandomAccessIndicator())
     {
         packet_string << "RAI\t";
     }
@@ -124,17 +124,17 @@ std::string TSReport::get_packet_string(const TSPacketPtr & packet)
         packet_string << "   \t";
     }
 
-    if (packet->is_payload_start())
+    if (packet->isPayloadStart())
     {
         packet_string << "Start\t";
     }
 
-    if (packet->has_pes_header())
+    if (packet->hasPesHeader())
     {
-        TSPacketPtr prev_pes_packet = find_prev_pes_packet(packet);
+        TSPacketPtr prev_pes_packet = findPrevPesPacket(packet);
         if (prev_pes_packet)
         {
-            int pts_diff = packet->pes_header().get_pts() - prev_pes_packet->pes_header().get_pts();
+            int pts_diff = packet->pesHeader().getPts() - prev_pes_packet->pesHeader().getPts();
             if (pts_diff > 20000)
             {
                 packet_string << "PTS diff: " << pts_diff;
@@ -148,13 +148,13 @@ std::string TSReport::get_packet_string(const TSPacketPtr & packet)
 
 }
 
-void TSReport::print_header()
+void TSReport::printHeader()
 {
     std::cout << "Packet\tPID\tContinuity\tpts hex\t\tpts wall\tSize\tEBP\tRAI\tPayload\n";
     std::cout << "-----------------------------------------------------------------------------------------------\n";
 }
 
-std::string TSReport::get_packet_payload_string(const TSPacketPtr &packet)
+std::string TSReport::getPacketPayloadString(const TSPacketPtr &packet)
 {
     std::stringstream payload_str;
     payload_str << std::hex << "\n\t\t";
@@ -162,7 +162,7 @@ std::string TSReport::get_packet_payload_string(const TSPacketPtr &packet)
     int byte_cnt = 0;
     std::stringstream line;
     std::string asciiline = "";
-    for (auto & p : packet->get_payload())
+    for (auto & p : packet->getPayload())
     {
         line << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(p) << " ";
         asciiline += (((p > 31) && (p < 127)) ? p : '.');
@@ -184,35 +184,35 @@ std::string TSReport::get_packet_payload_string(const TSPacketPtr &packet)
     return payload_str.str();
 }
 
-std::string TSReport::get_packet_extra_info_string(const TSPacketPtr &packet)
+std::string TSReport::getPacketExtraInfoString(const TSPacketPtr &packet)
 {
     std::stringstream adaptation_str;
     std::stringstream pes_str;
     pes_str << "\n";
 
-    if (packet->has_adaptation_field())
+    if (packet->hasAdaptationField())
     {
-        adaptation_str << "\n" << packet->adaptation_field().print_str();
+        adaptation_str << "\n" << packet->adaptationField().print_str();
     }
 
-    if (packet->has_pes_header())
+    if (packet->hasPesHeader())
     {
-        pes_str << packet->pes_header().print_str();
+        pes_str << packet->pesHeader().printStr();
     }
 
     return adaptation_str.str() + pes_str.str();
 
 }
 
-void TSReport::print_summary()
+void TSReport::printSummary()
 {
     std::cout << std::endl << "Summary:" << std::endl;
-    std::cout << "\tNumber of packets: " << m_packetCount << std::endl;
+    std::cout << "\tNumber of packets: " << mPacketCount << std::endl;
 
-    if (!m_continuity_error.empty())
+    if (!mContinuityError.empty())
     {
         std::cout << "\tContinuity count error in:" << std::endl;
-        for (const auto & a : m_continuity_error)
+        for (const auto & a : mContinuityError)
         {
             bool first = true;
             std::cout << "\t\tpid: " << a.first << " packet numbers: ";
@@ -228,13 +228,13 @@ void TSReport::print_summary()
     std::cout << std::endl;
 }
 
-TSPacketPtr TSReport::find_prev_pes_packet(const TSPacketPtr & packet)
+TSPacketPtr TSReport::findPrevPesPacket(const TSPacketPtr & packet)
 {
     TSPacketPtr curr_packet = packet;
 
-    while ((curr_packet = curr_packet->get_prev()) != nullptr)
+    while ((curr_packet = curr_packet->getPreviousPacket()) != nullptr)
     {
-        if (curr_packet->has_pes_header())
+        if (curr_packet->hasPesHeader())
         {
             break;
         }
@@ -243,30 +243,30 @@ TSPacketPtr TSReport::find_prev_pes_packet(const TSPacketPtr & packet)
     return curr_packet;
 }
 
-void TSReport::print_pid_info()
+void TSReport::printPidInfo()
 {
     std::cout << std::setw(6) << "Pid\tType" << std::endl;
     std::cout << "=====================" << std::endl;
     TSPacketPtr pat;
     while (!pat) {
-        pat = m_ts.find_pat();
-        if (m_ts.isStopped()) {
+        pat = mTransportStream.findPat();
+        if (mTransportStream.isStopped()) {
             return;
         }
     }
 
-    auto pmt_pids = m_ts.find_pmt_pids(pat);
+    auto pmt_pids = mTransportStream.findPmtPids(pat);
     for (auto p : pmt_pids) {
-        std::cout << get_pmt_string(p);
+        std::cout << getPmtString(p);
     }
 
-    auto pmts = m_ts.get_pmts(pat);
+    auto pmts = mTransportStream.getPmts(pat);
     for (auto p : pmts) {
-        std::cout << get_es_string(p) << std::endl;
+        std::cout << getEsString(p) << std::endl;
     }
 }
 
-std::string TSReport::get_pmt_string(unsigned int pid)
+std::string TSReport::getPmtString(unsigned int pid)
 {
     std::stringstream ss;
     ss << std::setw(4) << std::right << std::dec << std::setfill(' ') << pid << "\t";
@@ -275,14 +275,14 @@ std::string TSReport::get_pmt_string(unsigned int pid)
     return ss.str();
 }
 
-std::string TSReport::get_es_string(const PMTPacket &pmtPacket)
+std::string TSReport::getEsString(const PMTPacket &pmtPacket)
 {
     std::stringstream ss;
-    for (auto p : pmtPacket.get_elementary_pids())
+    for (auto p : pmtPacket.getElementaryPids())
     {
         ss << std::setw(4) << std::right << std::dec << std::setfill(' ') << p << "\t";
-        ss << "0x" << std::setw(2) << std::hex << std::setfill('0') << static_cast<int>(pmtPacket.stream_type(p));
-        ss << std::left << " " << pmtPacket.stream_type_string(p) << std::endl;
+        ss << "0x" << std::setw(2) << std::hex << std::setfill('0') << static_cast<int>(pmtPacket.streamType(p));
+        ss << std::left << " " << pmtPacket.streamTypeString(p) << std::endl;
     }
 
     return ss.str();

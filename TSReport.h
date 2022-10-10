@@ -17,20 +17,20 @@ public:
     void report();
 
 private:
-    std::string get_packet_string(const TSPacketPtr & packet);
-    std::string get_packet_payload_string(const TSPacketPtr & packet);
-    std::string get_packet_extra_info_string(const TSPacketPtr & packet);
-    void print_pid_info();
-    std::string get_pmt_string(unsigned int pid);
-    std::string get_es_string(const PMTPacket & pmtPacket);
-    void print_header();
-    void print_summary();
-    TSPacketPtr find_prev_pes_packet(const TSPacketPtr & packet);
-    IFilterPtr m_filter;
-    OutputOptionsPtr m_option;
-    TransportStream & m_ts;
-    std::map<unsigned int, std::vector<int>> m_continuity_error;
-    unsigned int m_packetCount = 0;
+    std::string getPacketString(const TSPacketPtr & packet);
+    std::string getPacketPayloadString(const TSPacketPtr & packet);
+    std::string getPacketExtraInfoString(const TSPacketPtr & packet);
+    std::string getPmtString(unsigned int pid);
+    std::string getEsString(const PMTPacket & pmtPacket);
+    void printPidInfo();
+    void printHeader();
+    void printSummary();
+    TSPacketPtr findPrevPesPacket(const TSPacketPtr & packet); // TODO: Move to TSPacket?
+    IFilterPtr mFilter;
+    OutputOptionsPtr mOption;
+    TransportStream & mTransportStream;
+    std::map<unsigned int, std::vector<int>> mContinuityError;
+    unsigned int mPacketCount = 0;
 
 };
 

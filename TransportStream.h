@@ -22,25 +22,25 @@ public:
                     std::mutex & mutex);
 
     std::vector<TSPacketPtr> getPackets();
-    TSPacketPtr find_pat();
-    TSPacketPtr find_pat(const std::vector<TSPacketPtr>::iterator & it );
-    std::vector<int> find_pmt_pids(const TSPacketPtr & pat) const;
-    std::vector<int> find_pids();
-    TSPacketPtr find_pmt(int pid);
-    std::vector<PMTPacket> get_pmts(const TSPacketPtr& pat);
-    bool isDone() const { return m_done; }
-    bool isStopped() const { return m_sourcePtr->isStopped(); }
+    TSPacketPtr findPat();
+    TSPacketPtr findPat(const std::vector<TSPacketPtr>::iterator & it );
+    std::vector<int> findPmtPids(const TSPacketPtr & pat) const;
+    std::vector<int> findPids();
+    TSPacketPtr findPmt(int pid);
+    std::vector<PMTPacket> getPmts(const TSPacketPtr& pat);
+    bool isDone() const { return mDone; }
+    bool isStopped() const { return mSourcePtr->isStopped(); }
     void stop();
 
 private:
-    std::vector<TSPacketPtr> m_packets;
-    std::vector<TSPacketPtr>::iterator m_currentPacket;
-    std::future<std::vector<TSPacketPtr>> m_future;
-    TSSourcePtr m_sourcePtr;
-    std::condition_variable & m_cond;
-    std::mutex & m_mutex;
-    bool m_done;
-    uint32_t m_packetCount = 0;
+    std::vector<TSPacketPtr> mPackets;
+    std::vector<TSPacketPtr>::iterator mCurrentPacket;
+    std::future<std::vector<TSPacketPtr>> mFuture;
+    TSSourcePtr mSourcePtr;
+    std::condition_variable & mCond;
+    std::mutex & mMutex;
+    bool mDone;
+    uint32_t mPacketCount = 0;
 };
 
 

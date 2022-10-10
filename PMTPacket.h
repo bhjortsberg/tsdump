@@ -12,6 +12,7 @@
 class PMTPacket;
 PMTPacket parse_pmt(const TSPacketPtr & packet);
 
+// TODO: Use this class for mElementaryStream
 class ElementaryStream
 {
     unsigned int pid;
@@ -22,19 +23,19 @@ class PMTPacket : public IPacket
 {
 public:
     PMTPacket(const TSPacketPtr & packet);
-    std::vector<int> get_elementary_pids() const;
+    std::vector<int> getElementaryPids() const;
 
-    bool is_pmt() const;
-    unsigned int program_info_len() const;
-    unsigned char stream_type(unsigned int pid) const;
-    std::string stream_type_string(unsigned int pid) const;
+    bool isPmt() const;
+    unsigned int programInfoLength() const;
+    unsigned char streamType(unsigned int pid) const;
+    std::string streamTypeString(unsigned int pid) const;
     void parse();
     virtual Chunk::const_iterator payload() const;
 
 private:
-    IPacketPtr m_this;
-    std::map<unsigned int, unsigned char> m_elementary_streams;
-    unsigned short m_program_info_length;
+    IPacketPtr mThis;
+    std::map<unsigned int, unsigned char> mElementaryStreams;
+    unsigned short mProgramInfoLength;
 
 };
 

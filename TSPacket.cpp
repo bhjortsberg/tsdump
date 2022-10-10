@@ -9,143 +9,143 @@
 #include "PMTPacket.h"
 
 TSPacket::TSPacket(Chunk buffer, int pkt_num):
-        chunk(buffer),
-        m_pkt_num(pkt_num),
-        m_prev(nullptr),
-        m_next(nullptr)
+        mChunk(buffer),
+        mPacketNumber(pkt_num),
+        mPrev(nullptr),
+        mNext(nullptr)
 {
-    sync_byte = chunk[0];
-    transport_error_indicator       = chunk[1] & 0x80 ? true : false;
-    payload_unit_start_indicator    = chunk[1] & 0x40 ? true : false;
-    transport_priority              = chunk[1] & 0x20 ? true : false;
-    m_continuity_count                = chunk[3] & 0xf;
+    mSyncByte = mChunk[0];
+    mTransportErrorIndicator       = mChunk[1] & 0x80 ? true : false;
+    mPayloadUnitStartIndicator    = mChunk[1] & 0x40 ? true : false;
+    mTransportPriority              = mChunk[1] & 0x20 ? true : false;
+    mContinuityCount                = mChunk[3] & 0xf;
 
     // Initialize payload, pes and adaptation field iterators
-    payload_it = std::begin(chunk) + 4;
-    pes_header_it = std::begin(chunk) + 4;
-    adaptation_field_it = std::begin(chunk) + 4;
+    payloadIt = std::begin(mChunk) + 4;
+    pesHeaderIt = std::begin(mChunk) + 4;
+    adaptationFieldIt = std::begin(mChunk) + 4;
 
-    if (has_adaptation_field()) {
-        pes_header_it = adaptation_field_it + adaptation_field().size();
-        payload_it = pes_header_it;
+    if (hasAdaptationField()) {
+        pesHeaderIt = adaptationFieldIt + adaptationField().size();
+        payloadIt = pesHeaderIt;
     }
 
-    if (has_pes_header()) {
-        payload_it += pes_header().get_length();
+    if (hasPesHeader()) {
+        payloadIt += pesHeader().getLength();
     }
 }
 
 unsigned short TSPacket::pid() const
 {
-    int pid = (chunk[1] & 0x1f) << 8;
-    pid |= chunk[2];
+    int pid = (mChunk[1] & 0x1f) << 8;
+    pid |= mChunk[2];
     return pid;
 }
 
-unsigned short TSPacket::continuity_count() const
+unsigned short TSPacket::continuityCount() const
 {
-    return m_continuity_count;
+    return mContinuityCount;
 }
 
-bool TSPacket::has_adaptation_field() const
+bool TSPacket::hasAdaptationField() const
 {
-    return (adaptation_field_control() & 0x02) != 0;
+    return (adaptationFieldControl() & 0x02) != 0;
 }
 
-char TSPacket::adaptation_field_control() const
+char TSPacket::adaptationFieldControl() const
 {
-    return (chunk[3] & 0x30) >> 4;
+    return (mChunk[3] & 0x30) >> 4;
 }
 
-bool TSPacket::has_random_access_indicator() const
+bool TSPacket::hasRandomAccessIndicator() const
 {
-    return has_adaptation_field() ? adaptation_field().has_random_access_indicator() : false;
+    return hasAdaptationField() ? adaptationField().has_random_access_indicator() : false;
 }
 
-AdaptationField TSPacket::adaptation_field() const
+AdaptationField TSPacket::adaptationField() const
 {
-    if (has_adaptation_field())
+    if (hasAdaptationField())
     {
-        return AdaptationField(std::begin(chunk)+4);
-//        return AdaptationField(adaptation_field_it);
+        return AdaptationField(std::begin(mChunk) + 4);
+//        return AdaptationField(adaptationFieldIt);
     }
 
     throw std::runtime_error("No adaptation field");
 
 }
 
-PESHeader TSPacket::pes_header() const
+PESHeader TSPacket::pesHeader() const
 {
-    if (has_pes_header())
+    if (hasPesHeader())
     {
         int pes_pos = 4;
 
-        if (has_adaptation_field())
+        if (hasAdaptationField())
         {
-            pes_pos += adaptation_field().size();
+            pes_pos += adaptationField().size();
         }
 
-        return PESHeader(std::begin(chunk) + pes_pos);
+        return PESHeader(std::begin(mChunk) + pes_pos);
     }
 
     throw std::runtime_error("No PES Header");
 }
 
-bool TSPacket::has_pes_header() const
+bool TSPacket::hasPesHeader() const
 {
     int pes_pos = 4;
-    if (has_adaptation_field()) {
-        pes_pos += adaptation_field().size();
+    if (hasAdaptationField()) {
+        pes_pos += adaptationField().size();
     }
 
-    if (chunk[pes_pos] == 0x00 &&
-            chunk[pes_pos+1] == 0x00 &&
-            chunk[pes_pos+2] == 0x01) {
+    if (mChunk[pes_pos] == 0x00 &&
+        mChunk[pes_pos + 1] == 0x00 &&
+        mChunk[pes_pos + 2] == 0x01) {
         return true;
     }
 
     return false;
 }
 
-bool TSPacket::has_ebp() const
+bool TSPacket::hasEbp() const
 {
-    return has_adaptation_field() && adaptation_field().has_ebp();
+    return hasAdaptationField() && adaptationField().has_ebp();
 }
 
-Chunk TSPacket::get_payload() const {
+Chunk TSPacket::getPayload() const {
     Chunk payload(TS_PACKET_SIZE);
-//    std::copy(payload_it, std::end(chunk), std::begin(payload));
-    std::copy(std::begin(chunk), std::end(chunk), std::begin(payload));
+//    std::copy(payloadIt, std::end(mChunk), std::begin(payload));
+    std::copy(std::begin(mChunk), std::end(mChunk), std::begin(payload));
     return payload;
-//    return PayloadIterator(payload_it, std::end(chunk));
+//    return PayloadIterator(payloadIt, std::end(mChunk));
 }
 
-bool TSPacket::is_payload_start() const
+bool TSPacket::isPayloadStart() const
 {
-    return payload_unit_start_indicator;
+    return mPayloadUnitStartIndicator;
 }
 
-int TSPacket::num() const
+int TSPacket::number() const
 {
-    return m_pkt_num;
+    return mPacketNumber;
 }
 
-void TSPacket::set_next(const TSPacketPtr & next)
+void TSPacket::setNextPacket(const TSPacketPtr & next)
 {
-    m_next = next;
+    mNext = next;
 }
 
-void TSPacket::set_prev(const TSPacketPtr & prev)
+void TSPacket::setPreviousPacket(const TSPacketPtr & prev)
 {
-    m_prev = prev;
+    mPrev = prev;
 }
 
 bool TSPacket::continuity() const
 {
-    if (!m_prev)
+    if (!mPrev)
         return true;
 
-    if ((adaptation_field_control() & 0x1) == 0) {
+    if ((adaptationFieldControl() & 0x1) == 0) {
         // No payload flag is set - continuity is not incremented
         // Packet has only adaptation field
         return true;
@@ -155,26 +155,26 @@ bool TSPacket::continuity() const
         // This is a null packet for bandwidth padding - continuity is not incremented
         return true;
     }
-    return (m_prev->continuity_count() +1)%16 == m_continuity_count;
+    return (mPrev->continuityCount() + 1) % 16 == mContinuityCount;
 }
 
-TSPacketPtr TSPacket::get_prev() const
+TSPacketPtr TSPacket::getPreviousPacket() const
 {
-    return m_prev;
+    return mPrev;
 }
 
-std::map< unsigned short, unsigned short> TSPacket::get_program_pids() const
+std::map< unsigned short, unsigned short> TSPacket::getProgramPids() const
 {
     if (pid() != 0x00) {
         throw std::runtime_error("Not a PAT");
     }
 
-    auto pit = payload_it + 9;
+    auto pit = payloadIt + 9;
     // byte 9 is last_section_number
     // byte 10-11 program number
     // byte 12-13 program_map_pid - 13 bits
-    auto section_number = *(payload_it + 7);
-    auto last_section_number =  *(payload_it + 8);
+    auto section_number = *(payloadIt + 7);
+    auto last_section_number =  *(payloadIt + 8);
 
     std::map<unsigned short, unsigned short> result;
 
@@ -199,24 +199,24 @@ std::map< unsigned short, unsigned short> TSPacket::get_program_pids() const
 
 Chunk::const_iterator TSPacket::payload() const
 {
-    return payload_it;
+    return payloadIt;
 }
 
 const uint8_t * TSPacket::raw() const
 {
-    return chunk.data();
+    return mChunk.data();
 }
 
 size_t TSPacket::size() const
 {
-    return chunk.size();
+    return mChunk.size();
 }
 
-uint32_t find_synch_byte(const std::vector<uint8_t>::const_iterator& src_packets_begin, uint32_t size)
+uint32_t findSynchByte(const std::vector<uint8_t>::const_iterator& src_packets, uint32_t size)
 {
     uint32_t synch_byte = 0;
-    while (*(src_packets_begin + synch_byte) != TSPacket::SYNC_BYTE ||
-           *(src_packets_begin + synch_byte + TSPacket::TS_PACKET_SIZE) != TSPacket::SYNC_BYTE)
+    while (*(src_packets + synch_byte) != TSPacket::SYNC_BYTE ||
+           *(src_packets + synch_byte + TSPacket::TS_PACKET_SIZE) != TSPacket::SYNC_BYTE)
     {
         if (++synch_byte + TSPacket::TS_PACKET_SIZE > size)
         {

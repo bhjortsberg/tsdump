@@ -8,13 +8,13 @@
 
 PESHeader::PESHeader(Chunk::const_iterator it)
 {
-    stream_id = it[3];
+    streamId = it[3];
     length = it[4] << 8;
     length |= it[5];
-    pts_dts_flags = (it[7] & 0xc0) >> 6;
-    pes_header_data_length = it[8];
+    ptsDtsFlags = (it[7] & 0xc0) >> 6;
+    pesHeaderDataLength = it[8];
 
-    if (pts_dts_flags == 0x02)
+    if (ptsDtsFlags == 0x02)
     {
         pts = static_cast<unsigned long>(it[13]) >> 1;          // bit 0-6
         pts |= static_cast<unsigned long>(it[12]) << 7;  // bit 7-14
@@ -23,7 +23,7 @@ PESHeader::PESHeader(Chunk::const_iterator it)
         pts |= ((static_cast<unsigned long>(it[9]) & 0x0000000f) >> 1) << 30; // bit 30-32
     }
 
-    if (pts_dts_flags == 0x03)
+    if (ptsDtsFlags == 0x03)
     {
         pts = static_cast<unsigned long>(it[13]) >> 1;          // bit 0-6
         pts |= static_cast<unsigned long>(it[12]) << 7;  // bit 7-14
@@ -41,12 +41,12 @@ PESHeader::PESHeader(Chunk::const_iterator it)
 
 }
 
-unsigned long long PESHeader::get_pts()
+unsigned long long PESHeader::getPts()
 {
     return pts;
 }
 
-std::string PESHeader::get_pts_str()
+std::string PESHeader::getPtsStr()
 {
     std::stringstream ss;
 
@@ -65,26 +65,26 @@ std::string PESHeader::get_pts_str()
     return ss.str();
 }
 
-unsigned short PESHeader::get_length() {
+unsigned short PESHeader::getLength() {
     return length;
 }
 
-std::string PESHeader::print_str()
+std::string PESHeader::printStr()
 {
     std::stringstream print_str;
     print_str << "PES header:" << std::endl;
-    print_str << "\tstream_id : " << static_cast<int>(stream_id) << std::endl <<
-                 "\tlength : " << length << std::endl <<
-                 "\tpes_header_length : " << static_cast<int>(pes_header_data_length) << std::endl;
-    print_str << "\tpts_dts_flag : 0x" << std::hex << static_cast<int>(pts_dts_flags) << std::endl;
+    print_str << "\tstream_id : " << static_cast<int>(streamId) << std::endl <<
+              "\tlength : " << length << std::endl <<
+              "\tpes_header_length : " << static_cast<int>(pesHeaderDataLength) << std::endl;
+    print_str << "\tpts_dts_flag : 0x" << std::hex << static_cast<int>(ptsDtsFlags) << std::endl;
 
-    if (pts_dts_flags == 0x02)
+    if (ptsDtsFlags == 0x02)
     {
-        print_str << "\t\tpts : " << get_pts_str() << std::endl;
+        print_str << "\t\tpts : " << getPtsStr() << std::endl;
     }
-    if (pts_dts_flags == 0x03)
+    if (ptsDtsFlags == 0x03)
     {
-        print_str << "\t\tpts : " << get_pts_str() << std::endl;
+        print_str << "\t\tpts : " << getPtsStr() << std::endl;
         print_str << "\t\tdts : " << "TBD" << std::endl;
     }
 

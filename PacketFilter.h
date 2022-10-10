@@ -22,14 +22,14 @@ public:
 
 private:
     bool filter(int f, const std::vector<int> & data) const;
-    bool filter_pid(int pid) const;
-    bool filter_packet(int packet) const;
-    bool m_pts;
-    bool m_ebp;
-    bool m_rai;
-    bool m_payloadStart;
-    std::vector<int> m_pids;
-    std::vector<int> m_pkts;
+    bool filterPid(int pid) const;
+    bool filterPacket(int packet) const;
+    bool mPts;
+    bool mEbp;
+    bool mRai;
+    bool mPayloadStart;
+    std::vector<int> mPids;
+    std::vector<int> mPackets;
 };
 
 using PacketFilterPtr = std::shared_ptr< PacketFilter >;

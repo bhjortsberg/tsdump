@@ -21,10 +21,10 @@ public:
 
 protected:
     virtual std::vector<TSPacketPtr> read() = 0;
-    virtual void add_packet(const std::vector< unsigned char >::const_iterator& packet_start);
-    virtual void add_packet(std::vector< unsigned char > & raw_packet);
-    virtual std::tuple<uint32_t, std::vector<uint8_t>> findSynchAndAddPackets(uint32_t dataSize, const std::vector<unsigned char>& raw_packet);
-    virtual void addAllPacketsAndResync(uint32_t numberOfPackets, const std::vector< uint8_t > &multi_packets);
+    virtual void addPacket(const std::vector< unsigned char >::const_iterator& packetStart);
+    virtual void addPacket(std::vector< unsigned char > & rawPacket);
+    virtual std::tuple<uint32_t, std::vector<uint8_t>> findSynchAndAddPackets(uint32_t dataSize, const std::vector<unsigned char>& rawPacket);
+    virtual void addAllPacketsAndResync(uint32_t numberOfPackets, const std::vector< uint8_t > &multiPackets);
 
     bool mDone = false;
     bool mStop = false;

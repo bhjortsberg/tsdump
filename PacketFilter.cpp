@@ -6,10 +6,10 @@
 #include "PacketFilter.h"
 
 PacketFilter::PacketFilter():
-m_pts(false),
-m_ebp(false),
-m_rai(false),
-m_payloadStart(false)
+        mPts(false),
+        mEbp(false),
+        mRai(false),
+        mPayloadStart(false)
 {
 
 }
@@ -17,35 +17,35 @@ m_payloadStart(false)
 bool PacketFilter::show(const TSPacketPtr &packet) const
 {
 
-    bool show_packet = filter_pid(packet->pid());
+    bool show_packet = filterPid(packet->pid());
 
-    if (!filter_packet(packet->num()))
+    if (!filterPacket(packet->number()))
     {
         return false;
     }
 
-    if (m_pts && !packet->has_pes_header())
+    if (mPts && !packet->hasPesHeader())
     {
         return false;
     }
 
-    if (m_ebp && !packet->has_ebp())
+    if (mEbp && !packet->hasEbp())
     {
         return false;
     }
 
-    if (m_rai && !packet->has_random_access_indicator())
+    if (mRai && !packet->hasRandomAccessIndicator())
     {
         return false;
     }
 
-    if (m_payloadStart && !packet->is_payload_start())
+    if (mPayloadStart && !packet->isPayloadStart())
     {
         return false;
     }
 
-    if (!m_rai && !m_ebp &&
-            !m_pts && !m_payloadStart && m_pids.empty())
+    if (!mRai && !mEbp &&
+        !mPts && !mPayloadStart && mPids.empty())
     {
         show_packet = true;
     }
@@ -56,7 +56,7 @@ bool PacketFilter::show(const TSPacketPtr &packet) const
 
 void PacketFilter::pts()
 {
-    m_pts = true;
+    mPts = true;
 }
 
 void PacketFilter::pids(std::vector< int > pids)
@@ -65,27 +65,27 @@ void PacketFilter::pids(std::vector< int > pids)
     {
         throw FilterError("Wrong number of arguments for pid listing");
     }
-    m_pids = pids;
+    mPids = pids;
 }
 
 void PacketFilter::ebp()
 {
-    m_ebp = true;
+    mEbp = true;
 }
 
 void PacketFilter::rai()
 {
-    m_rai = true;
+    mRai = true;
 }
 
-bool PacketFilter::filter_pid(int in_pid) const
+bool PacketFilter::filterPid(int pid) const
 {
-    return filter(in_pid, m_pids);
+    return filter(pid, mPids);
 }
 
-bool PacketFilter::filter_packet(int packet) const
+bool PacketFilter::filterPacket(int packet) const
 {
-    return filter(packet, m_pkts);
+    return filter(packet, mPackets);
 }
 
 bool PacketFilter::filter(int f, const std::vector< int > &data) const
@@ -99,7 +99,7 @@ bool PacketFilter::filter(int f, const std::vector< int > &data) const
 
 void PacketFilter::payloadStart()
 {
-    m_payloadStart = true;
+    mPayloadStart = true;
 }
 
 void PacketFilter::packets(std::vector<int> pkts)
@@ -108,6 +108,6 @@ void PacketFilter::packets(std::vector<int> pkts)
     {
         throw FilterError("Wrong number of arguments for packet listing");
     }
-    m_pkts = pkts;
+    mPackets = pkts;
 }
 

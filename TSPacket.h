@@ -12,7 +12,7 @@
 #include "IPacket.h"
 
 
-uint32_t find_synch_byte(const std::vector<uint8_t>::const_iterator& src_packets, uint32_t size);
+uint32_t findSynchByte(const std::vector<uint8_t>::const_iterator& src_packets, uint32_t size);
 
 using PayloadIterator = std::pair<Chunk::const_iterator, Chunk::const_iterator>;
 
@@ -27,45 +27,45 @@ public:
 
     TSPacket(Chunk buffer, int pkt_num);
     unsigned short pid() const;
-    unsigned short continuity_count() const;
-    bool has_adaptation_field() const;
-    bool has_ebp() const;
-    bool has_random_access_indicator() const;
-    AdaptationField adaptation_field() const;
-    bool has_pes_header() const;
-    PESHeader pes_header() const;
-    Chunk get_payload() const;
-    bool is_payload_start() const;
-    int num() const;
-    void set_next(const TSPacketPtr & next);
-    void set_prev(const TSPacketPtr & prev);
+    unsigned short continuityCount() const;
+    bool hasAdaptationField() const;
+    bool hasEbp() const;
+    bool hasRandomAccessIndicator() const;
+    AdaptationField adaptationField() const;
+    bool hasPesHeader() const;
+    PESHeader pesHeader() const;
+    Chunk getPayload() const;
+    bool isPayloadStart() const;
+    int number() const;
+    void setNextPacket(const TSPacketPtr & next);
+    void setPreviousPacket(const TSPacketPtr & prev);
     bool continuity() const;
-    TSPacketPtr get_prev() const;
-    std::map<unsigned short, unsigned short> get_program_pids() const;
-    std::vector<int> parse_pmt() const;
+    TSPacketPtr getPreviousPacket() const;
+    std::map<unsigned short, unsigned short> getProgramPids() const;
+    std::vector<int> parsePmt() const;
 
     virtual Chunk::const_iterator payload() const;
     const uint8_t * raw() const;
     size_t size() const;
 
 private:
-    char adaptation_field_control() const;
-    Chunk chunk;
-    char sync_byte;
-    bool transport_error_indicator;
-    bool payload_unit_start_indicator;
-    bool transport_priority;
-    unsigned short m_continuity_count;
-    int m_pkt_num;
+    char adaptationFieldControl() const;
+    Chunk mChunk;
+    char mSyncByte;
+    bool mTransportErrorIndicator;
+    bool mPayloadUnitStartIndicator;
+    bool mTransportPriority;
+    unsigned short mContinuityCount;
+    int mPacketNumber;
 
-    TSPacketPtr m_prev;
-    TSPacketPtr m_next;
+    TSPacketPtr mPrev;
+    TSPacketPtr mNext;
 
     // TODO: Iterator for adaptation field, pes header that is set to the position of them
     // and used by all functions instead of code duplication like now.
-    // Partly done. One have to set them to std::begin(chunk) and compare to that.
-    Chunk::iterator pes_header_it;
-    Chunk::iterator adaptation_field_it;
-    Chunk::const_iterator payload_it;
+    // Partly done. One have to set them to std::begin(mChunk) and compare to that.
+    Chunk::iterator pesHeaderIt;
+    Chunk::iterator adaptationFieldIt;
+    Chunk::const_iterator payloadIt;
 };
 

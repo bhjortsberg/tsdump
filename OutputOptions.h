@@ -23,10 +23,10 @@ public:
     bool fileOutput() const;
 
 private:
-    bool m_payload;
-    bool m_extra;
-    bool m_listPids;
-    std::ofstream m_outputFile;
+    bool mPayload;
+    bool mExtra;
+    bool mListPids;
+    std::ofstream mOutputFile;
 };
 
 using OutputOptionsPtr = std::shared_ptr<OutputOptions>;

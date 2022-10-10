@@ -19,7 +19,7 @@ public:
     virtual ~FileSource() {}
 
 protected:
-//    void add_packet(std::vector<unsigned char > & raw_packet, int cnt);
+//    void addPacket(std::vector<unsigned char > & raw_packet, int cnt);
     std::vector<TSPacketPtr> read() override;
 
     std::string mFilename;
