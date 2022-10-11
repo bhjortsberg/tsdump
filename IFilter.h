@@ -24,4 +24,3 @@ public:
 };
 
 using IFilterPtr = std::shared_ptr<IFilter>;
-

@@ -7,7 +7,6 @@
 #include <cstring>
 #include "MulticastSource.h"
 #include "TSPacket.h"
-
 #include <iostream>
 #include <sys/ioctl.h>
 #include <unistd.h>

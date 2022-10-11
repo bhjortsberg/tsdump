@@ -1,6 +1,5 @@
 #include <iostream>
 #include <sstream>
-#include <unistd.h>
 #include <array>
 #include <getopt.h>
 #include "SourceFactory.h"
@@ -142,20 +141,24 @@ int main(int argc, char ** argv)
     return 0;
 }
 
-
+/*
+ * Parse Option string with range and distinct integers
+ * I.e. the form -x 123-234,34,1,2-4
+ * Return vector containing all the integers
+ */
 std::vector<int> getOptValues(char * opt)
 {
     std::vector<int> packets;
 
-    auto ivec = getOptCommaSeparated(opt);
+    auto optionValueList = getOptCommaSeparated(opt);
 
     // TODO: Use a lambda, capture packets by reference
-//    for_each(std::begin(ivec), std::end(ivec), getOptRange);
+//    for_each(std::begin(optionValueList), std::end(optionValueList), getOptRange);
 
-    for (auto a : ivec)
+    for (const auto& option : optionValueList)
     {
         try {
-            auto p = getOptRange(a);
+            auto p = getOptRange(option);
             packets.insert(std::end(packets), std::begin(p), std::end(p));
         }
         catch (std::invalid_argument & e) {

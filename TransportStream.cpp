@@ -4,16 +4,14 @@
 
 #include <algorithm>
 #include <stdexcept>
-#include <iostream>
 #include <thread>
 #include <future>
 
 #include "PMTPacket.h"
 #include "TransportStream.h"
-
 #include "FileSource.h"
 
-std::vector<TSPacketPtr> thread_body(const TSSourcePtr & sourcePtr)
+std::vector<TSPacketPtr> thread_body(const TSSourcePtr& sourcePtr)
 {
     return sourcePtr->doRead();
 }
@@ -36,7 +34,7 @@ std::vector<TSPacketPtr> TransportStream::getPackets()
     std::vector<TSPacketPtr> packets;
     if (!mSourcePtr->isDone())
     {
-        // Aquire mutex
+        // Acquire mutex
         std::unique_lock< std::mutex > lock(mMutex);
         // Release mutex and wait, re-aquire mutex on wakeup
         mCond.wait(lock);

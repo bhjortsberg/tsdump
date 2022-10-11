@@ -2,7 +2,6 @@
 // Created by Björn Hjortsberg on 2017-12-20.
 //
 
-#include <sys/socket.h>
 #include <netdb.h>
 #include <memory>
 #include "SourceFactory.h"

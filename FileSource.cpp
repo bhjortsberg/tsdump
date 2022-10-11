@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
-#include <iostream>
 #include <future>
 #include "FileSource.h"
 

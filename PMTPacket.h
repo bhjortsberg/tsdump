@@ -22,7 +22,7 @@ class ElementaryStream
 class PMTPacket : public IPacket
 {
 public:
-    PMTPacket(const TSPacketPtr & packet);
+    explicit PMTPacket(const TSPacketPtr & packet);
     std::vector<int> getElementaryPids() const;
 
     bool isPmt() const;

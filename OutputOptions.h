@@ -30,4 +30,3 @@ private:
 };
 
 using OutputOptionsPtr = std::shared_ptr<OutputOptions>;
-

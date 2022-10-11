@@ -19,5 +19,4 @@ public:
     virtual bool isStopped() = 0;
 };
 
-
 using TSSourcePtr = std::shared_ptr<TSSource>;

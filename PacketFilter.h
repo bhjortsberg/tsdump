@@ -33,4 +33,3 @@ private:
 };
 
 using PacketFilterPtr = std::shared_ptr< PacketFilter >;
-

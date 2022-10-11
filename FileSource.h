@@ -28,4 +28,3 @@ protected:
 };
 
 using FileSourcePtr = std::shared_ptr<FileSource>;
-

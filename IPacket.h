@@ -15,4 +15,3 @@ public:
 };
 
 using IPacketPtr = std::shared_ptr<IPacket>;
-
