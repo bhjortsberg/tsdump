@@ -34,8 +34,8 @@ void TSReport::report()
 
     mPacketCount = 0;
     printHeader();
-    bool do_loop = true;
-    while (do_loop)
+    bool doLoop = true;
+    while (doLoop)
     {
         for (const auto& packet : mTransportStream.getPackets())
         {
@@ -74,7 +74,7 @@ void TSReport::report()
             }
             if (mTransportStream.isStopped())
             {
-                do_loop = false;
+                doLoop = false;
                 break;
             }
         }
@@ -92,41 +92,41 @@ void TSReport::report()
 
 std::string TSReport::getPacketString(const TSPacketPtr & packet)
 {
-    std::stringstream packet_string;
+    std::stringstream packetString;
 
-    packet_string << packet->number() << "\t" << packet->pid() << "\t" << packet->continuityCount() << "\t\t";
+    packetString << packet->number() << "\t" << packet->pid() << "\t" << packet->continuityCount() << "\t\t";
     if (packet->hasPesHeader())
     {
-        packet_string << std::hex << "0x"
+        packetString << std::hex << "0x"
                       << packet->pesHeader().getPts()
                       << std::dec << "\t"
                       << packet->pesHeader().getPtsStr() << "\t"
                       << packet->pesHeader().getLength() << "\t";
     }
     else {
-        packet_string << "\t\t\t\t";
+        packetString << "\t\t\t\t";
     }
 
 
     if (packet->hasAdaptationField() && packet->hasEbp())
     {
-        packet_string << "EBP\t";
+        packetString << "EBP\t";
     }
     else {
-        packet_string << "   \t";
+        packetString << "   \t";
     }
 
     if (packet->hasRandomAccessIndicator())
     {
-        packet_string << "RAI\t";
+        packetString << "RAI\t";
     }
     else {
-        packet_string << "   \t";
+        packetString << "   \t";
     }
 
     if (packet->isPayloadStart())
     {
-        packet_string << "Start\t";
+        packetString << "Start\t";
     }
 
     if (packet->hasPesHeader())
@@ -137,29 +137,29 @@ std::string TSReport::getPacketString(const TSPacketPtr & packet)
             int pts_diff = packet->pesHeader().getPts() - prev_pes_packet->pesHeader().getPts();
             if (pts_diff > 20000)
             {
-                packet_string << "PTS diff: " << pts_diff;
+                packetString << "PTS diff: " << pts_diff;
             }
         }
     }
 
-    packet_string << "\n";
+    packetString << "\n";
 
-    return packet_string.str();
+    return packetString.str();
 
 }
 
 void TSReport::printHeader()
 {
-    std::cout << "Packet\tPID\tContinuity\tpts hex\t\tpts wall\tSize\tEBP\tRAI\tPayload\n";
+    std::cout << "Packet\tPID\tContinuity\tmP hex\t\tmP wall\tSize\tEBP\tRAI\tPayload\n";
     std::cout << "-----------------------------------------------------------------------------------------------\n";
 }
 
 std::string TSReport::getPacketPayloadString(const TSPacketPtr &packet)
 {
-    std::stringstream payload_str;
-    payload_str << std::hex << "\n\t\t";
+    std::stringstream payloadStr;
+    payloadStr << std::hex << "\n\t\t";
 
-    int byte_cnt = 0;
+    int byteCount = 0;
     std::stringstream line;
     std::string asciiline = "";
     for (auto & p : packet->getPayload())
@@ -167,40 +167,40 @@ std::string TSReport::getPacketPayloadString(const TSPacketPtr &packet)
         line << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(p) << " ";
         asciiline += (((p > 31) && (p < 127)) ? p : '.');
 
-        ++byte_cnt;
+        ++byteCount;
 
-        if (byte_cnt % 8 == 0) {
+        if (byteCount % 8 == 0) {
             line << " ";
             asciiline += " ";
         }
-        if (byte_cnt % 16 == 0) {
-            payload_str << line.str() << " | " << asciiline << "\n\t\t";
+        if (byteCount % 16 == 0) {
+            payloadStr << line.str() << " | " << asciiline << "\n\t\t";
             line.str("");
             asciiline = "";
         }
     }
-    payload_str << std::left << std::setfill(' ') << std::setw(16*3 + 2) << line.str() << " | " << asciiline << "\n";
+    payloadStr << std::left << std::setfill(' ') << std::setw(16 * 3 + 2) << line.str() << " | " << asciiline << "\n";
 
-    return payload_str.str();
+    return payloadStr.str();
 }
 
 std::string TSReport::getPacketExtraInfoString(const TSPacketPtr &packet)
 {
-    std::stringstream adaptation_str;
-    std::stringstream pes_str;
-    pes_str << "\n";
+    std::stringstream adaptationStr;
+    std::stringstream pesStr;
+    pesStr << "\n";
 
     if (packet->hasAdaptationField())
     {
-        adaptation_str << "\n" << packet->adaptationField().print_str();
+        adaptationStr << "\n" << packet->adaptationField().printStr();
     }
 
     if (packet->hasPesHeader())
     {
-        pes_str << packet->pesHeader().printStr();
+        pesStr << packet->pesHeader().printStr();
     }
 
-    return adaptation_str.str() + pes_str.str();
+    return adaptationStr.str() + pesStr.str();
 
 }
 
@@ -230,17 +230,17 @@ void TSReport::printSummary()
 
 TSPacketPtr TSReport::findPrevPesPacket(const TSPacketPtr & packet)
 {
-    TSPacketPtr curr_packet = packet;
+    TSPacketPtr currentPacket = packet;
 
-    while ((curr_packet = curr_packet->getPreviousPacket()) != nullptr)
+    while ((currentPacket = currentPacket->getPreviousPacket()) != nullptr)
     {
-        if (curr_packet->hasPesHeader())
+        if (currentPacket->hasPesHeader())
         {
             break;
         }
     }
 
-    return curr_packet;
+    return currentPacket;
 }
 
 void TSReport::printPidInfo()
@@ -255,8 +255,8 @@ void TSReport::printPidInfo()
         }
     }
 
-    auto pmt_pids = mTransportStream.findPmtPids(pat);
-    for (auto p : pmt_pids) {
+    auto pmtPids = mTransportStream.findPmtPids(pat);
+    for (auto p : pmtPids) {
         std::cout << getPmtString(p);
     }
 

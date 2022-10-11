@@ -20,12 +20,11 @@ public:
     std::string printStr();
 
 private:
-    unsigned short length;
-    unsigned char streamId;
-    unsigned char ptsDtsFlags;
-    char pesHeaderDataLength;
-    unsigned long long pts;
-    unsigned long long dts;
+    unsigned short mLength;
+    unsigned char mStreamId;
+    unsigned char mPtsDtsFlags;
+    char mPesHeaderDataLength;
+    unsigned long long mPts;
+    unsigned long long mDts;
 
 };
-

@@ -9,64 +9,64 @@
 
 AdaptationField::AdaptationField(Chunk::const_iterator it)
 {
-    length = it[0];
-    if (length > 0)
+    mLength = it[0];
+    if (mLength > 0)
     {
-        discontinuity_indicator =               it[1] & 0x80 ? true : false;
-        random_access_indicator =               it[1] & 0x40 ? true : false;
-        elementary_stream_priority_indicator =  it[1] & 0x20 ? true : false;
-        PCR_flag =                              it[1] & 0x10 ? true : false;
-        OPCR_flag =                             it[1] & 0x08 ? true : false;
-        splicing_point_flag =                   it[1] & 0x04 ? true : false;
-        transport_private_data_flag =           it[1] & 0x02 ? true : false;
-        adaptation_field_extension_flag =       it[1] & 0x01 ? true : false;
+        mDiscontinuityIndicator = it[1] & 0x80 ? true : false;
+        mRandomAccessIndicator = it[1] & 0x40 ? true : false;
+        mElementaryStreamPriorityIndicator = it[1] & 0x20 ? true : false;
+        mPcrFlag = it[1] & 0x10 ? true : false;
+        mOpcrFlag = it[1] & 0x08 ? true : false;
+        mSplicingPointFlag = it[1] & 0x04 ? true : false;
+        mTransportPrivateDataFlag = it[1] & 0x02 ? true : false;
+        mAdaptationFieldExtensionFlag = it[1] & 0x01 ? true : false;
 
-        chunk.resize(length - 1); // The length in the adaptation field does not calculate the length byte itself.
-        std::copy(it + 2, it + 2 + (length - 1), std::begin(chunk));
+        mChunk.resize(mLength - 1); // The mLength in the adaptation field does not calculate the mLength byte itself.
+        std::copy(it + 2, it + 2 + (mLength - 1), std::begin(mChunk));
     } else {
-        discontinuity_indicator =               false;
-        random_access_indicator =               false;
-        elementary_stream_priority_indicator =  false;
-        PCR_flag =                              false;
-        OPCR_flag =                             false;
-        splicing_point_flag =                   false;
-        transport_private_data_flag =           false;
-        adaptation_field_extension_flag =         false;
+        mDiscontinuityIndicator =               false;
+        mRandomAccessIndicator =               false;
+        mElementaryStreamPriorityIndicator =  false;
+        mPcrFlag =                              false;
+        mOpcrFlag =                             false;
+        mSplicingPointFlag =                   false;
+        mTransportPrivateDataFlag =           false;
+        mAdaptationFieldExtensionFlag =         false;
 
     }
 
 }
 
-bool AdaptationField::has_random_access_indicator()
+bool AdaptationField::hasRandomAccessIndicator()
 {
-    return random_access_indicator;
+    return mRandomAccessIndicator;
 }
 
 
 unsigned int AdaptationField::get_length_field()
 {
-    return length;
+    return mLength;
 }
 
 // The total  size of the adaptation field
 unsigned int AdaptationField::size()
 {
-    return length + 1;
+    return mLength + 1;
 }
 
-bool AdaptationField::has_ebp() const
+bool AdaptationField::hasEbp() const
 {
-    if (transport_private_data_flag)
+    if (mTransportPrivateDataFlag)
     {
         int private_data_pos = PCR_len() +
                                OPCR_len() +
                                splicing_point_len ();
-        int trasport_private_data_len = chunk[private_data_pos];
+        int trasport_private_data_len = mChunk[private_data_pos];
 
 
-        std::string str(std::begin(chunk)+private_data_pos+3, std::begin(chunk)+private_data_pos+6);
-        if (chunk[private_data_pos+1] == 0xDF &&
-                std::string(std::begin(chunk)+private_data_pos+3, std::begin(chunk)+private_data_pos+6) == "EBP")
+        std::string str(std::begin(mChunk) + private_data_pos + 3, std::begin(mChunk) + private_data_pos + 6);
+        if (mChunk[private_data_pos + 1] == 0xDF &&
+            std::string(std::begin(mChunk) + private_data_pos + 3, std::begin(mChunk) + private_data_pos + 6) == "EBP")
         {
             return true;
         }
@@ -77,39 +77,39 @@ bool AdaptationField::has_ebp() const
 
 unsigned int AdaptationField::PCR_len() const
 {
-    if (PCR_flag)
+    if (mPcrFlag)
         return 6;
     return 0;
 }
 
 unsigned int AdaptationField::OPCR_len() const
 {
-    if (OPCR_flag)
+    if (mOpcrFlag)
         return 6;
     return 0;
 }
 
 unsigned int AdaptationField::splicing_point_len() const
 {
-    if (splicing_point_flag)
+    if (mSplicingPointFlag)
         return 1;
     return 0;
 }
 
-std::string AdaptationField::print_str()
+std::string AdaptationField::printStr()
 {
     std::stringstream print_str;
 
     print_str << "Adaptation Field" << std::endl;
     print_str <<
-            "\tdiscontinuity            : " << discontinuity_indicator << std::endl <<
-            "\trandom access indicator  : " << random_access_indicator << std::endl <<
-            "\tpriority indicator       : " << elementary_stream_priority_indicator << std::endl <<
-            "\tPCR_flag                 : " << PCR_flag << std::endl <<
-            "\tOPCR_flag                : " << OPCR_flag << std::endl <<
-            "\tsplicing point           : " << splicing_point_flag << std::endl <<
-            "\ttransport private data   : " << transport_private_data_flag << std::endl <<
-            "\textension flag           : " << adaptation_field_extension_flag << std::endl << std::endl;
+              "\tdiscontinuity            : " << mDiscontinuityIndicator << std::endl <<
+              "\trandom access indicator  : " << mRandomAccessIndicator << std::endl <<
+              "\tpriority indicator       : " << mElementaryStreamPriorityIndicator << std::endl <<
+              "\tPCR_flag                 : " << mPcrFlag << std::endl <<
+              "\tOPCR_flag                : " << mOpcrFlag << std::endl <<
+              "\tsplicing point           : " << mSplicingPointFlag << std::endl <<
+              "\ttransport private data   : " << mTransportPrivateDataFlag << std::endl <<
+              "\textension flag           : " << mAdaptationFieldExtensionFlag << std::endl << std::endl;
 
     return print_str.str();
 }

@@ -337,31 +337,30 @@ unsigned char PMTPacket::streamType(unsigned int pid) const
 void PMTPacket::parse()
 {
 
-    unsigned short section_length;
-    section_length = (*(mThis->payload() + 2) & 0x0f) << 8;
-    section_length |= *(mThis->payload() + 3);
+    unsigned short sectionLength;
+    sectionLength = (*(mThis->payload() + 2) & 0x0f) << 8;
+    sectionLength |= *(mThis->payload() + 3);
 
     mProgramInfoLength = programInfoLength();
     auto pit = mThis->payload() + 13 + mProgramInfoLength;
 
     unsigned short elementaryStreamInfoLength = 0;
 
-    int bytes_left2 = section_length - 13 - mProgramInfoLength;
-    for (int bytes_left = section_length - 13 - mProgramInfoLength; bytes_left > 0; bytes_left -= 5 + elementaryStreamInfoLength)
+    int bytes_left2 = sectionLength - 13 - mProgramInfoLength;
+    for (int bytesLeft = sectionLength - 13 - mProgramInfoLength; bytesLeft > 0; bytesLeft -= 5 + elementaryStreamInfoLength)
     {
-        unsigned short elementary_pid = 0;
-        unsigned char stream_type = *(pit++);
+        unsigned short elementaryPid = 0;
+        unsigned char streamType = *(pit++);
 
-        elementary_pid |= (*(pit++) & 0x1F) << 8;
-        elementary_pid |= *(pit++);
+        elementaryPid |= (*(pit++) & 0x1F) << 8;
+        elementaryPid |= *(pit++);
 
         elementaryStreamInfoLength = (*(pit++) & 0x0F) << 8;
         elementaryStreamInfoLength |= *(pit++);
 
         pit += elementaryStreamInfoLength;
-        mElementaryStreams.insert({elementary_pid, stream_type});
+        mElementaryStreams.insert({elementaryPid, streamType});
     }
-
 }
 
 Chunk::const_iterator PMTPacket::payload() const
@@ -369,8 +368,7 @@ Chunk::const_iterator PMTPacket::payload() const
     return mThis->payload();
 }
 
-
-PMTPacket parse_pmt(const TSPacketPtr & packet)
+PMTPacket parsePmt(const TSPacketPtr & packet)
 {
     PMTPacket pmt(packet);
 
@@ -379,12 +377,10 @@ PMTPacket parse_pmt(const TSPacketPtr & packet)
     }
 
     if (pmt.programInfoLength() != 0) {
-        throw std::runtime_error("Program info length not 0");
+        throw std::runtime_error("Program info mLength not 0");
     }
 
     pmt.parse();
 
     return pmt;
 }
-
-

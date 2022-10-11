@@ -13,18 +13,18 @@
 using namespace std;
 
 void usage();
-std::vector<int> get_opt_values(char * opt);
-std::vector<std::string> get_opt_comma_separated(const char * opt);
-std::vector<int> get_opt_range(const std::string & str);
-std::vector<int> get_range(int from, int to);
-std::vector<int> get_single_value(const std::string & str);
+std::vector<int> getOptValues(char * opt);
+std::vector<std::string> getOptCommaSeparated(const char * opt);
+std::vector<int> getOptRange(const std::string & str);
+std::vector<int> getRange(int from, int to);
+std::vector<int> getSingleValue(const std::string & str);
 
 namespace {
-std::function< void(int) > term_handler;
+std::function< void(int) > terminateTransportStream;
 
-void signal_handler(int signal)
+void signalHandler(int signal)
 {
-    term_handler(signal);
+    terminateTransportStream(signal);
 }
 }
 
@@ -34,7 +34,7 @@ int main(int argc, char ** argv)
     OutputOptionsPtr option(new OutputOptions());
     int ch;
 
-    std::signal(SIGINT, signal_handler);
+    std::signal(SIGINT, signalHandler);
 
     if (argc < 2)
     {
@@ -43,16 +43,16 @@ int main(int argc, char ** argv)
         return 0;
     }
 
-    const int show_pids_only = 1001;
+    const int showPidsOnly = 1001;
     struct option opts[1];
     opts[0].name = "pids";
     opts[0].has_arg = 0;
     opts[0].flag = nullptr;
-    opts[0].val = show_pids_only;
+    opts[0].val = showPidsOnly;
     int longindex;
 
     while ((ch = getopt_long(argc, argv, "i:hp:tesrXxw:", opts, &longindex)) != -1) {
-        std::string pids_str;
+        std::string pidsStr;
         std::vector<int> pids;
         std::stringstream ss;
 
@@ -62,15 +62,15 @@ int main(int argc, char ** argv)
             switch (ch)
             {
                 case 'i':
-                    filter->packets(get_opt_values(optarg));
+                    filter->packets(getOptValues(optarg));
                     break;
                 case 'h':
                     usage();
                     return 0;
                 case 'p':
-                    filter->pids(get_opt_values(optarg));
+                    filter->pids(getOptValues(optarg));
                     break;
-                case show_pids_only:
+                case showPidsOnly:
                     option->listPids();
                     break;
                 case 't':
@@ -112,10 +112,10 @@ int main(int argc, char ** argv)
 
     }
 
-    std:string file_name;
+    std::string fileName;
     if (argv[optind] != 0)
     {
-        file_name = std::string(argv[optind]);
+        fileName = std::string(argv[optind]);
     }
 
     try {
@@ -123,11 +123,11 @@ int main(int argc, char ** argv)
         std::mutex mutex;
         std::condition_variable cond;
 
-        TSSourcePtr source = SourceFactory::create(file_name, cond, mutex);
+        TSSourcePtr source = SourceFactory::create(fileName, cond, mutex);
         TransportStream ts(std::move(source), cond, mutex);
         TSReport report(ts, filter, option);
 
-        term_handler = [&ts](int)
+        terminateTransportStream = [&ts](int)
         {
             ts.stop();
         };
@@ -143,22 +143,19 @@ int main(int argc, char ** argv)
 }
 
 
-std::vector<int> get_opt_values(char * opt)
+std::vector<int> getOptValues(char * opt)
 {
-    std::vector<std::string> ivec;
     std::vector<int> packets;
 
-    ivec = get_opt_comma_separated(opt);
+    auto ivec = getOptCommaSeparated(opt);
 
     // TODO: Use a lambda, capture packets by reference
-//    for_each(std::begin(ivec), std::end(ivec), get_opt_range);
+//    for_each(std::begin(ivec), std::end(ivec), getOptRange);
 
     for (auto a : ivec)
     {
         try {
-
-            auto p = get_opt_range(a);
-
+            auto p = getOptRange(a);
             packets.insert(std::end(packets), std::begin(p), std::end(p));
         }
         catch (std::invalid_argument & e) {
@@ -173,10 +170,10 @@ std::vector<int> get_opt_values(char * opt)
     return packets;
 }
 
-std::vector<std::string> get_opt_comma_separated(const char * opt)
+std::vector<std::string> getOptCommaSeparated(const char * opt)
 {
     std::stringstream pss;
-    std::string pkt_str;
+    std::string pktStr;
     std::vector<std::string> vec;
     if (not opt)
     {
@@ -184,40 +181,41 @@ std::vector<std::string> get_opt_comma_separated(const char * opt)
     }
     pss << std::string(opt);
 
-    while (std::getline(pss, pkt_str, ','))
+    while (std::getline(pss, pktStr, ','))
     {
-        vec.push_back(pkt_str);
+        vec.push_back(pktStr);
     }
 
     return vec;
 }
-std::vector<int> get_opt_range(const std::string & str)
+
+std::vector<int> getOptRange(const std::string & str)
 {
     std::array<int,2> range;
     std::stringstream pss;
-    std::vector<int> packet_numbers;
+    std::vector<int> packetNumbers;
     int i = 0 ;
-    std::string range_str;
+    std::string rangeStr;
 
     pss << str;
-    while (pss.str().find('-') != -1 && std::getline(pss, range_str, '-'))
+    while (pss.str().find('-') != -1 && std::getline(pss, rangeStr, '-'))
     {
-        range[i] = std::stoi(range_str);
+        range[i] = std::stoi(rangeStr);
         ++i;
     }
 
     if (i != 0)
     {
-        packet_numbers = get_range(range[0], range[1]);
+        packetNumbers = getRange(range[0], range[1]);
     }
     else
     {
-        packet_numbers = get_single_value(str);
+        packetNumbers = getSingleValue(str);
     }
-    return packet_numbers;
+    return packetNumbers;
 }
 
-std::vector<int> get_range(int from, int to)
+std::vector<int> getRange(int from, int to)
 {
     std::vector<int> range;
     for (int j = from; j <= to; ++j)
@@ -228,7 +226,7 @@ std::vector<int> get_range(int from, int to)
     return range;
 }
 
-std::vector<int> get_single_value(const std::string & str)
+std::vector<int> getSingleValue(const std::string & str)
 {
     std::vector<int> packet;
     try {
@@ -249,7 +247,7 @@ void usage()
                  "                              form <ip>:<port>\n";
     std::cout << "  Options:\n";
     std::cout << "          -h                  help\n";
-    std::cout << "          -t                  Print packets with pts\n";
+    std::cout << "          -t                  Print packets with mPts\n";
     std::cout << "          -e                  Print packets with EBP markers\n";
     std::cout << "          -r                  Print packets with random access indicators\n";
     std::cout << "          -p <pid1,pid2...>   Print only packets with specified pids, comma separated\n"

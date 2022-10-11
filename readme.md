@@ -14,7 +14,7 @@ from a multicast stream.
                                   form <ip>:<port>
       Options:
               -h                  help
-              -t                  Print packets with pts
+              -t                  Print packets with mPts
               -e                  Print packets with EBP markers
               -r                  Print packets with random access indicators
               -p <pid1,pid2...>   Print only packets with specified pids, comma separated

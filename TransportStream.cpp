@@ -65,7 +65,6 @@ TSPacketPtr TransportStream::findPat()
 
 TSPacketPtr TransportStream::findPat(const std::vector< TSPacketPtr >::iterator &it)
 {
-
     if (mPackets.empty())
     {
         mPackets = getPackets();
@@ -104,16 +103,16 @@ std::vector< int > TransportStream::findPids()
 {
     std::vector<int> pids;
     std::vector<int> ppids;
-    TSPacketPtr pmt_pkt;
+    TSPacketPtr pmtPacket;
 
     mPackets = getPackets();
     auto pat = findPat();
-    auto pmt_pids = findPmtPids(pat);
-    pids = pmt_pids;
+    auto pmtPids = findPmtPids(pat);
+    pids = pmtPids;
 
-    for (auto p : pmt_pids) {
-        pmt_pkt = findPmt(p);
-        auto pmt = parse_pmt(pmt_pkt);
+    for (auto p : pmtPids) {
+        pmtPacket = findPmt(p);
+        auto pmt = parsePmt(pmtPacket);
         ppids = pmt.getElementaryPids();
         pids.insert(std::end(pids), std::begin(ppids), std::end(ppids));
     }
@@ -159,7 +158,7 @@ std::vector< PMTPacket > TransportStream::getPmts(const TSPacketPtr& pat)
         {
             pmt_pkt = findPmt(p);
         }
-        pmts.push_back(parse_pmt(pmt_pkt));
+        pmts.push_back(parsePmt(pmt_pkt));
     }
 
     return pmts;

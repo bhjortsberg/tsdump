@@ -15,12 +15,12 @@
 
 
 namespace {
-uint32_t read_net_packets(
+uint32_t readNetworkPackets(
         int sock,
-        unsigned char *dest_buf,
-        size_t buf_size,
-        fd_set read_set,
-        struct sockaddr *addr,
+        unsigned char *destinationBuffer,
+        size_t bufSize,
+        fd_set readSet,
+        struct sockaddr *address,
         sigset_t* mask);
 }
 
@@ -29,12 +29,12 @@ MulticastSource::MulticastSource(const std::string &source, std::condition_varia
  mPartiallyRead(cond),
  mJoined(false)
 {
-    size_t port_delim = source.find(':');
-    if (port_delim != std::string::npos)
+    size_t portDelimiter = source.find(':');
+    if (portDelimiter != std::string::npos)
     {
-        mAddr = source.substr(0, port_delim);
-        auto port_str = source.substr(port_delim + 1, source.size() - port_delim -1);
-        uint16_t port = atoi(port_str.c_str());
+        mAddr = source.substr(0, portDelimiter);
+        auto portStr = source.substr(portDelimiter + 1, source.size() - portDelimiter - 1);
+        uint16_t port = atoi(portStr.c_str());
         mPort = htons(port);
         mSock = socket(AF_INET, SOCK_DGRAM, 0);
         join(mAddr);
@@ -56,7 +56,6 @@ void MulticastSource::join(const std::string & addr)
     // Set non blocking socket
     uint32_t nonblock = 1;
     ioctl(mSock, FIONBIO, &nonblock);
-
 }
 
 // Implement according to code example in:
@@ -64,13 +63,13 @@ void MulticastSource::join(const std::string & addr)
 
 std::vector<TSPacketPtr> MulticastSource::read() {
     fd_set readSet;
-    struct sockaddr_in addr;
-    addr.sin_port = mPort;
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    struct sockaddr_in address;
+    address.sin_port = mPort;
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = htonl(INADDR_ANY);
 
     FD_ZERO(&readSet);
-    if (bind(mSock, (struct sockaddr*)&addr, sizeof(addr)))
+    if (bind(mSock, (struct sockaddr*)&address, sizeof(address)))
     {
         perror("bind error");
         throw std::runtime_error("Bind error: " + std::string(strerror(errno)));
@@ -78,43 +77,43 @@ std::vector<TSPacketPtr> MulticastSource::read() {
 
     FD_SET(mSock, &readSet);
 
-    std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE * 10);
+    std::vector<unsigned char> rawPacket(TSPacket::TS_PACKET_SIZE * 10);
     sigset_t mask;
-    sigset_t orig_mask;
+    sigset_t origMask;
     sigemptyset (&mask);
     sigaddset (&mask, SIGINT);
 
-    if (sigprocmask(SIG_BLOCK, &mask, &orig_mask) < 0) {
+    if (sigprocmask(SIG_BLOCK, &mask, &origMask) < 0) {
         perror ("sigprocmask");
     }
 
     uint32_t aPos = 0;
     while (not mStop && aPos == 0)
     {
-        aPos = read_net_packets(
+        aPos = readNetworkPackets(
                 mSock,
-                raw_packet.data(),
-                raw_packet.capacity(),
+                rawPacket.data(),
+                rawPacket.capacity(),
                 readSet,
-                (struct sockaddr *) &addr, &orig_mask);
+                (struct sockaddr *) &address, &origMask);
     }
-    auto[bytes_left, multi_packets] = findSynchAndAddPackets(aPos, raw_packet);
+    auto[bytesLeft, multiPackets] = findSynchAndAddPackets(aPos, rawPacket);
 
     while (not mStop)
     {
-        uint32_t pos = bytes_left;
-        uint32_t bytes = read_net_packets(
+        uint32_t pos = bytesLeft;
+        uint32_t bytes = readNetworkPackets(
                 mSock,
-                multi_packets.data() + pos,
-                multi_packets.capacity() - pos,
+                multiPackets.data() + pos,
+                multiPackets.capacity() - pos,
                 readSet,
-                (struct sockaddr *) &addr, &orig_mask);
+                (struct sockaddr *) &address, &origMask);
         if (bytes == 0) {
             // No data
             continue;
         }
         pos += bytes;
-        if (pos > multi_packets.size())
+        if (pos > multiPackets.size())
         {
             // Destination buffer is full
             perror("recvfrom: Buffer full");
@@ -122,9 +121,9 @@ std::vector<TSPacketPtr> MulticastSource::read() {
         }
 
         auto numberOfPackets = pos / TSPacket::TS_PACKET_SIZE;
-        addAllPacketsAndResync(numberOfPackets, multi_packets);
+        addAllPacketsAndResync(numberOfPackets, multiPackets);
 
-        bytes_left = 0;
+        bytesLeft = 0;
         // Notify that packets has been read
         mPartiallyRead.notify_one();
     }
@@ -142,40 +141,38 @@ std::vector<TSPacketPtr> MulticastSource::read() {
 
 
 namespace {
-uint32_t read_net_packets(
+uint32_t readNetworkPackets(
         int sock,
-        unsigned char* dest_buf,
-        size_t buf_size,
-        fd_set read_set,
-        struct sockaddr* addr,
+        unsigned char* destinationBuffer,
+        size_t bufSize,
+        fd_set readSet,
+        struct sockaddr* address,
         sigset_t* mask)
 {
     socklen_t len;
-    uint32_t num_bytes = 0;
-
-    fd_set testset = read_set;
+    uint32_t numBytes = 0;
 
     struct timespec timeout;
     int result = 0;
     timeout.tv_sec = 0;
     timeout.tv_nsec = 1000000L; // Poll
-    result = pselect(FD_SETSIZE, &testset, NULL, NULL, &timeout, mask);
+    result = pselect(FD_SETSIZE, &readSet, NULL, NULL, &timeout, mask);
     // Timeout continue to poll
     if (result == -1 && errno == EINTR) {
         std::cout << "pselect signal caught\n";
     }
 
-    if (result == 1 && FD_ISSET(sock, &testset))
+    if (result == 1 && FD_ISSET(sock, &readSet))
     {
         ssize_t bytes;
         while ((bytes = recvfrom(sock,
-                                 dest_buf + num_bytes,
-                                 buf_size - num_bytes,
+                                 destinationBuffer + numBytes,
+                                 bufSize - numBytes,
                                  0,
-                                 addr,
+                                 address,
                                  &len)) > 0)
         {
-            num_bytes += bytes;
+            numBytes += bytes;
         }
         if (bytes < 0 && errno != EAGAIN)
         {
@@ -183,7 +180,7 @@ uint32_t read_net_packets(
             std::cout << "Fail to read socket\n";
         }
     }
-    return num_bytes;
+    return numBytes;
 }
 
 }

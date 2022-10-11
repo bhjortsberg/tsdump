@@ -41,37 +41,37 @@ std::tuple<uint32_t, std::vector<uint8_t>> TSSourceAbstract::findSynchAndAddPack
     if (dataSize == 0) {
         return std::make_tuple(0, std::vector<uint8_t>());
     }
-    uint32_t sync_byte = findSynchByte(rawPacket.begin(), dataSize);
+    uint32_t syncByte = findSynchByte(rawPacket.begin(), dataSize);
     // Sync byte found, add packets to list
-    while (sync_byte + (mPacketCount + 1) * TSPacket::TS_PACKET_SIZE < dataSize + 1)
+    while (syncByte + (mPacketCount + 1) * TSPacket::TS_PACKET_SIZE < dataSize + 1)
     {
-        addPacket(rawPacket.begin() + sync_byte + mPacketCount * TSPacket::TS_PACKET_SIZE);
+        addPacket(rawPacket.begin() + syncByte + mPacketCount * TSPacket::TS_PACKET_SIZE);
     }
 
-    uint32_t num_packets = 100;
-    uint32_t bytes_left = dataSize - (sync_byte + mPacketCount * TSPacket::TS_PACKET_SIZE);
+    uint32_t numPackets = 100;
+    uint32_t bytesLeft = dataSize - (syncByte + mPacketCount * TSPacket::TS_PACKET_SIZE);
 
-    std::vector<uint8_t> multi_packets(num_packets * TSPacket::TS_PACKET_SIZE + bytes_left);
+    std::vector<uint8_t> multiPackets(numPackets * TSPacket::TS_PACKET_SIZE + bytesLeft);
     // Copy part of last packet and then read rest of packet and add to list
-    std::copy(rawPacket.begin() + dataSize - bytes_left, rawPacket.begin() + dataSize, multi_packets.begin());
-    return std::make_tuple(bytes_left, multi_packets);
+    std::copy(rawPacket.begin() + dataSize - bytesLeft, rawPacket.begin() + dataSize, multiPackets.begin());
+    return std::make_tuple(bytesLeft, multiPackets);
 }
 
-void TSSourceAbstract::addAllPacketsAndResync(uint32_t numberOfPackets, const std::vector< uint8_t > &multi_packets){
+void TSSourceAbstract::addAllPacketsAndResync(uint32_t numberOfPackets, const std::vector< uint8_t > &multiPackets){
     // Add all received packets to packet list
     uint32_t i = 0;
-    uint32_t sync_byte = 0;
+    uint32_t syncByte = 0;
     while (i < numberOfPackets)
     {
-        if (multi_packets[i * TSPacket::TS_PACKET_SIZE + sync_byte] == TSPacket::SYNC_BYTE)
+        if (multiPackets[i * TSPacket::TS_PACKET_SIZE + syncByte] == TSPacket::SYNC_BYTE)
         {
-            addPacket(multi_packets.begin() + sync_byte + (i * TSPacket::TS_PACKET_SIZE));
+            addPacket(multiPackets.begin() + syncByte + (i * TSPacket::TS_PACKET_SIZE));
             i++;
         }
         else
         {
-            sync_byte = findSynchByte(
-                    multi_packets.begin() + i * TSPacket::TS_PACKET_SIZE,
+            syncByte = findSynchByte(
+                    multiPackets.begin() + i * TSPacket::TS_PACKET_SIZE,
                     (numberOfPackets - i) * TSPacket::TS_PACKET_SIZE);
         }
     }

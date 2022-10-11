@@ -17,7 +17,7 @@ PacketFilter::PacketFilter():
 bool PacketFilter::show(const TSPacketPtr &packet) const
 {
 
-    bool show_packet = filterPid(packet->pid());
+    bool showPacket = filterPid(packet->pid());
 
     if (!filterPacket(packet->number()))
     {
@@ -47,10 +47,10 @@ bool PacketFilter::show(const TSPacketPtr &packet) const
     if (!mRai && !mEbp &&
         !mPts && !mPayloadStart && mPids.empty())
     {
-        show_packet = true;
+        showPacket = true;
     }
 
-    return show_packet;
+    return showPacket;
 }
 
 

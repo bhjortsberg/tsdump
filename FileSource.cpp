@@ -28,33 +28,33 @@ std::vector<TSPacketPtr> FileSource::read()
 {
     std::ifstream file(mFilename, std::fstream::in);
 
-    std::vector<unsigned char> raw_packet(TSPacket::TS_PACKET_SIZE * 10);
+    std::vector<unsigned char> rawPacket(TSPacket::TS_PACKET_SIZE * 10);
     file.seekg(0, std::istream::end);
     size_t fileSize = file.tellg();
     file.seekg(0, std::istream::beg);
 
     if (file.is_open())
     {
-        file.read(reinterpret_cast<char*>(raw_packet.data()), raw_packet.capacity());
+        file.read(reinterpret_cast<char*>(rawPacket.data()), rawPacket.capacity());
 
-        auto [bytes_left, multi_packets] = findSynchAndAddPackets(raw_packet.size(), raw_packet);
+        auto [bytesLeft, multiPackets] = findSynchAndAddPackets(rawPacket.size(), rawPacket);
 
         while (not mStop)
         {
-            uint32_t pos = bytes_left;
-            bytes_left = 0;
-            uint64_t bytes_left_in_file = fileSize - file.tellg();
-            uint64_t readBytes = multi_packets.capacity() - pos;
-            if (readBytes > bytes_left_in_file)
+            uint32_t pos = bytesLeft;
+            bytesLeft = 0;
+            uint64_t bytesLeftInFile = fileSize - file.tellg();
+            uint64_t readBytes = multiPackets.capacity() - pos;
+            if (readBytes > bytesLeftInFile)
             {
-                readBytes = bytes_left_in_file;
+                readBytes = bytesLeftInFile;
             }
-            file.read(reinterpret_cast<char*>(multi_packets.data() + pos),
+            file.read(reinterpret_cast<char*>(multiPackets.data() + pos),
                       readBytes);
             pos += readBytes;
 
             auto numberOfPackets = pos/TSPacket::TS_PACKET_SIZE;
-            addAllPacketsAndResync(numberOfPackets, multi_packets);
+            addAllPacketsAndResync(numberOfPackets, multiPackets);
 
             if (file.tellg() < 0 || file.tellg() == fileSize)
             {
@@ -77,4 +77,3 @@ std::vector<TSPacketPtr> FileSource::read()
     }
     return mPackets;
 }
-

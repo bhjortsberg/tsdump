@@ -10,7 +10,7 @@
 #include "TSPacket.h"
 
 class PMTPacket;
-PMTPacket parse_pmt(const TSPacketPtr & packet);
+PMTPacket parsePmt(const TSPacketPtr & packet);
 
 // TODO: Use this class for mElementaryStream
 class ElementaryStream
@@ -38,4 +38,3 @@ private:
     unsigned short mProgramInfoLength;
 
 };
-

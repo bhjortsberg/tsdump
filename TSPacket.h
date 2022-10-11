@@ -12,7 +12,7 @@
 #include "IPacket.h"
 
 
-uint32_t findSynchByte(const std::vector<uint8_t>::const_iterator& src_packets, uint32_t size);
+uint32_t findSynchByte(const std::vector<uint8_t>::const_iterator& sourcePackets, uint32_t size);
 
 using PayloadIterator = std::pair<Chunk::const_iterator, Chunk::const_iterator>;
 
@@ -64,8 +64,8 @@ private:
     // TODO: Iterator for adaptation field, pes header that is set to the position of them
     // and used by all functions instead of code duplication like now.
     // Partly done. One have to set them to std::begin(mChunk) and compare to that.
-    Chunk::iterator pesHeaderIt;
-    Chunk::iterator adaptationFieldIt;
-    Chunk::const_iterator payloadIt;
+    Chunk::iterator mPesHeaderIt;
+    Chunk::iterator mAdaptationFieldIt;
+    Chunk::const_iterator mPayloadIt;
 };
 
