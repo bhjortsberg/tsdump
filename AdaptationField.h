@@ -15,14 +15,14 @@ public:
     AdaptationField(Chunk::const_iterator it);
     bool hasRandomAccessIndicator();
     bool hasEbp() const;
-    unsigned int get_length_field();
+    unsigned int getLengthField();
     unsigned int size();
     std::string printStr();
 
 private:
-    unsigned int PCR_len() const;
-    unsigned int OPCR_len() const;
-    unsigned int splicing_point_len() const;
+    unsigned int pcrLength() const;
+    unsigned int oPcrLength() const;
+    unsigned int splicingPointLen() const;
     unsigned int mLength;
     bool mDiscontinuityIndicator;
     bool mRandomAccessIndicator;
@@ -34,4 +34,3 @@ private:
     bool mAdaptationFieldExtensionFlag;
     Chunk mChunk;
 };
-

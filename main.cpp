@@ -247,7 +247,7 @@ void usage()
                  "                              form <ip>:<port>\n";
     std::cout << "  Options:\n";
     std::cout << "          -h                  help\n";
-    std::cout << "          -t                  Print packets with mPts\n";
+    std::cout << "          -t                  Print packets with PTS\n";
     std::cout << "          -e                  Print packets with EBP markers\n";
     std::cout << "          -r                  Print packets with random access indicators\n";
     std::cout << "          -p <pid1,pid2...>   Print only packets with specified pids, comma separated\n"

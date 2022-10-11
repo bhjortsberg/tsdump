@@ -12,14 +12,14 @@ AdaptationField::AdaptationField(Chunk::const_iterator it)
     mLength = it[0];
     if (mLength > 0)
     {
-        mDiscontinuityIndicator = it[1] & 0x80 ? true : false;
-        mRandomAccessIndicator = it[1] & 0x40 ? true : false;
-        mElementaryStreamPriorityIndicator = it[1] & 0x20 ? true : false;
-        mPcrFlag = it[1] & 0x10 ? true : false;
-        mOpcrFlag = it[1] & 0x08 ? true : false;
-        mSplicingPointFlag = it[1] & 0x04 ? true : false;
-        mTransportPrivateDataFlag = it[1] & 0x02 ? true : false;
-        mAdaptationFieldExtensionFlag = it[1] & 0x01 ? true : false;
+        mDiscontinuityIndicator = (it[1] & 0x80) != 0;
+        mRandomAccessIndicator = (it[1] & 0x40) != 0;
+        mElementaryStreamPriorityIndicator = (it[1] & 0x20) != 0;
+        mPcrFlag = (it[1] & 0x10) != 0;
+        mOpcrFlag = (it[1] & 0x08) != 0;
+        mSplicingPointFlag = (it[1] & 0x04) != 0;
+        mTransportPrivateDataFlag = (it[1] & 0x02) != 0;
+        mAdaptationFieldExtensionFlag = (it[1] & 0x01) != 0;
 
         mChunk.resize(mLength - 1); // The mLength in the adaptation field does not calculate the mLength byte itself.
         std::copy(it + 2, it + 2 + (mLength - 1), std::begin(mChunk));
@@ -43,7 +43,7 @@ bool AdaptationField::hasRandomAccessIndicator()
 }
 
 
-unsigned int AdaptationField::get_length_field()
+unsigned int AdaptationField::getLengthField()
 {
     return mLength;
 }
@@ -58,15 +58,12 @@ bool AdaptationField::hasEbp() const
 {
     if (mTransportPrivateDataFlag)
     {
-        int private_data_pos = PCR_len() +
-                               OPCR_len() +
-                               splicing_point_len ();
-        int trasport_private_data_len = mChunk[private_data_pos];
+        int privateDataPosition = pcrLength() + oPcrLength() + splicingPointLen();
+        int trasportPrivateDataLength = mChunk[privateDataPosition];
 
-
-        std::string str(std::begin(mChunk) + private_data_pos + 3, std::begin(mChunk) + private_data_pos + 6);
-        if (mChunk[private_data_pos + 1] == 0xDF &&
-            std::string(std::begin(mChunk) + private_data_pos + 3, std::begin(mChunk) + private_data_pos + 6) == "EBP")
+        std::string str(std::begin(mChunk) + privateDataPosition + 3, std::begin(mChunk) + privateDataPosition + 6);
+        if (mChunk[privateDataPosition + 1] == 0xDF &&
+            std::string(std::begin(mChunk) + privateDataPosition + 3, std::begin(mChunk) + privateDataPosition + 6) == "EBP")
         {
             return true;
         }
@@ -75,21 +72,21 @@ bool AdaptationField::hasEbp() const
     return false;
 }
 
-unsigned int AdaptationField::PCR_len() const
+unsigned int AdaptationField::pcrLength() const
 {
     if (mPcrFlag)
         return 6;
     return 0;
 }
 
-unsigned int AdaptationField::OPCR_len() const
+unsigned int AdaptationField::oPcrLength() const
 {
     if (mOpcrFlag)
         return 6;
     return 0;
 }
 
-unsigned int AdaptationField::splicing_point_len() const
+unsigned int AdaptationField::splicingPointLen() const
 {
     if (mSplicingPointFlag)
         return 1;
