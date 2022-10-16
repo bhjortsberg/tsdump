@@ -281,8 +281,8 @@ std::vector< int > PMTPacket::getElementaryPids() const
     std::vector<int> pids;
 
     std::for_each(std::begin(mElementaryStreams), std::end(mElementaryStreams),
-                  [&pids](std::pair< unsigned int, unsigned char> thing){
-                      pids.emplace_back(thing.first);
+                  [&pids](const ElementaryStream& es){
+                      pids.emplace_back(es.pid);
                   });
     return pids;
 }
@@ -325,17 +325,18 @@ std::string PMTPacket::streamTypeString(unsigned int pid) const
 
 unsigned char PMTPacket::streamType(unsigned int pid) const
 {
-    auto it = mElementaryStreams.find(pid);
+    auto it = std::find_if(std::begin(mElementaryStreams), std::end(mElementaryStreams), [pid](const ElementaryStream& es) {
+        return pid == es.pid;
+    });
     if (it != std::end(mElementaryStreams))
     {
-        return it->second;
+        return it->type;
     }
     return 0;
 }
 
 void PMTPacket::parse()
 {
-
     unsigned short sectionLength;
     sectionLength = (*(mThis->payload() + 2) & 0x0f) << 8;
     sectionLength |= *(mThis->payload() + 3);
@@ -358,7 +359,7 @@ void PMTPacket::parse()
         elementaryStreamInfoLength |= *(pit++);
 
         pit += elementaryStreamInfoLength;
-        mElementaryStreams.insert({elementaryPid, streamType});
+        mElementaryStreams.emplace_back(elementaryPid, streamType);
     }
 }
 

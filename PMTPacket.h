@@ -12,9 +12,11 @@
 class PMTPacket;
 PMTPacket parsePmt(const TSPacketPtr & packet);
 
-// TODO: Use this class for mElementaryStream
 class ElementaryStream
 {
+public:
+    ElementaryStream(uint32_t pid, uint32_t type): pid(pid), type(type)
+    {}
     unsigned int pid;
     unsigned char type;
 };
@@ -34,7 +36,7 @@ public:
 
 private:
     IPacketPtr mThis;
-    std::map<unsigned int, unsigned char> mElementaryStreams;
+    std::vector<ElementaryStream> mElementaryStreams;
     unsigned short mProgramInfoLength;
 
 };
