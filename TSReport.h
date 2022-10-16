@@ -23,7 +23,6 @@ private:
     void printPidInfo();
     void printHeader();
     void printSummary();
-    TSPacketPtr findPrevPesPacket(const TSPacketPtr & packet); // TODO: Move to TSPacket?
     IFilterPtr mFilter;
     OutputOptionsPtr mOption;
     TransportStream & mTransportStream;

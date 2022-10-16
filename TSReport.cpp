@@ -136,10 +136,10 @@ std::string TSReport::getPacketString(const TSPacketPtr & packet)
 
     if (packet->hasPesHeader())
     {
-        TSPacketPtr prev_pes_packet = findPrevPesPacket(packet);
-        if (prev_pes_packet)
+        auto prevPesPacket = packet->findPrevPesPacket();
+        if (prevPesPacket)
         {
-            int pts_diff = packet->pesHeader().getPts() - prev_pes_packet->pesHeader().getPts();
+            int pts_diff = packet->pesHeader().getPts() - prevPesPacket->pesHeader().getPts();
             if (pts_diff > 20000)
             {
                 packetString << "PTS diff: " << pts_diff;
@@ -231,21 +231,6 @@ void TSReport::printSummary()
     }
 
     std::cout << std::endl;
-}
-
-TSPacketPtr TSReport::findPrevPesPacket(const TSPacketPtr & packet)
-{
-    TSPacketPtr currentPacket = packet;
-
-    while ((currentPacket = currentPacket->getPreviousPacket()) != nullptr)
-    {
-        if (currentPacket->hasPesHeader())
-        {
-            break;
-        }
-    }
-
-    return currentPacket;
 }
 
 void TSReport::printPidInfo()

@@ -209,6 +209,20 @@ size_t TSPacket::size() const
     return mChunk.size();
 }
 
+const TSPacket* TSPacket::findPrevPesPacket()
+{
+    TSPacket* currentPacket = this;
+
+    while ((currentPacket = currentPacket->getPreviousPacket().get()) != nullptr)
+    {
+        if (currentPacket->hasPesHeader())
+        {
+            break;
+        }
+    }
+    return currentPacket;
+}
+
 uint32_t findSynchByte(const std::vector<uint8_t>::const_iterator& sourcePackets, uint32_t size)
 {
     uint32_t synchByte = 0;

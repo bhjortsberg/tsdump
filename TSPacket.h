@@ -47,6 +47,7 @@ public:
     virtual Chunk::const_iterator payload() const;
     const uint8_t * raw() const;
     size_t size() const;
+    const TSPacket* findPrevPesPacket();
 
 private:
     char adaptationFieldControl() const;
