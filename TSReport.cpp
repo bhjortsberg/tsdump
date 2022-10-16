@@ -150,7 +150,7 @@ std::string TSReport::getPacketString(const TSPacketPtr & packet)
 
 void TSReport::printHeader()
 {
-    std::cout << "Packet\tPID\tContinuity\tmP hex\t\tmP wall\tSize\tEBP\tRAI\tPayload\n";
+    std::cout << "Packet\tPID\tContinuity\tpts hex\t\tpts wall\tSize\tEBP\tRAI\tPayload\n";
     std::cout << "-----------------------------------------------------------------------------------------------\n";
 }
 
