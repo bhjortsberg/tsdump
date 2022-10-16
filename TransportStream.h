@@ -23,16 +23,15 @@ public:
 
     std::vector<TSPacketPtr> getPackets();
     TSPacketPtr findPat();
-    TSPacketPtr findPat(const std::vector<TSPacketPtr>::iterator & it );
+    TSPacketPtr findPmt(int patPid);
     std::vector<int> findPmtPids(const TSPacketPtr & pat) const;
-    std::vector<int> findPids();
-    TSPacketPtr findPmt(int pid);
     std::vector<PMTPacket> getPmts(const TSPacketPtr& pat);
     bool isDone() const { return mDone; }
     bool isStopped() const { return mSourcePtr->isStopped(); }
     void stop();
 
 private:
+    TSPacketPtr findFirstPacket(int pid);
     std::vector<TSPacketPtr> mPackets;
     std::vector<TSPacketPtr>::iterator mCurrentPacket;
     std::future<std::vector<TSPacketPtr>> mFuture;
