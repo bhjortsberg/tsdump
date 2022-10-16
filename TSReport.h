@@ -20,8 +20,6 @@ private:
     std::string getPacketString(const TSPacketPtr & packet);
     std::string getPacketPayloadString(const TSPacketPtr & packet);
     std::string getPacketExtraInfoString(const TSPacketPtr & packet);
-    std::string getPmtString(unsigned int pid);
-    std::string getEsString(const PMTPacket & pmtPacket);
     void printPidInfo();
     void printHeader();
     void printSummary();

@@ -7,6 +7,11 @@
 #include <iomanip>
 #include "TSReport.h"
 
+namespace {
+    std::string getPmtString(unsigned int pid);
+    std::string getEsString(const PMTPacket &pmtPacket);
+}
+
 TSReport::TSReport(TransportStream &tstream,
                    const IFilterPtr & filter,
                    const OutputOptionsPtr & option):
@@ -266,24 +271,23 @@ void TSReport::printPidInfo()
     }
 }
 
-std::string TSReport::getPmtString(unsigned int pid)
-{
-    std::stringstream ss;
-    ss << std::setw(4) << std::right << std::dec << std::setfill(' ') << pid << "\t";
-    ss << std::left << "PMT " << std::endl;
+namespace {
+    std::string getPmtString(unsigned int pid) {
+        std::stringstream ss;
+        ss << std::setw(4) << std::right << std::dec << std::setfill(' ') << pid << "\t";
+        ss << std::left << "PMT " << std::endl;
 
-    return ss.str();
-}
-
-std::string TSReport::getEsString(const PMTPacket &pmtPacket)
-{
-    std::stringstream ss;
-    for (auto p : pmtPacket.getElementaryPids())
-    {
-        ss << std::setw(4) << std::right << std::dec << std::setfill(' ') << p << "\t";
-        ss << "0x" << std::setw(2) << std::hex << std::setfill('0') << static_cast<int>(pmtPacket.streamType(p));
-        ss << std::left << " " << pmtPacket.streamTypeString(p) << std::endl;
+        return ss.str();
     }
 
-    return ss.str();
+    std::string getEsString(const PMTPacket &pmtPacket) {
+        std::stringstream ss;
+        for (auto p: pmtPacket.getElementaryPids()) {
+            ss << std::setw(4) << std::right << std::dec << std::setfill(' ') << p << "\t";
+            ss << "0x" << std::setw(2) << std::hex << std::setfill('0') << static_cast<int>(pmtPacket.streamType(p));
+            ss << std::left << " " << pmtPacket.streamTypeString(p) << std::endl;
+        }
+
+        return ss.str();
+    }
 }
