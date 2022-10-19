@@ -4,8 +4,11 @@
 
 #pragma once
 
+#include "PacketFilter.h"
+#include "OutputOptions.h"
+
 class ArgumentParser {
 public:
-    ArgumentParser(int argc, char ** argv);
-    void parse();
+    ArgumentParser() = default;
+    static std::tuple<PacketFilterPtr, OutputOptionsPtr, std::string> parse(int argc, char** argv);
 };
