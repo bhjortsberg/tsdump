@@ -13,7 +13,7 @@ class TSReport
 public:
     TSReport(TransportStream & tstream,
              IFilterPtr filter,
-             const OutputOptionsPtr & option);
+             OutputOptionsPtr option);
     void report();
 
 private:

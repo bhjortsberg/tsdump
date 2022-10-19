@@ -14,10 +14,10 @@ namespace {
 
 TSReport::TSReport(TransportStream &tstream,
                    IFilterPtr filter,
-                   const OutputOptionsPtr & option):
+                   OutputOptionsPtr option):
         mTransportStream(tstream),
         mFilter(std::move(filter)),
-        mOption(option)
+        mOption(std::move(option))
 {
 
 }

@@ -29,4 +29,4 @@ private:
     std::ofstream mOutputFile;
 };
 
-using OutputOptionsPtr = std::shared_ptr<OutputOptions>;
+using OutputOptionsPtr = std::unique_ptr<OutputOptions>;
