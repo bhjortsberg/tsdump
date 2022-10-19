@@ -27,7 +27,7 @@ namespace {
 
 std::tuple<PacketFilterPtr, OutputOptionsPtr, std::string> ArgumentParser::parse(int argc, char** argv)
 {
-    PacketFilterPtr filter(new PacketFilter());
+    PacketFilterPtr filter = std::make_unique<PacketFilter>();
     OutputOptionsPtr option(new OutputOptions());
     const int showPidsOnly = 1001;
     struct option opts[1];
@@ -103,7 +103,7 @@ std::tuple<PacketFilterPtr, OutputOptionsPtr, std::string> ArgumentParser::parse
     {
         fileName = std::string(argv[optind]);
     }
-    return std::make_tuple(filter, option, fileName);
+    return std::make_tuple(std::move(filter), option, fileName);
 }
 
 namespace {

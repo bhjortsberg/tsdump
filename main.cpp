@@ -28,7 +28,7 @@ int main(int argc, char ** argv)
 
         TSSourcePtr source = SourceFactory::create(fileName, cond, mutex);
         TransportStream ts(std::move(source), cond, mutex);
-        TSReport report(ts, filter, option);
+        TSReport report(ts, std::move(filter), option);
 
         terminateTransportStream = [&ts](int)
         {

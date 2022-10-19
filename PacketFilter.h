@@ -32,4 +32,4 @@ private:
     std::vector<int> mPackets;
 };
 
-using PacketFilterPtr = std::shared_ptr< PacketFilter >;
+using PacketFilterPtr = std::unique_ptr< PacketFilter >;

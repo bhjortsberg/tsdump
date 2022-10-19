@@ -12,7 +12,7 @@ class TSReport
 {
 public:
     TSReport(TransportStream & tstream,
-             const IFilterPtr & filter,
+             IFilterPtr filter,
              const OutputOptionsPtr & option);
     void report();
 

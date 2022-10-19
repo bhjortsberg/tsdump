@@ -20,7 +20,7 @@ class IFilter
 {
 public:
     virtual bool show(const TSPacketPtr &packet) const = 0;
-
+    virtual ~IFilter() = default;
 };
 
-using IFilterPtr = std::shared_ptr<IFilter>;
+using IFilterPtr = std::unique_ptr<IFilter>;
