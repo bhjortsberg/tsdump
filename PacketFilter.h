@@ -11,7 +11,7 @@
 class PacketFilter : public IFilter
 {
 public:
-    PacketFilter();
+    PacketFilter() = default;
     void pids(std::vector<int> pids);
     void pts();
     void ebp();

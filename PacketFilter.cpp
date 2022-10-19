@@ -5,15 +5,6 @@
 #include <algorithm>
 #include "PacketFilter.h"
 
-PacketFilter::PacketFilter():
-        mPts(false),
-        mEbp(false),
-        mRai(false),
-        mPayloadStart(false)
-{
-
-}
-
 bool PacketFilter::show(const TSPacketPtr &packet) const
 {
 
