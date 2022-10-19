@@ -37,6 +37,13 @@ std::tuple<PacketFilterPtr, OutputOptionsPtr, std::string> ArgumentParser::parse
     opts[0].val = showPidsOnly;
     int longindex;
 
+    if (argc < 2)
+    {
+        std::cerr << "Too few arguments" << std::endl;
+        usage();
+        return std::make_tuple(nullptr, nullptr, nullptr);
+    }
+
     int ch;
     while ((ch = getopt_long(argc, argv, "i:hp:tesrXxw:", opts, &longindex)) != -1) {
         std::string pidsStr;

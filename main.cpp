@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <array>
+#include <csignal>
 #include "SourceFactory.h"
 #include "TransportStream.h"
 #include "TSReport.h"
@@ -19,7 +20,12 @@ void signalHandler(int signal)
 
 int main(int argc, char ** argv)
 {
+    std::signal(SIGINT, signalHandler);
     auto [filter, option, fileName] = ArgumentParser::parse(argc, argv);
+
+    if (!filter || !option) {
+        return -1;
+    }
 
     try {
 
