@@ -125,22 +125,15 @@ namespace {
 
         auto optionValueList = getOptCommaSeparated(opt);
 
-        // TODO: Use a lambda, capture packets by reference
-//    for_each(std::begin(optionValueList), std::end(optionValueList), getOptRange);
-
-        for (const auto& option : optionValueList)
-        {
-            try {
-                auto p = getOptRange(option);
-                packets.insert(std::end(packets), std::begin(p), std::end(p));
-            }
-            catch (std::invalid_argument & e) {
-                break;
-            }
-//       find(std::begin(a), std::end(a), '-');
-            // copy_if(std::begin(a), std::end(a), std::begin(res), [bool](const auto & g){});
-            // transform(std::begin(a), std::end(a), std::begin(res), std::stoi);
-            // generate(std::begin(arr), std::end(arr),  <- kan man generera en range?
+        try {
+            std::for_each(std::begin(optionValueList),
+                          std::end(optionValueList),
+                          [&packets](const std::string &option) {
+                              auto p = getOptRange(option);
+                              packets.insert(std::end(packets), std::begin(p), std::end(p));
+                          });
+        } catch (std::invalid_argument &e) {
+            std::cerr << "Failed to parse options\n";
         }
 
         return packets;
