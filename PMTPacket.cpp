@@ -363,7 +363,7 @@ void PMTPacket::parse()
     }
 }
 
-Chunk::const_iterator PMTPacket::payload() const
+const Chunk::const_iterator& PMTPacket::payload() const
 {
     return mThis->payload();
 }

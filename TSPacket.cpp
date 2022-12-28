@@ -177,7 +177,7 @@ std::map< unsigned short, unsigned short> TSPacket::getProgramPids() const
     return result;
 }
 
-Chunk::const_iterator TSPacket::payload() const
+const Chunk::const_iterator& TSPacket::payload() const
 {
     return mPayloadIt;
 }

@@ -32,7 +32,7 @@ public:
     unsigned char streamType(unsigned int pid) const;
     std::string streamTypeString(unsigned int pid) const;
     void parse();
-    virtual Chunk::const_iterator payload() const;
+    virtual const Chunk::const_iterator& payload() const override;
 
 private:
     IPacketPtr mThis;

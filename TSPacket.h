@@ -62,7 +62,7 @@ public:
     std::map<unsigned short, unsigned short> getProgramPids() const;
     std::vector<int> parsePmt() const;
 
-    virtual Chunk::const_iterator payload() const;
+    const Chunk::const_iterator& payload() const override;
     const uint8_t * raw() const;
     size_t size() const;
     const TSPacket* findPrevPesPacket();

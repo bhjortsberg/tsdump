@@ -11,7 +11,7 @@ using Chunk = std::vector<unsigned char>;
 class IPacket
 {
 public:
-    virtual Chunk::const_iterator payload() const = 0;
+    virtual const Chunk::const_iterator& payload() const = 0;
 };
 
 using IPacketPtr = std::shared_ptr<IPacket>;
