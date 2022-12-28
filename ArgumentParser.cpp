@@ -41,7 +41,7 @@ std::tuple<PacketFilterPtr, OutputOptionsPtr, std::string> ArgumentParser::parse
     {
         std::cerr << "Too few arguments" << std::endl;
         usage();
-        return std::make_tuple(nullptr, nullptr, nullptr);
+        return std::make_tuple(nullptr, nullptr, "");
     }
 
     int ch;
@@ -60,7 +60,7 @@ std::tuple<PacketFilterPtr, OutputOptionsPtr, std::string> ArgumentParser::parse
                     break;
                 case 'h':
                     usage();
-                    return std::make_tuple(nullptr, nullptr, nullptr);
+                    return std::make_tuple(nullptr, nullptr, "");
                 case 'p':
                     filter->pids(getOptValues(optarg));
                     break;
@@ -101,7 +101,7 @@ std::tuple<PacketFilterPtr, OutputOptionsPtr, std::string> ArgumentParser::parse
         {
             std::cout << e.what();
             usage();
-            return std::make_tuple(nullptr, nullptr, nullptr);
+            return std::make_tuple(nullptr, nullptr, "");
         }
     }
 
