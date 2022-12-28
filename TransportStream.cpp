@@ -25,7 +25,6 @@ TransportStream::TransportStream(TSSourcePtr sourcePtr,
         mDone(false)
 {
     mFuture = std::async(threadBody, mSourcePtr);
-    // TODO: Test if std::yield can make the other thread run
 }
 
 std::vector<TSPacketPtr> TransportStream::getPackets()

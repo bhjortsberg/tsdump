@@ -13,10 +13,10 @@ TSPacket::TSPacket(Chunk buffer, int pkt_num):
         mNext(nullptr)
 {
     mSyncByte = mChunk[0];
-    mTransportErrorIndicator       = mChunk[1] & 0x80 ? true : false;
-    mPayloadUnitStartIndicator    = mChunk[1] & 0x40 ? true : false;
-    mTransportPriority              = mChunk[1] & 0x20 ? true : false;
-    mContinuityCount                = mChunk[3] & 0xf;
+    mTransportErrorIndicator      = (mChunk[1] & 0x80) != 0;
+    mPayloadUnitStartIndicator    = (mChunk[1] & 0x40) != 0;
+    mTransportPriority            = (mChunk[1] & 0x20) != 0;
+    mContinuityCount              = mChunk[3] & 0xf;
 
     // Initialize payload, pes and adaptation field iterators
     mPayloadIt = std::begin(mChunk) + 4;
@@ -158,8 +158,7 @@ std::map< unsigned short, unsigned short> TSPacket::getProgramPids() const
 
     std::map<unsigned short, unsigned short> result;
 
-    // TODO: Replace with something better
-    for (int i = sectionNumber; i <= lastSectionNumber; ++i)
+    while (sectionNumber++ <= lastSectionNumber)
     {
         unsigned short programNumber = 0;
         unsigned short programMapPid = 0;
