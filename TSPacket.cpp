@@ -64,8 +64,7 @@ AdaptationField TSPacket::adaptationField() const
 {
     if (hasAdaptationField())
     {
-        return AdaptationField(std::begin(mChunk) + 4);
-//        return AdaptationField(mAdaptationFieldIt);
+        return AdaptationField(mAdaptationFieldIt);
     }
 
     throw std::runtime_error("No adaptation field");
@@ -75,14 +74,7 @@ PESHeader TSPacket::pesHeader() const
 {
     if (hasPesHeader())
     {
-        int pesPos = 4;
-
-        if (hasAdaptationField())
-        {
-            pesPos += adaptationField().size();
-        }
-
-        return PESHeader(std::begin(mChunk) + pesPos);
+        return PESHeader(mPesHeaderIt);
     }
 
     throw std::runtime_error("No PES Header");
@@ -90,14 +82,9 @@ PESHeader TSPacket::pesHeader() const
 
 bool TSPacket::hasPesHeader() const
 {
-    int pesPos = 4;
-    if (hasAdaptationField()) {
-        pesPos += adaptationField().size();
-    }
-
-    if (mChunk[pesPos] == 0x00 &&
-        mChunk[pesPos + 1] == 0x00 &&
-        mChunk[pesPos + 2] == 0x01) {
+    if ( *mPesHeaderIt == 0x00 &&
+         *(mPesHeaderIt + 1) == 0x00 &&
+         *(mPesHeaderIt + 2) == 0x01) {
         return true;
     }
 
@@ -109,12 +96,8 @@ bool TSPacket::hasEbp() const
     return hasAdaptationField() && adaptationField().hasEbp();
 }
 
-Chunk TSPacket::getPayload() const {
-    Chunk payload(TS_PACKET_SIZE);
-//    std::copy(mPayloadIt, std::end(mChunk), std::begin(payload));
-    std::copy(std::begin(mChunk), std::end(mChunk), std::begin(payload));
-    return payload;
-//    return PayloadIterator(mPayloadIt, std::end(mChunk));
+PayloadIterator TSPacket::getPayload() const {
+    return {mPayloadIt, std::end(mChunk)};
 }
 
 bool TSPacket::isPayloadStart() const

@@ -14,7 +14,25 @@
 
 uint32_t findSynchByte(const std::vector<uint8_t>::const_iterator& sourcePackets, uint32_t size);
 
-using PayloadIterator = std::pair<Chunk::const_iterator, Chunk::const_iterator>;
+class PayloadIterator
+{
+public:
+    PayloadIterator(Chunk::const_iterator start, Chunk::const_iterator end) :
+    mStart(start),
+    mEnd(end)
+    {}
+    const Chunk::const_iterator& begin()
+    {
+        return mStart;
+    }
+    const Chunk::const_iterator& end()
+    {
+        return mEnd;
+    }
+private:
+    Chunk::const_iterator mStart;
+    Chunk::const_iterator mEnd;
+};
 
 class TSPacket;
 using TSPacketPtr = std::shared_ptr<TSPacket>;
@@ -34,7 +52,7 @@ public:
     AdaptationField adaptationField() const;
     bool hasPesHeader() const;
     PESHeader pesHeader() const;
-    Chunk getPayload() const;
+    PayloadIterator getPayload() const;
     bool isPayloadStart() const;
     int number() const;
     void setNextPacket(const TSPacketPtr & next);
@@ -62,11 +80,7 @@ private:
     TSPacketPtr mPrev;
     TSPacketPtr mNext;
 
-    // TODO: Iterator for adaptation field, pes header that is set to the position of them
-    // and used by all functions instead of code duplication like now.
-    // Partly done. One have to set them to std::begin(mChunk) and compare to that.
     Chunk::iterator mPesHeaderIt;
     Chunk::iterator mAdaptationFieldIt;
     Chunk::const_iterator mPayloadIt;
 };
-
