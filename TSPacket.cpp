@@ -96,8 +96,8 @@ bool TSPacket::hasEbp() const
     return hasAdaptationField() && adaptationField().hasEbp();
 }
 
-PayloadIterator TSPacket::getPayload() const {
-    return {mPayloadIt, std::end(mChunk)};
+PacketIterator TSPacket::getBytes() const {
+    return {std::begin(mChunk), std::end(mChunk)};
 }
 
 bool TSPacket::isPayloadStart() const

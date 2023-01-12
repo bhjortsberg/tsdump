@@ -166,8 +166,8 @@ std::string TSReport::getPacketPayloadString(const TSPacketPtr &packet)
 
     int byteCount = 0;
     std::stringstream line;
-    std::string asciiline = "";
-    for (auto & p : packet->getPayload())
+    std::string asciiline;
+    for (auto & p : packet->getBytes())
     {
         line << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(p) << " ";
         asciiline += (((p > 31) && (p < 127)) ? p : '.');

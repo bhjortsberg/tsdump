@@ -14,10 +14,10 @@
 
 uint32_t findSynchByte(const std::vector<uint8_t>::const_iterator& sourcePackets, uint32_t size);
 
-class PayloadIterator
+class PacketIterator
 {
 public:
-    PayloadIterator(Chunk::const_iterator start, Chunk::const_iterator end) :
+    PacketIterator(Chunk::const_iterator start, Chunk::const_iterator end) :
     mStart(start),
     mEnd(end)
     {}
@@ -52,7 +52,7 @@ public:
     AdaptationField adaptationField() const;
     bool hasPesHeader() const;
     PESHeader pesHeader() const;
-    PayloadIterator getPayload() const;
+    PacketIterator getBytes() const;
     bool isPayloadStart() const;
     int number() const;
     void setNextPacket(const TSPacketPtr & next);
